@@ -28,8 +28,352 @@
     draggedSlot: null,
     parsedCsvParticipants: [],
     activeSearchFilter: 'all',
-    regTeammateCount: 1
+    regTeammateCount: 1,
+    lang: localStorage.getItem('cngr_lang') || 'id'
   };
+
+  // ==================== I18N TRANSLATION DICTIONARY ====================
+  const I18N = {
+    id: {
+      portal_title: 'CNGR TOURNAMENT HUB',
+      portal_sub: 'Live Spectator & Bracket Portal',
+      portal_badge: '<span class="pulse-dot"></span> LIVE COMPETITION HUB',
+      portal_hero_title: 'Jadwal & Bagan Pertandingan',
+      portal_hero_desc: 'Pantau bracket langsung, skor pertandingan realtime, dan pendaftaran turnamen.',
+      portal_search_ph: 'Cari nama turnamen atau cabang lomba...',
+      filter_all: 'Semua',
+      filter_in_progress: '🔴 Sedang Main',
+      filter_setup: '⏳ Pendaftaran / Segera',
+      filter_completed: '🏆 Selesai',
+      portal_empty_title: 'Belum Ada Turnamen',
+      portal_empty_desc: 'Turnamen yang dibuat panitia akan tampil di sini.',
+      dash_title: 'CNGR BRACKET ENGINE',
+      dash_sub: 'Tournament Studio & Live Hub',
+      dash_create_btn: 'Create Tournament',
+      dash_search_ph: 'Search tournaments by name or game...',
+      dash_empty_title: 'No Tournaments Found',
+      dash_empty_desc: 'Get started by creating your first tournament bracket with QR registration!',
+      studio_back_dash: 'Dashboard',
+      studio_search_btn: 'Cari Match',
+      studio_focus_btn: 'Live Focus',
+      studio_lock_btn: 'Lock Bracket',
+      studio_unlock_btn: 'Unlock Bracket',
+      studio_qr_btn: 'Player QR',
+      studio_live_btn: 'Live Spectator',
+      nav_teams: 'Teams',
+      nav_format: 'Format',
+      nav_themes: 'Themes',
+      drawer_participants: 'Participants',
+      btn_auto_seed: 'Auto-Seed',
+      btn_random_seed: 'Random Seed',
+      btn_bulk_add: 'Bulk Add',
+      ph_add_participant: 'Add team/player name...',
+      drag_hint: 'Drag any participant onto a bracket slot to assign or swap seeds!',
+      drawer_settings: 'Tournament Settings',
+      label_category_game: 'Tournament Category / Game',
+      ph_setting_game: 'e.g. Valorant, MLBB, Tekken 8',
+      label_bracket_format: 'Bracket Format',
+      opt_single_elim: 'Single Elimination',
+      opt_double_elim: 'Double Elimination',
+      hint_format_locked: 'Format is locked during active bracket generation.',
+      label_bronze_match: 'Include 3rd Place (Bronze) Match',
+      label_autolock: 'Auto-Lock Bracket Timer',
+      hint_autolock: 'Kunci bracket secara otomatis setelah timer habis agar pertandingan langsung segera dimulai.',
+      autolock_none: 'Mati (Kunci Manual)',
+      autolock_3m: '3 Menit Lagi',
+      autolock_5m: '5 Menit Lagi',
+      autolock_10m: '10 Menit Lagi',
+      autolock_15m: '15 Menit Lagi',
+      autolock_30m: '30 Menit Lagi',
+      autolock_sync_qr: 'Sesuai Batas Waktu QR',
+      btn_set_timer: 'Set Timer',
+      title_reset_tournament: 'Reset Tournament',
+      desc_reset_tournament: 'Reset all match scores and restore bracket to initial setup.',
+      btn_reset_scores: 'Reset Match Scores',
+      drawer_themes: 'Aesthetic Themes',
+      theme_dark: 'Modern Esports (Dark)',
+      theme_cyber: 'Midnight Neon',
+      theme_light: 'Clean Minimal (Light)',
+      hud_title: 'Progres Match',
+      hud_active: 'Match Berlangsung:',
+      hud_next: 'Akan Main Selanjutnya:',
+      live_all_tournaments: 'Semua Turnamen',
+      live_spectator_sub: 'Official Spectator View',
+      live_tag: '<span class="pulse-dot"></span> LIVE UPDATES',
+      live_search_btn: 'Cari',
+      live_focus_btn: 'Live Focus',
+      not_started_badge: 'SEGERA DIMULAI',
+      not_started_title: 'Permainan Belum Dimulai',
+      not_started_desc: 'Bagan pertandingan (bracket) sedang dipersiapkan oleh panitia. Halaman ini akan otomatis terupdate begitu pertandingan dimulai.',
+      not_started_waiting: 'Menunggu Pembukaan',
+      reg_badge: 'PARTICIPANT REGISTRATION',
+      reg_title: 'Tournament Registration',
+      reg_desc: 'Daftarkan tim Anda untuk masuk ke bagan turnamen.',
+      reg_registered_badge: 'Peserta Telah Terdaftar',
+      reg_open_badge: 'Pendaftaran Dibuka',
+      reg_closed_title: 'Pendaftaran Telah Ditutup',
+      reg_closed_desc: 'Batas waktu pendaftaran telah berakhir atau bagan pertandingan telah dikunci oleh panitia.',
+      reg_view_live_btn: 'Lihat Live Bracket Pertandingan',
+      reg_team_name_label: 'Nama Tim (Opsional - jika kosong otomatis TIM [Nama Depan])',
+      reg_team_name_ph: 'Contoh: Garuda Team (Opsional)',
+      reg_main_player_title: 'Data Pemain Utama',
+      reg_main_player_name: 'Nama Lengkap Pemain Utama',
+      reg_main_player_ph: 'Masukkan nama lengkap pemain utama',
+      reg_wecom_label: 'No. Wecom',
+      reg_wecom_ph: 'No. Wecom / WA',
+      reg_dept_label: 'Departemen (Dept)',
+      reg_dept_ph: 'Contoh: Produksi, IT, HR',
+      reg_partner_title: 'Data Rekan Satu Tim',
+      reg_partner_count_label: 'Jumlah Rekan Tim:',
+      reg_submit_btn: 'Submit Pendaftaran',
+      reg_success_title: 'Pendaftaran Berhasil Terkonfirmasi!',
+      reg_success_desc: 'Anda resmi terdaftar dalam bagan pertandingan turnamen. Pantau live bracket pertandingan melalui link di bawah:',
+      btn_copy: 'Salin',
+      btn_open_live_now: 'Buka Live Bracket Sekarang',
+      modal_create_title: 'Create New Tournament',
+      label_tourn_name: 'Tournament Title',
+      ph_tourn_name: 'e.g. Valorant Championship Cup',
+      label_tourn_game: 'Game / Category',
+      ph_tourn_game: 'e.g. Valorant, MLBB, Tekken 8, Badminton',
+      label_tourn_format: 'Format',
+      label_tourn_size: 'Initial Participants',
+      label_tourn_doubles: 'Mode Ganda / Tim (2 Pemain per Tim)',
+      btn_cancel: 'Cancel',
+      btn_create_tournament: 'Create Tournament',
+      modal_qr_title: 'Participant Registration QR',
+      modal_qr_instructions: 'Scan this QR code with a phone to register participants directly into the tournament.',
+      btn_copy_link: 'Copy Link',
+      label_qr_deadline: 'Batas Waktu QR / Pendaftaran Ditutup:',
+      opt_deadline_none: 'Tanpa Batas Waktu (Buka Terus)',
+      opt_deadline_5m: '5 Menit Lagi',
+      opt_deadline_15m: '15 Menit Lagi',
+      opt_deadline_30m: '30 Menit Lagi',
+      opt_deadline_1h: '1 Jam Lagi',
+      opt_deadline_2h: '2 Jam Lagi',
+      opt_deadline_custom: 'Pilih Waktu Custom...',
+      btn_save: 'Simpan',
+      btn_download_qr: 'Download QR Image',
+      btn_open_reg_page: 'Open Registration Page',
+      modal_match_details: 'Match Details',
+      label_match_status: 'Match Status:',
+      status_scheduled: 'Scheduled',
+      status_in_progress: 'In Progress',
+      status_completed: 'Completed',
+      label_score_points: 'Score / Points',
+      btn_direct_win: 'Direct Win',
+      btn_reset_match: 'Reset Match Result',
+      btn_save_score: 'Save Match Scores',
+      modal_confirm_title: 'Confirmation',
+      btn_confirm: 'Confirm',
+      modal_edit_name_title: 'Edit Tournament Name',
+      btn_save_changes: 'Save Changes',
+      modal_bulk_title: 'Bulk Add Participants',
+      label_upload_csv: 'Upload File CSV',
+      dropzone_prompt: 'Klik atau tarik file CSV ke sini',
+      csv_format_hint: 'Format: Nama Lengkap, No Wecom, Dept, [Nama Rekan, Wecom Rekan, Dept Rekan, Nama Tim]',
+      or_paste_text: 'ATAU PASTE TEKS / CSV MANUAL',
+      label_participant_list: 'Daftar Peserta (Satu per baris atau teks CSV):',
+      btn_import_participants: 'Import Peserta',
+      modal_search_title: 'Cari Pertandingan (Match)',
+      modal_search_sub: 'Cari tim, pemain, ronde, atau status untuk langsung lompat ke match',
+      search_match_ph: 'Ketik nama tim / pemain / nomor match...'
+    },
+    zh: {
+      portal_title: 'CNGR 赛事中心',
+      portal_sub: '实时对阵与观赛平台',
+      portal_badge: '<span class="pulse-dot"></span> 实时赛事中心',
+      portal_hero_title: '比赛赛程与对阵图',
+      portal_hero_desc: '实时查看对阵表、实时比分及比赛扫码报名。',
+      portal_search_ph: '搜索比赛名称或项目...',
+      filter_all: '全部',
+      filter_in_progress: '🔴 进行中',
+      filter_setup: '⏳ 报名中 / 即将开始',
+      filter_completed: '🏆 已结束',
+      portal_empty_title: '暂无赛事',
+      portal_empty_desc: '管理员创建的比赛将在此处显示。',
+      dash_title: 'CNGR 赛事引擎',
+      dash_sub: '赛事工作台与实时中心',
+      dash_create_btn: '创建新比赛',
+      dash_search_ph: '搜索比赛名称或游戏项目...',
+      dash_empty_title: '未找到比赛',
+      dash_empty_desc: '立即创建您的第一个比赛对阵图并生成扫码报名！',
+      studio_back_dash: '控制面板',
+      studio_search_btn: '搜索比赛',
+      studio_focus_btn: '实时焦点',
+      studio_lock_btn: '锁定对阵',
+      studio_unlock_btn: '解锁对阵',
+      studio_qr_btn: '选手扫码',
+      studio_live_btn: '观赛页面',
+      nav_teams: '队伍名单',
+      nav_format: '赛制结构',
+      nav_themes: '主题风格',
+      drawer_participants: '参赛人员',
+      btn_auto_seed: '自动排序',
+      btn_random_seed: '随机抽签',
+      btn_bulk_add: '批量导入',
+      ph_add_participant: '输入队伍或选手姓名...',
+      drag_hint: '拖拽选手到对阵槽位即可分配或调换种子位置！',
+      drawer_settings: '比赛设置',
+      label_category_game: '比赛项目 / 类别',
+      ph_setting_game: '例如：英雄联盟、羽毛球、乒乓球',
+      label_bracket_format: '赛制结构',
+      opt_single_elim: '单败淘汰制 (Single Elimination)',
+      opt_double_elim: '双败淘汰制 (Double Elimination)',
+      hint_format_locked: '对阵生成后赛制已锁定。',
+      label_bronze_match: '包含季军赛（争夺第三名）',
+      label_autolock: '自动锁定对阵倒计时',
+      hint_autolock: '倒计时结束后自动锁定对阵图并正式开始比赛。',
+      autolock_none: '关闭（手动锁定）',
+      autolock_3m: '3 分钟后',
+      autolock_5m: '5 分钟后',
+      autolock_10m: '10 分钟后',
+      autolock_15m: '15 分钟后',
+      autolock_30m: '30 分钟后',
+      autolock_sync_qr: '与二维码截止时间同步',
+      btn_set_timer: '保存倒计时',
+      title_reset_tournament: '重置比赛',
+      desc_reset_tournament: '重置所有比分并将对阵图恢复至初始状态。',
+      btn_reset_scores: '重置所有比分',
+      drawer_themes: '主题风格',
+      theme_dark: '现代电竞深色 (Dark)',
+      theme_cyber: '午夜霓虹 (Neon)',
+      theme_light: '清爽简约浅色 (Light)',
+      hud_title: '比赛进度',
+      hud_active: '正在进行的比赛:',
+      hud_next: '接下来进行:',
+      live_all_tournaments: '全部比赛',
+      live_spectator_sub: '官方实时观赛',
+      live_tag: '<span class="pulse-dot"></span> 实时动态',
+      live_search_btn: '搜索',
+      live_focus_btn: '焦点高亮',
+      not_started_badge: '即将开始',
+      not_started_title: '比赛尚未开始',
+      not_started_desc: '裁判与组委会正在编排对阵图。比赛一旦开始，本页面将自动刷新并展示实时赛程。',
+      not_started_waiting: '等待开赛',
+      reg_badge: '参赛选手登记报名',
+      reg_title: '比赛选手报名表',
+      reg_desc: '请填写报名信息以录入比赛对阵图。',
+      reg_registered_badge: '位选手/队伍已报名',
+      reg_open_badge: '报名正在进行',
+      reg_closed_title: '报名已截止',
+      reg_closed_desc: '报名时间已截止，或裁判组已锁定对阵名单。',
+      reg_view_live_btn: '查看实时对阵图',
+      reg_team_name_label: '战队/队伍名称（选填，留空默认使用队长名字）',
+      reg_team_name_ph: '例如：CNGR 先锋队（选填）',
+      reg_main_player_title: '队长 / 主选手信息',
+      reg_main_player_name: '队长/主选手姓名',
+      reg_main_player_ph: '请输入主选手完整姓名',
+      reg_wecom_label: '企业微信 / 手机号',
+      reg_wecom_ph: '请输入企业微信或手机号',
+      reg_dept_label: '所属部门',
+      reg_dept_ph: '例如：生产部、信息部、HR',
+      reg_partner_title: '队友队员信息',
+      reg_partner_count_label: '队员人数：',
+      reg_submit_btn: '提交报名信息',
+      reg_success_title: '报名成功！',
+      reg_success_desc: '您的参赛报名已成功确认！您可以通过下方链接随时查看实时比赛对阵及对决进展：',
+      btn_copy: '复制',
+      btn_open_live_now: '立即进入实时观赛对阵图',
+      modal_create_title: '创建新比赛',
+      label_tourn_name: '比赛名称',
+      ph_tourn_name: '例如：CNGR 电子竞技争霸赛',
+      label_tourn_game: '项目 / 类别',
+      ph_tourn_game: '例如：王者荣耀、英雄联盟、羽毛球',
+      label_tourn_format: '赛制',
+      label_tourn_size: '初始队伍规模',
+      label_tourn_doubles: '团队 / 多人赛模式（每队多名选手）',
+      btn_cancel: '取消',
+      btn_create_tournament: '创建比赛',
+      modal_qr_title: '选手扫码报名二维码',
+      modal_qr_instructions: '使用手机扫码即可直接录入选手信息并加入对阵图。',
+      btn_copy_link: '复制链接',
+      label_qr_deadline: '报名截止时间设置：',
+      opt_deadline_none: '不设截止时间（长期开启）',
+      opt_deadline_5m: '5分钟后截止',
+      opt_deadline_15m: '15分钟后截止',
+      opt_deadline_30m: '30分钟后截止',
+      opt_deadline_1h: '1小时后截止',
+      opt_deadline_2h: '2小时后截止',
+      opt_deadline_custom: '自定义截止时间...',
+      btn_save: '保存',
+      btn_download_qr: '下载二维码图片',
+      btn_open_reg_page: '打开报名网页',
+      modal_match_details: '比赛详情与比分录入',
+      label_match_status: '比赛状态:',
+      status_scheduled: '未开始',
+      status_in_progress: '进行中',
+      status_completed: '已结束',
+      label_score_points: '比分 / 得分',
+      btn_direct_win: '判定获胜 👑',
+      btn_reset_match: '重置本场比分',
+      btn_save_score: '保存比分与晋级',
+      modal_confirm_title: '请确认操作',
+      btn_confirm: '确认',
+      modal_edit_name_title: '修改比赛名称',
+      btn_save_changes: '保存更改',
+      modal_bulk_title: '批量导入参赛人员',
+      label_upload_csv: '上传 CSV 文件',
+      dropzone_prompt: '点击或将 CSV 文件拖拽到此处',
+      csv_format_hint: '格式: 姓名, 企业微信/手机, 部门, [队友姓名, 队友微信号, 队友部门, 队名]',
+      or_paste_text: '或直接粘贴名单文本 / CSV',
+      label_participant_list: '选手名单（每行一位，支持逗号分隔）：',
+      btn_import_participants: '确认导入名单',
+      modal_search_title: '搜索对战比赛',
+      modal_search_sub: '可搜索选手、队伍名称、轮次或比赛状态快速定位',
+      search_match_ph: '输入战队名称、选手姓名或场次...'
+    }
+  };
+
+  function t(key) {
+    const lang = state.lang || 'id';
+    return (I18N[lang] && I18N[lang][key]) || (I18N.id && I18N.id[key]) || key;
+  }
+
+  function setLanguage(lang) {
+    state.lang = lang;
+    localStorage.setItem('cngr_lang', lang);
+    const isZh = lang === 'zh';
+
+    document.querySelectorAll('[data-i18n]').forEach(element => {
+      const key = element.dataset.i18n;
+      const val = t(key);
+      if (val) {
+        if (val.includes('<') && val.includes('>')) {
+          element.innerHTML = val;
+        } else {
+          element.textContent = val;
+        }
+      }
+    });
+
+    document.querySelectorAll('[data-i18n-ph]').forEach(element => {
+      const key = element.dataset.i18nPh;
+      const val = t(key);
+      if (val) element.placeholder = val;
+    });
+
+    document.querySelectorAll('.lang-toggle-text').forEach(element => {
+      element.textContent = isZh ? '🇮🇩 ID' : '🇨🇳 中文';
+    });
+
+    // Re-render current view with new translations
+    if (state.currentView === 'portal') {
+      renderViewerPortalTournaments();
+    } else if (state.currentView === 'dashboard') {
+      renderDashboardTournaments();
+    } else if (state.currentView === 'studio' && state.currentTournament) {
+      setupStudioUI();
+      renderParticipantsDrawer();
+      renderBracketStudio();
+    } else if (state.currentView === 'live' && state.currentTournament) {
+      el.liveTournamentName.textContent = state.currentTournament.name;
+      el.liveGameBadge.textContent = isZh ? `${state.currentTournament.game || '电竞'} • 官方实时观赛` : `${state.currentTournament.game || 'Esports'} • Live Spectator View`;
+      renderBracketView(el.liveRoundsContainer, el.liveSvg, state.currentTournament.rounds || [], true);
+      updateMatchProgressHUD(state.currentTournament.rounds || [], true);
+    } else if (state.currentView === 'register' && state.currentTournament) {
+      loadPublicRegisterView(state.currentTournament.id);
+    }
+  }
 
   // DOM Elements Cache
   const el = {};
@@ -211,6 +555,7 @@
   async function initApp() {
     initElements();
     setupEventListeners();
+    setLanguage(state.lang);
     handleRoute();
     window.addEventListener('popstate', handleRoute);
     setInterval(updateAutoLockTimerUI, 1000);
@@ -304,6 +649,7 @@
     const search = (el.portalSearchInput ? el.portalSearchInput.value : '').trim().toLowerCase();
     const activeChip = document.querySelector('.portal-filter.active');
     const filter = activeChip ? activeChip.dataset.filter : 'all';
+    const isZh = state.lang === 'zh';
 
     let filtered = state.tournaments.filter(t => {
       const matchSearch = t.name.toLowerCase().includes(search) || (t.game && t.game.toLowerCase().includes(search));
@@ -324,17 +670,26 @@
       const isCompleted = t.status === 'completed';
       const isSetup = t.status === 'setup';
       const isDoubles = !!(t.settings && (t.settings.isDoubles === true || t.settings.isDoubles === 'true' || t.settings.isDoubles === 1 || t.settings.isDoubles === '1'));
-      const formatLabel = isDoubles ? 'Mode Tim / Ganda' : 'Individu / Single';
+      const formatLabel = isDoubles ? (isZh ? '团队 / 双人赛' : 'Mode Tim / Ganda') : (isZh ? '个人 / 单人赛' : 'Individu / Single');
       const participantCount = t.participants ? t.participants.length : 0;
       const maxSlots = t.maxParticipants || 8;
+      const participantsUnit = isZh ? '支队伍/选手' : 'Tim/Pemain';
+      const watchText = isZh ? '观看实时对阵' : 'Tonton Live Bracket';
+      const registerText = isZh ? '立即报名' : 'Daftar';
 
       let statusBadge = '';
       if (isLive) {
-        statusBadge = '<span class="badge badge-in-progress"><span class="pulse-dot"></span> SEDANG MAIN</span>';
+        statusBadge = isZh
+          ? '<span class="badge badge-in-progress"><span class="pulse-dot"></span> 进行中</span>'
+          : '<span class="badge badge-in-progress"><span class="pulse-dot"></span> SEDANG MAIN</span>';
       } else if (isCompleted) {
-        statusBadge = '<span class="badge badge-completed"><i class="fa-solid fa-trophy"></i> SELESAI</span>';
+        statusBadge = isZh
+          ? '<span class="badge badge-completed"><i class="fa-solid fa-trophy"></i> 已结束</span>'
+          : '<span class="badge badge-completed"><i class="fa-solid fa-trophy"></i> SELESAI</span>';
       } else {
-        statusBadge = '<span class="badge badge-setup"><i class="fa-solid fa-clock"></i> PENDAFTARAN</span>';
+        statusBadge = isZh
+          ? '<span class="badge badge-setup"><i class="fa-solid fa-clock"></i> 报名中</span>'
+          : '<span class="badge badge-setup"><i class="fa-solid fa-clock"></i> PENDAFTARAN</span>';
       }
 
       return `
@@ -342,22 +697,22 @@
           <div>
             <div class="portal-card-top">
               ${statusBadge}
-              <span class="portal-card-game">${escapeHTML(t.game || 'Esports')}</span>
+              <span class="portal-card-game">${escapeHTML(t.game || (isZh ? '综合项目' : 'Esports'))}</span>
             </div>
             <h3 class="portal-card-title">${escapeHTML(t.name)}</h3>
             <div class="portal-card-meta">
-              <span><i class="fa-solid fa-users"></i> ${participantCount} / ${maxSlots} Tim/Pemain</span>
+              <span><i class="fa-solid fa-users"></i> ${participantCount} / ${maxSlots} ${participantsUnit}</span>
               <span><i class="fa-solid fa-shield"></i> ${formatLabel}</span>
             </div>
           </div>
 
           <div class="portal-card-actions">
             <button class="btn btn-primary btn-portal-watch" data-id="${t.id}">
-              <i class="fa-solid fa-play"></i> Tonton Live Bracket
+              <i class="fa-solid fa-play"></i> ${watchText}
             </button>
             ${isSetup ? `
               <button class="btn btn-secondary btn-portal-register" data-id="${t.id}">
-                <i class="fa-solid fa-user-plus"></i> Daftar
+                <i class="fa-solid fa-user-plus"></i> ${registerText}
               </button>
             ` : ''}
           </div>
@@ -401,6 +756,7 @@
     const search = (el.dashboardSearchInput.value || '').trim().toLowerCase();
     const activeChip = document.querySelector('.filter-chip:not(.portal-filter).active');
     const filter = activeChip ? activeChip.dataset.filter : 'all';
+    const isZh = state.lang === 'zh';
 
     let filtered = state.tournaments.filter(t => {
       const matchSearch = t.name.toLowerCase().includes(search) || (t.game && t.game.toLowerCase().includes(search));
@@ -418,35 +774,45 @@
     el.tournamentsGrid.innerHTML = filtered.map(t => {
       const pCount = (t.participants || []).length;
       const statusClass = `badge-${t.status || 'setup'}`;
-      const statusText = (t.status || 'setup').replace('_', ' ').toUpperCase();
+      let statusText = (t.status || 'setup').replace('_', ' ').toUpperCase();
+      if (isZh) {
+        if (t.status === 'in_progress') statusText = '进行中';
+        else if (t.status === 'completed') statusText = '已结束';
+        else statusText = '准备中';
+      }
+      const typeLabel = (t.type === 'double_elimination')
+        ? (isZh ? '双败淘汰制' : 'Double Elimination')
+        : (isZh ? '单败淘汰制' : 'Single Elimination');
+      const studioLabel = isZh ? '工作台' : 'Studio';
+      const liveLabel = isZh ? '观赛直播' : 'Live';
 
       return `
         <div class="tournament-card" data-id="${t.id}">
           <div class="card-header">
             <span class="badge ${statusClass}">${statusText}</span>
             <div class="card-menu">
-              <button class="btn-card-delete btn-icon-subtle" data-id="${t.id}" title="Delete tournament">
+              <button class="btn-card-delete btn-icon-subtle" data-id="${t.id}" title="${isZh ? '删除比赛' : 'Delete tournament'}">
                 <i class="fa-solid fa-trash-can"></i>
               </button>
             </div>
           </div>
           <div class="card-body">
             <h3 class="card-title">${escapeHTML(t.name)}</h3>
-            <span class="card-game">${escapeHTML(t.game || 'Generic Tournament')}</span>
+            <span class="card-game">${escapeHTML(t.game || (isZh ? '常规比赛' : 'Generic Tournament'))}</span>
             <div class="card-meta">
-              <span><i class="fa-solid fa-sitemap"></i> ${t.type || 'Single Elimination'}</span>
+              <span><i class="fa-solid fa-sitemap"></i> ${typeLabel}</span>
               <span><i class="fa-solid fa-users"></i> ${pCount} / ${t.maxParticipants || 8}</span>
             </div>
           </div>
           <div class="card-footer">
             <button class="btn btn-secondary btn-card-open" data-id="${t.id}">
-              <i class="fa-solid fa-pen-to-square"></i> Studio
+              <i class="fa-solid fa-pen-to-square"></i> ${studioLabel}
             </button>
-            <button class="btn btn-tool btn-card-qr" data-id="${t.id}" title="Show Registration QR">
+            <button class="btn btn-tool btn-card-qr" data-id="${t.id}" title="${isZh ? '显示报名二维码' : 'Show Registration QR'}">
               <i class="fa-solid fa-qrcode"></i> QR
             </button>
-            <a href="?view=live&id=${t.id}" target="_blank" class="btn btn-tool btn-card-live" title="Open Live Spectator View">
-              <i class="fa-solid fa-arrow-up-right-from-square"></i> Live
+            <a href="?view=live&id=${t.id}" target="_blank" class="btn btn-tool btn-card-live" title="${isZh ? '打开实时观赛页面' : 'Open Live Spectator View'}">
+              <i class="fa-solid fa-arrow-up-right-from-square"></i> ${liveLabel}
             </a>
           </div>
         </div>
@@ -1063,14 +1429,15 @@
   }
 
   function getRoundTitle(roundNum, totalRounds, matchCount) {
+    const isZh = state.lang === 'zh';
     const roundsFromFinal = totalRounds - roundNum;
-    if (roundsFromFinal === 0) return 'Championship Final';
-    if (roundsFromFinal === 1) return 'Semifinals';
-    if (roundsFromFinal === 2) return 'Quarterfinals';
-    if (roundsFromFinal === 3) return 'Round of 16';
-    if (roundsFromFinal === 4) return 'Round of 32';
-    if (roundsFromFinal === 5) return 'Round of 64';
-    return `Round ${roundNum}`;
+    if (roundsFromFinal === 0) return isZh ? '总决赛' : 'Championship Final';
+    if (roundsFromFinal === 1) return isZh ? '半决赛' : 'Semifinals';
+    if (roundsFromFinal === 2) return isZh ? '四分之一决赛' : 'Quarterfinals';
+    if (roundsFromFinal === 3) return isZh ? '16强赛' : 'Round of 16';
+    if (roundsFromFinal === 4) return isZh ? '32强赛' : 'Round of 32';
+    if (roundsFromFinal === 5) return isZh ? '64强赛' : 'Round of 64';
+    return isZh ? `第 ${roundNum} 轮` : `Round ${roundNum}`;
   }
 
   function getSeedingOrder(N) {
@@ -1237,6 +1604,18 @@
 
     colDefs.forEach((colDef, cIdx) => {
       const { roundIdx: rIdx, roundTitle, matches } = colDef;
+      const isZh = state.lang === 'zh';
+      let displayTitle = roundTitle;
+      if (isZh) {
+        if (displayTitle === 'Championship Final') displayTitle = '总决赛';
+        else if (displayTitle === 'Semifinals') displayTitle = '半决赛';
+        else if (displayTitle === 'Quarterfinals') displayTitle = '四分之一决赛';
+        else if (displayTitle === 'Round of 16') displayTitle = '16强赛';
+        else if (displayTitle === 'Round of 32') displayTitle = '32强赛';
+        else if (displayTitle === 'Round of 64') displayTitle = '64强赛';
+        else if (/^Round\s+(\d+)$/i.test(displayTitle)) displayTitle = displayTitle.replace(/^Round\s+(\d+)$/i, '第 $1 轮');
+      }
+
       const col = document.createElement('div');
       col.className = 'round-column';
       col.dataset.round = rIdx + 1;
@@ -1244,7 +1623,7 @@
 
       col.innerHTML = `
         <div class="round-header">
-          <span class="round-title">${escapeHTML(roundTitle)}</span>
+          <span class="round-title">${escapeHTML(displayTitle)}</span>
         </div>
         <div class="round-matches" id="round-matches-${cIdx}"></div>
       `;
@@ -1364,10 +1743,16 @@
     const p1Class = p1IsWinner ? 'winner' : (p2IsWinner ? 'loser' : '');
     const p2Class = p2IsWinner ? 'winner' : (p1IsWinner ? 'loser' : '');
 
+    const isZh = state.lang === 'zh';
     const statusBadgeClass = `match-status-tag ${match.status || 'scheduled'}`;
-    const statusText = (match.status || 'scheduled').replace('_', ' ');
+    let statusText = (match.status || 'scheduled').replace('_', ' ');
+    if (isZh) {
+      if (match.status === 'in_progress') statusText = '进行中';
+      else if (match.status === 'completed') statusText = '已结束';
+      else statusText = '未开始';
+    }
     const statusBadgeHtml = isNextUp
-      ? `<span class="match-status-tag next_up" title="Pertandingan yang akan bertanding selanjutnya!"><span class="pulse-indicator-amber"></span> AKAN MAIN</span>`
+      ? `<span class="match-status-tag next_up" title="${isZh ? '即将开赛的比赛！' : 'Pertandingan yang akan bertanding selanjutnya!'}"><span class="pulse-indicator-amber"></span> ${isZh ? '即将开赛' : 'AKAN MAIN'}</span>`
       : `<span class="${statusBadgeClass}">${statusText}</span>`;
 
     const renderRow = (p, slot, score, pClass) => {
@@ -1376,9 +1761,11 @@
       const isEmpty = !p || !p.id || p.isUnseeded || (p.isPlaceholder && !isFeeder);
       const rawName = (p?.name || '').trim();
       const isUnnamed = !isEmpty && !rawName;
+      const emptyPlaceholder = isZh ? '(空位)' : '(Slot Kosong)';
+      const tbdPlaceholder = isZh ? '待定' : 'TBD';
       const displayName = isEmpty
-        ? (isFeeder ? (p?.name || 'TBD') : '')
-        : (rawName || '(Slot Kosong)');
+        ? (isFeeder ? (p?.name || tbdPlaceholder) : '')
+        : (rawName || emptyPlaceholder);
 
       const partnersList = Array.isArray(p?.partners) && p.partners.length > 0
         ? p.partners
@@ -1386,24 +1773,31 @@
       const hasPartner = !isEmpty && partnersList.length > 0;
       const teamSize = 1 + partnersList.length;
 
+      const editBtnTitle = isZh ? '编辑选手姓名' : 'Edit Nama Peserta';
+      const lockBtnTitle = isZh
+        ? (isSlotLocked ? '槽位已锁定（点击解锁）' : '锁定槽位（防止随机抽签打乱）')
+        : (isSlotLocked ? 'Slot Terkunci (klik untuk buka)' : 'Kunci Slot (klik agar tidak terpengaruh acak/random)');
+
       const editBtnHtml = (!isLiveView && !t?.isLocked && !isFeeder && !match.isBronzeMatch)
-        ? `<button type="button" class="btn-slot-edit" data-slot="${slot}" data-round="${rIdx}" data-match="${mIdx}" title="Edit Nama Peserta">
+        ? `<button type="button" class="btn-slot-edit" data-slot="${slot}" data-round="${rIdx}" data-match="${mIdx}" title="${editBtnTitle}">
             <i class="fa-solid fa-pen"></i>
           </button>`
         : '';
 
       const lockBtnHtml = (!isLiveView && !t?.isLocked && !isFeeder && !match.isBronzeMatch)
-        ? `<button type="button" class="btn-slot-lock ${isSlotLocked ? 'locked' : ''}" data-slot="${slot}" data-round="${rIdx}" data-match="${mIdx}" title="${isSlotLocked ? 'Slot Terkunci (klik untuk buka)' : 'Kunci Slot (klik agar tidak terpengaruh acak/random)'}">
+        ? `<button type="button" class="btn-slot-lock ${isSlotLocked ? 'locked' : ''}" data-slot="${slot}" data-round="${rIdx}" data-match="${mIdx}" title="${lockBtnTitle}">
             <i class="fa-solid ${isSlotLocked ? 'fa-lock' : 'fa-lock-open'}"></i>
           </button>`
-        : (isSlotLocked ? `<span class="slot-locked-tag" title="Slot Terkunci"><i class="fa-solid fa-lock"></i></span>` : '');
+        : (isSlotLocked ? `<span class="slot-locked-tag" title="${isZh ? '槽位已锁定' : 'Slot Terkunci'}"><i class="fa-solid fa-lock"></i></span>` : '');
+
+      const partnerTagTitle = isZh ? `团队模式 (${teamSize}名选手)` : `Mode Tim (${teamSize} Pemain)`;
 
       return `
         <div class="match-team-row ${pClass} ${isEmpty ? 'is-empty' : ''} ${isSlotLocked ? 'slot-locked' : ''}" data-slot="${slot}" data-round="${rIdx}" data-match="${mIdx}">
           <span class="team-seed">${!isEmpty ? (p?.seed || '') : ''}</span>
-          <span class="team-name-text ${isEmpty ? 'empty-slot' : ''} ${(!isLiveView && !t?.isLocked && !isFeeder) ? 'editable' : ''}" title="${escapeHTML(rawName || (isEmpty ? '' : '(Slot Kosong)'))}${(!isLiveView && !t?.isLocked && !isFeeder) ? ' (Dobel klik untuk edit)' : ''}">
-            ${isUnnamed ? '<span style="opacity:0.4; font-style:italic;">(Slot Kosong)</span>' : escapeHTML(displayName)}
-            ${hasPartner ? `<span class="team-partner-tag" title="Mode Tim (${teamSize} Pemain)">${teamSize}P</span>` : ''}
+          <span class="team-name-text ${isEmpty ? 'empty-slot' : ''} ${(!isLiveView && !t?.isLocked && !isFeeder) ? 'editable' : ''}" title="${escapeHTML(rawName || (isEmpty ? '' : emptyPlaceholder))}${(!isLiveView && !t?.isLocked && !isFeeder) ? (isZh ? ' (双击可编辑)' : ' (Dobel klik untuk edit)') : ''}">
+            ${isUnnamed ? `<span style="opacity:0.4; font-style:italic;">${emptyPlaceholder}</span>` : escapeHTML(displayName)}
+            ${hasPartner ? `<span class="team-partner-tag" title="${partnerTagTitle}">${teamSize}P</span>` : ''}
           </span>
           <div class="slot-actions-cell" style="display:flex; align-items:center; gap:4px; margin-left:auto;">
             ${editBtnHtml}
@@ -1414,7 +1808,9 @@
       `;
     };
 
-    const matchLabel = match.isBronzeMatch ? '🥉 3RD PLACE (BRONZE)' : `MATCH ${mIdx + 1}`;
+    const matchLabel = match.isBronzeMatch
+      ? (isZh ? '🥉 季军争夺战' : '🥉 3RD PLACE (BRONZE)')
+      : (isZh ? `第 ${mIdx + 1} 场` : `MATCH ${mIdx + 1}`);
     node.innerHTML = `
       <div class="match-meta-strip ${match.isBronzeMatch ? 'bronze-meta-strip' : ''}">
         <span>${matchLabel}</span>
@@ -2628,8 +3024,9 @@
       const t = data.tournament;
       state.currentTournament = t;
 
+      const isZh = state.lang === 'zh';
       el.registerTournamentName.textContent = t.name;
-      el.registerTournamentMeta.textContent = `${t.game || 'Esports'} • Pendaftaran Dibuka`;
+      el.registerTournamentMeta.textContent = isZh ? `${t.game || '比赛项目'} • 选手报名开放中` : `${t.game || 'Esports'} • Pendaftaran Dibuka`;
 
       const currentCount = (t.participants || []).length;
       if (el.registerCapacityText) {
@@ -2659,24 +3056,33 @@
         state.regTeammateCount = count;
         if (!el.regPartnersDynamicContainer) return;
         el.regPartnersDynamicContainer.innerHTML = '';
+        const isCurrentZh = state.lang === 'zh';
         for (let i = 0; i < count; i++) {
           const card = document.createElement('div');
           card.className = 'teammate-card';
+          const cardHeader = isCurrentZh ? `队员 #${i + 1} 信息` : `Data Rekan #${i + 1}`;
+          const nameLabel = isCurrentZh ? `队员 #${i + 1} 完整姓名` : `Nama Lengkap Rekan #${i + 1}`;
+          const namePh = isCurrentZh ? `请输入队员 #${i + 1} 完整姓名` : `Masukkan nama lengkap rekan #${i + 1}`;
+          const wecomLabel = isCurrentZh ? `队员 #${i + 1} 企业微信 / 手机号` : `No. WeCom Rekan #${i + 1}`;
+          const wecomPh = isCurrentZh ? `企业微信 / 手机号` : `No. WeCom / WA`;
+          const deptLabel = isCurrentZh ? `队员 #${i + 1} 所属部门` : `Departemen (Dept) Rekan #${i + 1}`;
+          const deptPh = isCurrentZh ? `例如：生产部、信息部、HR` : `Contoh: Produksi, IT, HR`;
+
           card.innerHTML = `
             <div class="teammate-card-header">
-              <i class="fa-solid fa-user-plus"></i> Data Rekan #${i + 1}
+              <i class="fa-solid fa-user-plus"></i> ${cardHeader}
             </div>
             <div class="form-group" style="margin-bottom: 10px;">
-              <label class="form-label" style="font-size: 11px;">Nama Lengkap Rekan #${i + 1} <span class="required">*</span></label>
-              <input type="text" class="input-modern reg-partner-name" placeholder="Masukkan nama lengkap rekan #${i + 1}" required />
+              <label class="form-label" style="font-size: 11px;">${nameLabel} <span class="required">*</span></label>
+              <input type="text" class="input-modern reg-partner-name" placeholder="${namePh}" required />
             </div>
             <div class="form-group" style="margin-bottom: 10px;">
-              <label class="form-label" style="font-size: 11px;">No. WeCom Rekan #${i + 1}</label>
-              <input type="text" class="input-modern reg-partner-wecom" placeholder="No. WeCom / WA" />
+              <label class="form-label" style="font-size: 11px;">${wecomLabel}</label>
+              <input type="text" class="input-modern reg-partner-wecom" placeholder="${wecomPh}" />
             </div>
             <div class="form-group" style="margin-bottom: 0;">
-              <label class="form-label" style="font-size: 11px;">Departemen (Dept) Rekan #${i + 1}</label>
-              <input type="text" class="input-modern reg-partner-dept" placeholder="Contoh: Produksi, IT, HR" />
+              <label class="form-label" style="font-size: 11px;">${deptLabel}</label>
+              <input type="text" class="input-modern reg-partner-dept" placeholder="${deptPh}" />
             </div>
           `;
           el.regPartnersDynamicContainer.appendChild(card);
@@ -2685,6 +3091,19 @@
 
       // Dropdown selection for teammate count
       if (el.regTeammateCountSelect) {
+        el.regTeammateCountSelect.innerHTML = isZh ? `
+          <option value="1">1 名队友（双人赛 / 共2人）</option>
+          <option value="2">2 名队友（三人赛 / 共3人）</option>
+          <option value="3">3 名队友（四人赛 / 共4人）</option>
+          <option value="4">4 名队友（五人赛 / 共5人）</option>
+          <option value="5">5 名队友（六人赛 / 共6人）</option>
+        ` : `
+          <option value="1">1 Rekan (Ganda / 2 Pemain)</option>
+          <option value="2">2 Rekan (Trio / 3 Pemain)</option>
+          <option value="3">3 Rekan (Quad / 4 Pemain)</option>
+          <option value="4">4 Rekan (5 Pemain)</option>
+          <option value="5">5 Rekan (6 Pemain)</option>
+        `;
         el.regTeammateCountSelect.value = '1';
         el.regTeammateCountSelect.onchange = () => {
           const cnt = parseInt(el.regTeammateCountSelect.value, 10) || 1;
@@ -2698,6 +3117,7 @@
 
       el.publicRegisterForm.onsubmit = async (e) => {
         e.preventDefault();
+        const isCurrentZh = state.lang === 'zh';
         const playerName = el.regPlayerName ? el.regPlayerName.value.trim() : '';
         const wecom = el.regPlayerWecom ? el.regPlayerWecom.value.trim() : '';
         const dept = el.regPlayerDept ? el.regPlayerDept.value.trim() : '';
@@ -2705,7 +3125,7 @@
         const teamNameInput = (isTeam && el.regTeamName) ? el.regTeamName.value.trim() : '';
 
         if (!playerName) {
-          showToast('Mohon isi Nama Lengkap pemain utama!', 'warning');
+          showToast(isCurrentZh ? '请填写队长/主选手完整姓名！' : 'Mohon isi Nama Lengkap pemain utama!', 'warning');
           return;
         }
 
@@ -2719,7 +3139,7 @@
             const pDept = (card.querySelector('.reg-partner-dept')?.value || '').trim();
 
             if (!pName) {
-              showToast(`Mohon isi Nama Lengkap untuk Rekan #${i + 1}!`, 'warning');
+              showToast(isCurrentZh ? `请填写队员 #${i + 1} 的姓名！` : `Mohon isi Nama Lengkap untuk Rekan #${i + 1}!`, 'warning');
               card.querySelector('.reg-partner-name')?.focus();
               return;
             }
@@ -2728,7 +3148,7 @@
         }
 
         const firstName = playerName.split(/\s+/)[0] || 'Player';
-        const finalDisplayName = isTeam ? (teamNameInput || `TIM ${firstName}`) : playerName;
+        const finalDisplayName = isTeam ? (teamNameInput || `${isCurrentZh ? '战队' : 'TIM'} ${firstName}`) : playerName;
 
         try {
           const regRes = await fetch(`/api/tournaments/${t.id}/register`, {
@@ -2749,12 +3169,12 @@
           if (regData.success) {
             el.publicRegisterForm.classList.add('hidden');
             el.registerSuccessBox.classList.remove('hidden');
-            showToast('Pendaftaran berhasil! Selamat bertanding.', 'success');
+            showToast(isCurrentZh ? '报名成功！祝您在比赛中取得好成绩。' : 'Pendaftaran berhasil! Selamat bertanding.', 'success');
           } else {
-            showToast('Pendaftaran gagal: ' + (regData.error || 'Terjadi kesalahan'), 'error');
+            showToast((isCurrentZh ? '报名失败: ' : 'Pendaftaran gagal: ') + (regData.error || (isCurrentZh ? '发生未知错误' : 'Terjadi kesalahan')), 'error');
           }
         } catch (err) {
-          showToast('Pendaftaran gagal: ' + err.message, 'error');
+          showToast((isCurrentZh ? '报名失败: ' : 'Pendaftaran gagal: ') + err.message, 'error');
         }
       };
 
@@ -2764,7 +3184,7 @@
       if (el.btnCopySuccessLive) {
         el.btnCopySuccessLive.onclick = () => {
           navigator.clipboard.writeText(liveUrl).then(() => {
-            showToast('Live View URL berhasil disalin!', 'success');
+            showToast(state.lang === 'zh' ? '观赛链接已复制到剪贴板！' : 'Live View URL berhasil disalin!', 'success');
           });
         };
       }
@@ -2777,7 +3197,7 @@
       if (isClosed) {
         if (el.publicRegisterForm) el.publicRegisterForm.classList.add('hidden');
         if (el.registerClosedBox) el.registerClosedBox.classList.remove('hidden');
-        if (el.regDeadlineText) el.regDeadlineText.textContent = 'Pendaftaran Telah Ditutup';
+        if (el.regDeadlineText) el.regDeadlineText.textContent = isZh ? '报名通道已关闭' : 'Pendaftaran Telah Ditutup';
         if (el.regDeadlineBadge) {
           el.regDeadlineBadge.style.background = 'rgba(239, 68, 68, 0.15)';
           el.regDeadlineBadge.style.borderColor = 'rgba(239, 68, 68, 0.4)';
@@ -2789,23 +3209,26 @@
         if (t.registrationDeadline) {
           const updateRegCountdown = () => {
             const rem = new Date(t.registrationDeadline).getTime() - Date.now();
+            const isCountZh = state.lang === 'zh';
             if (rem <= 0) {
               if (el.publicRegisterForm) el.publicRegisterForm.classList.add('hidden');
               if (el.registerClosedBox) el.registerClosedBox.classList.remove('hidden');
-              if (el.regDeadlineText) el.regDeadlineText.textContent = 'Pendaftaran Telah Ditutup';
+              if (el.regDeadlineText) el.regDeadlineText.textContent = isCountZh ? '报名通道已关闭' : 'Pendaftaran Telah Ditutup';
               return;
             }
             const hours = Math.floor(rem / 3600000);
             const mins = Math.floor((rem % 3600000) / 60000);
             const secs = Math.floor((rem % 60000) / 1000);
-            const timeStr = hours > 0 ? `${hours}j ${mins}m ${secs}d` : `${mins}m ${secs}d`;
-            if (el.regDeadlineText) el.regDeadlineText.textContent = `Ditutup dalam: ${timeStr}`;
+            const timeStr = hours > 0
+              ? (isCountZh ? `${hours}小时 ${mins}分 ${secs}秒` : `${hours}j ${mins}m ${secs}d`)
+              : (isCountZh ? `${mins}分 ${secs}秒` : `${mins}m ${secs}d`);
+            if (el.regDeadlineText) el.regDeadlineText.textContent = isCountZh ? `截止倒计时: ${timeStr}` : `Ditutup dalam: ${timeStr}`;
           };
           updateRegCountdown();
           if (state.regCountdownTimer) clearInterval(state.regCountdownTimer);
           state.regCountdownTimer = setInterval(updateRegCountdown, 1000);
         } else {
-          if (el.regDeadlineText) el.regDeadlineText.textContent = 'Pendaftaran Dibuka';
+          if (el.regDeadlineText) el.regDeadlineText.textContent = isZh ? '报名正在进行' : 'Pendaftaran Dibuka';
         }
       }
 
@@ -2820,6 +3243,7 @@
   // ==================== MATCH PROGRESS CORNER HUD ====================
   function updateMatchProgressHUD(rounds, isLive = false) {
     if (!rounds || !Array.isArray(rounds)) return;
+    const isZh = state.lang === 'zh';
     let totalMatches = 0;
     let completedMatches = 0;
     const inProgressList = [];
@@ -2846,32 +3270,59 @@
 
     if (pctEl) pctEl.textContent = `${pct}%`;
     if (fillEl) fillEl.style.width = `${pct}%`;
-    if (countEl) countEl.textContent = `${completedMatches} / ${totalMatches} Match Selesai (${pct}%)`;
+    if (countEl) {
+      countEl.textContent = isZh
+        ? `${completedMatches} / ${totalMatches} 场比赛已完成 (${pct}%)`
+        : `${completedMatches} / ${totalMatches} Match Selesai (${pct}%)`;
+    }
 
     if (namesEl) {
       if (inProgressList.length > 0) {
         const active = inProgressList[0];
-        const p1Name = active.match.p1?.name || 'TBD';
-        const p2Name = active.match.p2?.name || 'TBD';
-        const moreText = inProgressList.length > 1 ? ` <span style="font-size:10px; color:var(--text-muted);">(+${inProgressList.length - 1} match lain)</span>` : '';
-        namesEl.innerHTML = `<strong>${escapeHTML(p1Name)}</strong> <span style="color:var(--accent-primary); font-weight:700;">VS</span> <strong>${escapeHTML(p2Name)}</strong>${moreText}<small style="color:var(--text-muted); display:block; font-size:10px; margin-top:2px;">${escapeHTML(active.roundTitle)}</small>`;
+        const p1Name = active.match.p1?.name || (isZh ? '待定' : 'TBD');
+        const p2Name = active.match.p2?.name || (isZh ? '待定' : 'TBD');
+        const moreText = inProgressList.length > 1
+          ? ` <span style="font-size:10px; color:var(--text-muted);">(${isZh ? `+${inProgressList.length - 1} 场进行中` : `+${inProgressList.length - 1} match lain`})</span>`
+          : '';
+        let rTitle = active.roundTitle;
+        if (isZh) {
+          if (rTitle === 'Championship Final') rTitle = '总决赛';
+          else if (rTitle === 'Semifinals') rTitle = '半决赛';
+          else if (rTitle === 'Quarterfinals') rTitle = '四分之一决赛';
+          else if (rTitle === 'Round of 16') rTitle = '16强赛';
+          else if (rTitle === 'Round of 32') rTitle = '32强赛';
+          else if (rTitle === 'Round of 64') rTitle = '64强赛';
+          else if (/^Round\s+(\d+)$/i.test(rTitle)) rTitle = rTitle.replace(/^Round\s+(\d+)$/i, '第 $1 轮');
+        }
+        namesEl.innerHTML = `<strong>${escapeHTML(p1Name)}</strong> <span style="color:var(--accent-primary); font-weight:700;">VS</span> <strong>${escapeHTML(p2Name)}</strong>${moreText}<small style="color:var(--text-muted); display:block; font-size:10px; margin-top:2px;">${escapeHTML(rTitle)}</small>`;
       } else if (completedMatches === totalMatches && totalMatches > 0) {
-        namesEl.innerHTML = `<span style="color:var(--accent-gold); font-weight:600;"><i class="fa-solid fa-trophy"></i> Semua Match Selesai!</span>`;
+        namesEl.innerHTML = `<span style="color:var(--accent-gold); font-weight:600;"><i class="fa-solid fa-trophy"></i> ${isZh ? '所有比赛均已结束！' : 'Semua Match Selesai!'}</span>`;
       } else {
-        namesEl.textContent = 'Belum ada match berjalan';
+        namesEl.textContent = isZh ? '暂无进行中的比赛' : 'Belum ada match berjalan';
       }
     }
 
     if (upNextEl) {
       const nextUp = findNextUpMatch(rounds);
       if (nextUp) {
-        const p1 = nextUp.match.p1?.name || 'TBD';
-        const p2 = nextUp.match.p2?.name || 'TBD';
-        upNextEl.innerHTML = `<strong>${escapeHTML(p1)}</strong> <span style="color:var(--accent-gold); font-weight:700;">VS</span> <strong>${escapeHTML(p2)}</strong> <small style="color:var(--text-muted); font-size:10px; display:block;">${escapeHTML(nextUp.roundTitle)} • Match #${nextUp.mIdx + 1}</small>`;
+        const p1 = nextUp.match.p1?.name || (isZh ? '待定' : 'TBD');
+        const p2 = nextUp.match.p2?.name || (isZh ? '待定' : 'TBD');
+        let rTitle = nextUp.roundTitle;
+        if (isZh) {
+          if (rTitle === 'Championship Final') rTitle = '总决赛';
+          else if (rTitle === 'Semifinals') rTitle = '半决赛';
+          else if (rTitle === 'Quarterfinals') rTitle = '四分之一决赛';
+          else if (rTitle === 'Round of 16') rTitle = '16强赛';
+          else if (rTitle === 'Round of 32') rTitle = '32强赛';
+          else if (rTitle === 'Round of 64') rTitle = '64强赛';
+          else if (/^Round\s+(\d+)$/i.test(rTitle)) rTitle = rTitle.replace(/^Round\s+(\d+)$/i, '第 $1 轮');
+        }
+        const mLabel = isZh ? `第 ${nextUp.mIdx + 1} 场` : `Match #${nextUp.mIdx + 1}`;
+        upNextEl.innerHTML = `<strong>${escapeHTML(p1)}</strong> <span style="color:var(--accent-gold); font-weight:700;">VS</span> <strong>${escapeHTML(p2)}</strong> <small style="color:var(--text-muted); font-size:10px; display:block;">${escapeHTML(rTitle)} • ${mLabel}</small>`;
       } else if (completedMatches === totalMatches && totalMatches > 0) {
-        upNextEl.textContent = 'Semua Match Selesai 🏆';
+        upNextEl.textContent = isZh ? '所有比赛均已结束 🏆' : 'Semua Match Selesai 🏆';
       } else {
-        upNextEl.textContent = 'Menunggu giliran';
+        upNextEl.textContent = isZh ? '等待排期' : 'Menunggu giliran';
       }
     }
   }
@@ -3058,8 +3509,11 @@
   }
 
   function setupCanvasDrag(containerEl, canvasEl) {
+    if (!containerEl || !canvasEl) return;
+
+    // Mouse Dragging
     containerEl.addEventListener('mousedown', (e) => {
-      if (e.target.closest('.match-node') || e.target.closest('.canvas-controls')) return;
+      if (e.target.closest('button, input, select, textarea, .canvas-controls, .corner-match-widget, .btn-slot-lock, .btn-slot-edit')) return;
       state.isDraggingCanvas = true;
       state.dragStartX = e.clientX - state.panX;
       state.dragStartY = e.clientY - state.panY;
@@ -3076,6 +3530,57 @@
       state.isDraggingCanvas = false;
     });
 
+    // Touch Dragging & Pinch-Zoom for Tablets & Smartphones (Fixes locked bracket on tablets)
+    let touchStartDist = 0;
+    let initialZoom = 1;
+
+    containerEl.addEventListener('touchstart', (e) => {
+      // Do not block dragging when touching card body; only block when touching interactive buttons/inputs
+      if (e.target.closest('button, input, select, textarea, .canvas-controls, .corner-match-widget, .btn-slot-lock, .btn-slot-edit')) return;
+
+      if (e.touches.length === 1) {
+        // 1-finger panning
+        state.isDraggingCanvas = true;
+        state.dragStartX = e.touches[0].clientX - state.panX;
+        state.dragStartY = e.touches[0].clientY - state.panY;
+      } else if (e.touches.length === 2) {
+        // 2-finger pinch zoom
+        state.isDraggingCanvas = false;
+        const dx = e.touches[0].clientX - e.touches[1].clientX;
+        const dy = e.touches[0].clientY - e.touches[1].clientY;
+        touchStartDist = Math.hypot(dx, dy);
+        initialZoom = state.zoomLevel;
+      }
+    }, { passive: false });
+
+    containerEl.addEventListener('touchmove', (e) => {
+      if (e.touches.length === 1 && state.isDraggingCanvas) {
+        e.preventDefault(); // Prevent page pull/scroll
+        state.panX = e.touches[0].clientX - state.dragStartX;
+        state.panY = e.touches[0].clientY - state.dragStartY;
+        applyCanvasTransform(canvasEl);
+      } else if (e.touches.length === 2 && touchStartDist > 0) {
+        e.preventDefault(); // Prevent browser pinch zoom
+        const dx = e.touches[0].clientX - e.touches[1].clientX;
+        const dy = e.touches[0].clientY - e.touches[1].clientY;
+        const currentDist = Math.hypot(dx, dy);
+        const scaleFactor = currentDist / touchStartDist;
+        state.zoomLevel = Math.max(0.3, Math.min(2.5, initialZoom * scaleFactor));
+        applyCanvasTransform(canvasEl);
+      }
+    }, { passive: false });
+
+    const endTouchDrag = () => {
+      state.isDraggingCanvas = false;
+      touchStartDist = 0;
+    };
+
+    containerEl.addEventListener('touchend', endTouchDrag);
+    containerEl.addEventListener('touchcancel', endTouchDrag);
+    window.addEventListener('touchend', endTouchDrag);
+    window.addEventListener('touchcancel', endTouchDrag);
+
+    // Mouse wheel zoom
     containerEl.addEventListener('wheel', (e) => {
       e.preventDefault();
       const zoomFactor = e.deltaY < 0 ? 0.08 : -0.08;
@@ -3115,6 +3620,17 @@
   function setupEventListeners() {
     // Navigation
     if (el.btnBackDashboard) el.btnBackDashboard.addEventListener('click', loadDashboard);
+
+    // Language switchers across all views
+    document.querySelectorAll('.btn-lang-toggle').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const nextLang = state.lang === 'zh' ? 'id' : 'zh';
+        setLanguage(nextLang);
+        showToast(nextLang === 'zh' ? '已切换至中文' : 'Bahasa diganti ke Indonesia', 'success');
+      });
+    });
 
     // Corner HUD widget collapse/expand toggles
     const studioHud = document.getElementById('studio-match-progress');

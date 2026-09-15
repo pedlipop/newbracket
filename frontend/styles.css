@@ -1029,6 +1029,16 @@ button {
 }
 
 /* ==================== CANVAS VIEWPORT & BRACKET ==================== */
+.studio-canvas-container, .live-canvas-container,
+.bracket-canvas,
+.bracket-rounds-container,
+.round-column,
+.round-matches {
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
 .studio-canvas-container, .live-canvas-container {
   flex: 1;
   position: relative;
