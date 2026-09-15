@@ -617,6 +617,10 @@ button {
   display: flex;
 }
 
+#panel-participants.drawer-panel.active {
+  overflow-y: hidden;
+}
+
 .panel-header {
   display: flex;
   align-items: center;
@@ -3238,9 +3242,37 @@ input:focus, select:focus, textarea:focus {
   display: flex;
   flex-direction: column;
   height: 100%;
-  overflow-y: auto;
-  padding: 1.5rem 2rem;
+  max-height: 100%;
+  min-height: 0;
+  overflow-y: auto !important;
+  overflow-x: hidden;
+  padding: 1.5rem 2rem 4rem 2rem;
   box-sizing: border-box;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.25) transparent;
+}
+
+.studio-report-view::-webkit-scrollbar {
+  width: 8px;
+}
+.studio-report-view::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.15);
+}
+.studio-report-view::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.25);
+  border-radius: 4px;
+}
+.studio-report-view::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.4);
+}
+
+.report-pagination button:disabled,
+.report-top-pagination button:disabled {
+  opacity: 0.35 !important;
+  cursor: not-allowed !important;
+  pointer-events: none;
 }
 
 .studio-report-view.hidden {
@@ -3324,10 +3356,34 @@ input:focus, select:focus, textarea:focus {
   border-radius: var(--radius-md);
   overflow: hidden;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
 }
 
 .table-responsive {
   overflow-x: auto;
+  overflow-y: auto;
+  max-height: calc(100vh - 330px);
+  min-height: 220px;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y pan-x;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.25) transparent;
+}
+
+.table-responsive::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+.table-responsive::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.1);
+}
+.table-responsive::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+}
+.table-responsive::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.35);
 }
 
 .report-table {
@@ -3338,6 +3394,9 @@ input:focus, select:focus, textarea:focus {
 }
 
 .report-table th {
+  position: sticky;
+  top: 0;
+  z-index: 10;
   background: var(--bg-surface);
   color: var(--text-secondary);
   font-weight: 700;
@@ -3346,6 +3405,7 @@ input:focus, select:focus, textarea:focus {
   font-size: 0.76rem;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
 }
 
 .report-table td {

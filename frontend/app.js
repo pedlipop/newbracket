@@ -30,8 +30,8 @@
     activeSearchFilter: 'all',
     regTeammateCount: 1,
     lang: localStorage.getItem('cngr_lang') || 'id',
-    drawerParticipants: { search: '', page: 1, pageSize: 16 },
-    reportFilter: { search: '', filter: 'all' }
+    drawerParticipants: { search: '', page: 1, pageSize: 30 },
+    reportFilter: { search: '', filter: 'all', page: 1, pageSize: 30 }
   };
 
   // ==================== I18N TRANSLATION DICTIONARY ====================
@@ -506,6 +506,15 @@
     el.reportSearchInput = document.getElementById('report-search-input');
     el.reportTableBody = document.getElementById('report-table-body');
     el.reportEmptyState = document.getElementById('report-empty-state');
+    el.reportPagination = document.getElementById('report-pagination');
+    el.reportPageInfo = document.getElementById('report-page-info');
+    el.reportTopPageInfo = document.getElementById('report-top-page-info');
+    el.btnReportPrevPage = document.getElementById('btn-report-prev-page');
+    el.btnReportNextPage = document.getElementById('btn-report-next-page');
+    el.btnReportTopPrevPage = document.getElementById('btn-report-top-prev-page');
+    el.btnReportTopNextPage = document.getElementById('btn-report-top-next-page');
+    el.reportPageIndicator = document.getElementById('report-page-indicator');
+    el.reportPageSizeSelect = document.getElementById('report-page-size-select');
     el.btnQuickStatusSave = document.getElementById('btn-quick-status-save');
 
     // Canvas
@@ -2566,6 +2575,50 @@
 
     if (!el.reportTableBody) return;
 
+    // Pagination calculation for Report View (default 30 per page)
+    const totalItems = filtered.length;
+    const rawPageSize = state.reportFilter.pageSize;
+    const pageSize = rawPageSize === 'all' ? totalItems : (parseInt(rawPageSize, 10) || 30);
+    const totalPages = Math.max(1, Math.ceil(totalItems / (pageSize || 1)));
+
+    if (state.reportFilter.page > totalPages) state.reportFilter.page = totalPages;
+    if (state.reportFilter.page < 1) state.reportFilter.page = 1;
+    const page = state.reportFilter.page;
+
+    const startIndex = (page - 1) * pageSize;
+    const pagedItems = rawPageSize === 'all' ? filtered : filtered.slice(startIndex, startIndex + pageSize);
+
+    const startNum = totalItems === 0 ? 0 : startIndex + 1;
+    const endNum = Math.min(startIndex + pagedItems.length, totalItems);
+
+    const pageInfoText = isZh
+      ? `显示 ${startNum}-${endNum} / 共 ${totalItems} 条`
+      : `Menampilkan ${startNum}-${endNum} dari ${totalItems}`;
+    const pageIndicatorText = isZh
+      ? `第 ${page} / ${totalPages} 页`
+      : `${page} / ${totalPages}`;
+
+    if (el.reportPageInfo) el.reportPageInfo.textContent = pageInfoText;
+    if (el.reportTopPageInfo) el.reportTopPageInfo.textContent = `${startNum}-${endNum} / ${totalItems}`;
+    if (el.reportPageIndicator) el.reportPageIndicator.textContent = pageIndicatorText;
+
+    const canPrev = page > 1;
+    const canNext = page < totalPages;
+    if (el.btnReportPrevPage) el.btnReportPrevPage.disabled = !canPrev;
+    if (el.btnReportNextPage) el.btnReportNextPage.disabled = !canNext;
+    if (el.btnReportTopPrevPage) el.btnReportTopPrevPage.disabled = !canPrev;
+    if (el.btnReportTopNextPage) el.btnReportTopNextPage.disabled = !canNext;
+
+    if (el.reportPageSizeSelect) el.reportPageSizeSelect.value = String(rawPageSize);
+
+    if (el.reportPagination) {
+      el.reportPagination.style.display = totalItems === 0 ? 'none' : 'flex';
+    }
+    const topPag = document.getElementById('report-top-pagination');
+    if (topPag) {
+      topPag.style.display = totalItems === 0 ? 'none' : 'flex';
+    }
+
     if (filtered.length === 0) {
       el.reportTableBody.innerHTML = '';
       if (el.reportEmptyState) el.reportEmptyState.classList.remove('hidden');
@@ -2574,7 +2627,7 @@
 
     if (el.reportEmptyState) el.reportEmptyState.classList.add('hidden');
 
-    el.reportTableBody.innerHTML = filtered.map((p, idx) => {
+    el.reportTableBody.innerHTML = pagedItems.map((p, idx) => {
       const isSeeded = assignedIds.has(p.id);
       const partnersList = Array.isArray(p.partners) && p.partners.length > 0
         ? p.partners
@@ -2606,9 +2659,10 @@
         ? `<span class="badge-bracket-seeded"><i class="fa-solid fa-check"></i> ${isZh ? '已在对阵图' : 'Masuk Bagan'}</span>`
         : `<span class="badge-bracket-unseeded"><i class="fa-solid fa-hourglass-half"></i> ${isZh ? '未入对阵' : 'Belum Masuk'}</span>`;
 
+      const rowNum = startIndex + idx + 1;
       return `
         <tr>
-          <td style="color:var(--text-muted); font-weight:700;">${idx + 1}</td>
+          <td style="color:var(--text-muted); font-weight:700;">${rowNum}</td>
           <td style="font-weight:700; color:var(--text-main);">${escapeHTML(teamNameDisplay)}</td>
           <td>${escapeHTML(captainNameDisplay)}</td>
           <td><span style="background:rgba(255,255,255,0.06); padding:2px 6px; border-radius:4px; font-size:0.78rem;">${escapeHTML(p.dept || '-')}</span></td>
@@ -4315,6 +4369,7 @@
     if (el.reportSearchInput) {
       el.reportSearchInput.addEventListener('input', () => {
         state.reportFilter.search = el.reportSearchInput.value;
+        state.reportFilter.page = 1;
         renderParticipantReports();
       });
     }
@@ -4323,9 +4378,31 @@
         document.querySelectorAll('.report-filter').forEach(c => c.classList.remove('active'));
         chip.classList.add('active');
         state.reportFilter.filter = chip.dataset.filter;
+        state.reportFilter.page = 1;
         renderParticipantReports();
       });
     });
+
+    const changeReportPage = (delta) => {
+      state.reportFilter.page += delta;
+      renderParticipantReports();
+      const tableCard = document.querySelector('.report-table-card');
+      if (tableCard) tableCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
+
+    if (el.btnReportPrevPage) el.btnReportPrevPage.addEventListener('click', () => changeReportPage(-1));
+    if (el.btnReportNextPage) el.btnReportNextPage.addEventListener('click', () => changeReportPage(1));
+    if (el.btnReportTopPrevPage) el.btnReportTopPrevPage.addEventListener('click', () => changeReportPage(-1));
+    if (el.btnReportTopNextPage) el.btnReportTopNextPage.addEventListener('click', () => changeReportPage(1));
+
+    if (el.reportPageSizeSelect) {
+      el.reportPageSizeSelect.addEventListener('change', () => {
+        const val = el.reportPageSizeSelect.value;
+        state.reportFilter.pageSize = val === 'all' ? 'all' : (parseInt(val, 10) || 30);
+        state.reportFilter.page = 1;
+        renderParticipantReports();
+      });
+    }
 
     // QR Modal Copy URL & Doubles Mode Toggle
     el.btnCopyQrUrl.addEventListener('click', () => {

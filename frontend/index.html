@@ -292,7 +292,8 @@
             </div>
             <select id="drawer-page-size-select" style="background:var(--bg-surface); border:1px solid var(--border-subtle); color:var(--text-main); font-size:0.75rem; border-radius:var(--radius-sm); padding:2px 4px;">
               <option value="8">8 / hal</option>
-              <option value="16" selected>16 / hal</option>
+              <option value="16">16 / hal</option>
+              <option value="30" selected>30 / hal</option>
               <option value="all">Semua</option>
             </select>
           </div>
@@ -492,6 +493,17 @@
             <button type="button" class="filter-chip report-filter" data-filter="seeded" data-i18n="filter_seeded">Sudah di Bagan</button>
             <button type="button" class="filter-chip report-filter" data-filter="unseeded" data-i18n="filter_unseeded">Belum di Bagan</button>
           </div>
+          <div id="report-top-pagination" class="report-top-pagination" style="display:flex; align-items:center; gap:8px; margin-left:auto; font-size:0.82rem;">
+            <span id="report-top-page-info" style="color:var(--text-secondary); font-weight:600;">1-30 / 30</span>
+            <div style="display:flex; align-items:center; gap:4px;">
+              <button type="button" id="btn-report-top-prev-page" class="btn btn-sm btn-ghost" style="padding:4px 8px; border:1px solid var(--border-subtle); height:30px; width:30px; display:flex; align-items:center; justify-content:center;" title="Halaman Sebelumnya">
+                <i class="fa-solid fa-chevron-left"></i>
+              </button>
+              <button type="button" id="btn-report-top-next-page" class="btn btn-sm btn-ghost" style="padding:4px 8px; border:1px solid var(--border-subtle); height:30px; width:30px; display:flex; align-items:center; justify-content:center;" title="Halaman Berikutnya">
+                <i class="fa-solid fa-chevron-right"></i>
+              </button>
+            </div>
+          </div>
         </div>
 
         <div class="report-table-card">
@@ -514,6 +526,30 @@
               </tbody>
             </table>
           </div>
+
+          <!-- Report Pagination Footer -->
+          <div id="report-pagination" class="report-pagination" style="display:flex; align-items:center; justify-content:space-between; padding:12px 18px; border-top:1px solid var(--border-subtle); background:var(--bg-surface); font-size:0.82rem; flex-wrap:wrap; gap:10px;">
+            <span id="report-page-info" style="color:var(--text-secondary); font-weight:500;">Menampilkan 1-30 dari 30</span>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <button type="button" id="btn-report-prev-page" class="btn btn-sm btn-ghost" style="padding:4px 10px; border:1px solid var(--border-subtle);" title="Halaman Sebelumnya">
+                <i class="fa-solid fa-chevron-left"></i>
+              </button>
+              <span id="report-page-indicator" style="font-weight:700; color:var(--text-main); min-width:48px; text-align:center;">1 / 1</span>
+              <button type="button" id="btn-report-next-page" class="btn btn-sm btn-ghost" style="padding:4px 10px; border:1px solid var(--border-subtle);" title="Halaman Berikutnya">
+                <i class="fa-solid fa-chevron-right"></i>
+              </button>
+            </div>
+            <div style="display:flex; align-items:center; gap:6px;">
+              <span style="color:var(--text-muted); font-size:0.75rem;">Baris:</span>
+              <select id="report-page-size-select" style="background:var(--bg-surface-elevated); border:1px solid var(--border-subtle); color:var(--text-main); font-size:0.8rem; border-radius:var(--radius-sm); padding:3px 8px;">
+                <option value="15">15 / hal</option>
+                <option value="30" selected>30 / hal</option>
+                <option value="50">50 / hal</option>
+                <option value="all">Semua</option>
+              </select>
+            </div>
+          </div>
+
           <div id="report-empty-state" class="empty-state hidden" style="padding: 2.5rem 1rem;">
             <div class="empty-icon"><i class="fa-solid fa-users-slash"></i></div>
             <h4 data-i18n="report_empty_title">Tidak Ada Data Pendaftar</h4>

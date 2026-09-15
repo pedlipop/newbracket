@@ -5,7 +5,7 @@
       "name": "Ganda Campuran 混双",
       "game": "1",
       "type": "single_elimination",
-      "status": "in_progress",
+      "status": "completed",
       "isLocked": true,
       "maxParticipants": 8,
       "participants": [
@@ -97,10 +97,10 @@
               },
               "p1Locked": false,
               "p2Locked": false,
-              "score1": 0,
+              "score1": 1,
               "score2": 0,
-              "winnerId": null,
-              "status": "next_up"
+              "winnerId": "p_1789459278930_adt1",
+              "status": "completed"
             },
             {
               "id": "r1_m2",
@@ -137,9 +137,9 @@
               "p1Locked": false,
               "p2Locked": false,
               "score1": 0,
-              "score2": 0,
-              "winnerId": null,
-              "status": "next_up"
+              "score2": 1,
+              "winnerId": "p_1789464071200_ibzf",
+              "status": "completed"
             }
           ]
         },
@@ -158,19 +158,26 @@
               "feederTopId": "r1_m1",
               "feederBotId": "r1_m2",
               "p1": {
-                "name": "Winner R1 M1",
-                "isPlaceholder": true
+                "id": "p_1789459278930_adt1",
+                "name": "dada",
+                "seed": 1,
+                "partners": [],
+                "partner": null,
+                "isPlaceholder": false
               },
               "p2": {
-                "name": "Winner R1 M2",
-                "isPlaceholder": true
+                "id": "p_1789464071200_ibzf",
+                "name": "aw",
+                "seed": 4,
+                "partners": [],
+                "isPlaceholder": false
               },
               "p1Locked": false,
               "p2Locked": false,
-              "score1": "",
-              "score2": "",
-              "winnerId": null,
-              "status": "scheduled"
+              "score1": 1,
+              "score2": 0,
+              "winnerId": "p_1789459278930_adt1",
+              "status": "completed"
             }
           ]
         }
@@ -185,7 +192,7 @@
         "isDoubles": true
       },
       "createdAt": "2026-09-15T07:49:24.160Z",
-      "updatedAt": "2026-09-15T09:22:46.641Z"
+      "updatedAt": "2026-09-15T10:08:08.372Z"
     },
     {
       "id": "t_1789456425335_txrx6",
