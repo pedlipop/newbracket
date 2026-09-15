@@ -36,28 +36,28 @@
 
   function initElements() {
     // Views
+    el.portalView = document.getElementById('portal-view');
     el.dashboardView = document.getElementById('dashboard-view');
     el.studioView = document.getElementById('studio-view');
     el.liveView = document.getElementById('live-view');
     el.registerView = document.getElementById('register-view');
 
-    // Dashboard
+    // Public Viewer Portal
+    el.portalTournamentsGrid = document.getElementById('portal-tournaments-grid');
+    el.portalSearchInput = document.getElementById('portal-search-input');
+    el.portalEmptyState = document.getElementById('portal-empty-state');
+    el.btnGoAdmin = document.getElementById('btn-go-admin');
+    el.btnPortalFromAdmin = document.getElementById('btn-portal-from-admin');
+
+    // Dashboard (Admin)
     el.tournamentsGrid = document.getElementById('tournaments-grid');
     el.dashboardSearchInput = document.getElementById('dashboard-search-input');
     el.dashboardEmptyState = document.getElementById('dashboard-empty-state');
-    el.dashboardLockedState = document.getElementById('dashboard-locked-state');
-    el.btnLockDashboard = document.getElementById('btn-lock-dashboard');
-    el.btnOpenPinPrompt = document.getElementById('btn-open-pin-prompt');
     el.btnOpenCreateModal = document.getElementById('btn-open-create-modal');
     el.btnEmptyCreate = document.getElementById('btn-empty-create');
 
-    // PIN Lock Modal
-    el.modalPinLock = document.getElementById('modal-pin-lock');
-    el.formPinLock = document.getElementById('form-pin-lock');
-    el.inputAdminPin = document.getElementById('input-admin-pin');
-    el.pinErrorMsg = document.getElementById('pin-error-msg');
-    el.btnTogglePinVisibility = document.getElementById('btn-toggle-pin-visibility');
-    el.btnCancelPin = document.getElementById('btn-cancel-pin');
+    // Live View Header
+    el.btnLiveBackPortal = document.getElementById('btn-live-back-portal');
 
     // Studio Header
     el.btnBackDashboard = document.getElementById('btn-back-dashboard');
@@ -220,7 +220,7 @@
 
   function handleRoute() {
     const params = new URLSearchParams(window.location.search);
-    const view = params.get('view') || 'dashboard';
+    const view = params.get('view');
     const tournamentId = params.get('id');
 
     if (view === 'studio' && tournamentId) {
@@ -229,27 +229,32 @@
       loadPublicLiveView(tournamentId);
     } else if (view === 'register' && tournamentId) {
       loadPublicRegisterView(tournamentId);
-    } else {
+    } else if (view === 'admin' || view === 'dashboard') {
       loadDashboard();
+    } else {
+      // Default: Public Spectator Landing Page
+      loadViewerPortal();
     }
   }
 
   function switchView(viewName) {
     state.currentView = viewName;
-    el.dashboardView.classList.add('hidden');
-    el.studioView.classList.add('hidden');
-    el.liveView.classList.add('hidden');
-    el.registerView.classList.add('hidden');
+    if (el.portalView) el.portalView.classList.add('hidden');
+    if (el.dashboardView) el.dashboardView.classList.add('hidden');
+    if (el.studioView) el.studioView.classList.add('hidden');
+    if (el.liveView) el.liveView.classList.add('hidden');
+    if (el.registerView) el.registerView.classList.add('hidden');
 
     if (state.livePollingTimer) {
       clearInterval(state.livePollingTimer);
       state.livePollingTimer = null;
     }
 
-    if (viewName === 'dashboard') el.dashboardView.classList.remove('hidden');
-    if (viewName === 'studio') el.studioView.classList.remove('hidden');
-    if (viewName === 'live') el.liveView.classList.remove('hidden');
-    if (viewName === 'register') {
+    if (viewName === 'portal' && el.portalView) el.portalView.classList.remove('hidden');
+    if (viewName === 'dashboard' && el.dashboardView) el.dashboardView.classList.remove('hidden');
+    if (viewName === 'studio' && el.studioView) el.studioView.classList.remove('hidden');
+    if (viewName === 'live' && el.liveView) el.liveView.classList.remove('hidden');
+    if (viewName === 'register' && el.registerView) {
       el.registerView.classList.remove('hidden');
       el.registerView.scrollTop = 0;
       window.scrollTo(0, 0);
@@ -282,52 +287,107 @@
     }[m]));
   }
 
-  // ==================== DASHBOARD VIEW & ADMIN AUTH ====================
-  const ADMIN_PIN = 'cngrgf123';
-
-  function isAdminAuthenticated() {
-    return sessionStorage.getItem('cngr_pin_authenticated') === 'true';
-  }
-
-  function setAdminAuthenticated(val) {
-    if (val) {
-      sessionStorage.setItem('cngr_pin_authenticated', 'true');
-    } else {
-      sessionStorage.removeItem('cngr_pin_authenticated');
+  // ==================== VIEWER PORTAL VIEW (PUBLIC LANDING PAGE) ====================
+  async function loadViewerPortal() {
+    switchView('portal');
+    window.history.replaceState({}, '', '/');
+    try {
+      const res = await fetch('/api/tournaments');
+      const data = await res.json();
+      state.tournaments = data.tournaments || [];
+      renderViewerPortalTournaments();
+    } catch (err) {
+      showToast('Gagal memuat turnamen: ' + err.message, 'error');
     }
   }
 
-  let pinSuccessCallback = null;
+  function renderViewerPortalTournaments() {
+    if (!el.portalTournamentsGrid) return;
+    const search = (el.portalSearchInput ? el.portalSearchInput.value : '').trim().toLowerCase();
+    const activeChip = document.querySelector('.portal-filter.active');
+    const filter = activeChip ? activeChip.dataset.filter : 'all';
 
-  function promptAdminPin(onSuccess) {
-    pinSuccessCallback = onSuccess;
-    if (el.inputAdminPin) {
-      el.inputAdminPin.value = '';
-      el.inputAdminPin.classList.remove('input-error');
-    }
-    if (el.pinErrorMsg) el.pinErrorMsg.classList.add('hidden');
-    if (el.modalPinLock) {
-      openModal(el.modalPinLock);
-      setTimeout(() => el.inputAdminPin && el.inputAdminPin.focus(), 120);
-    }
-  }
+    let filtered = state.tournaments.filter(t => {
+      const matchSearch = t.name.toLowerCase().includes(search) || (t.game && t.game.toLowerCase().includes(search));
+      const matchFilter = filter === 'all' || t.status === filter;
+      return matchSearch && matchFilter;
+    });
 
-  async function loadDashboard() {
-    switchView('dashboard');
-    window.history.replaceState({}, '', window.location.pathname);
-
-    if (!isAdminAuthenticated()) {
-      el.tournamentsGrid.innerHTML = '';
-      if (el.dashboardEmptyState) el.dashboardEmptyState.classList.add('hidden');
-      if (el.dashboardLockedState) el.dashboardLockedState.classList.remove('hidden');
-      promptAdminPin(() => {
-        if (el.dashboardLockedState) el.dashboardLockedState.classList.add('hidden');
-        loadDashboard();
-      });
+    if (filtered.length === 0) {
+      el.portalTournamentsGrid.innerHTML = '';
+      if (el.portalEmptyState) el.portalEmptyState.classList.remove('hidden');
       return;
     }
 
-    if (el.dashboardLockedState) el.dashboardLockedState.classList.add('hidden');
+    if (el.portalEmptyState) el.portalEmptyState.classList.add('hidden');
+
+    el.portalTournamentsGrid.innerHTML = filtered.map(t => {
+      const isLive = t.status === 'in_progress';
+      const isCompleted = t.status === 'completed';
+      const isSetup = t.status === 'setup';
+      const isDoubles = !!(t.settings && (t.settings.isDoubles === true || t.settings.isDoubles === 'true' || t.settings.isDoubles === 1 || t.settings.isDoubles === '1'));
+      const formatLabel = isDoubles ? 'Mode Tim / Ganda' : 'Individu / Single';
+      const participantCount = t.participants ? t.participants.length : 0;
+      const maxSlots = t.maxParticipants || 8;
+
+      let statusBadge = '';
+      if (isLive) {
+        statusBadge = '<span class="badge badge-in-progress"><span class="pulse-dot"></span> SEDANG MAIN</span>';
+      } else if (isCompleted) {
+        statusBadge = '<span class="badge badge-completed"><i class="fa-solid fa-trophy"></i> SELESAI</span>';
+      } else {
+        statusBadge = '<span class="badge badge-setup"><i class="fa-solid fa-clock"></i> PENDAFTARAN</span>';
+      }
+
+      return `
+        <div class="portal-card status-${t.status || 'setup'}">
+          <div>
+            <div class="portal-card-top">
+              ${statusBadge}
+              <span class="portal-card-game">${escapeHTML(t.game || 'Esports')}</span>
+            </div>
+            <h3 class="portal-card-title">${escapeHTML(t.name)}</h3>
+            <div class="portal-card-meta">
+              <span><i class="fa-solid fa-users"></i> ${participantCount} / ${maxSlots} Tim/Pemain</span>
+              <span><i class="fa-solid fa-shield"></i> ${formatLabel}</span>
+            </div>
+          </div>
+
+          <div class="portal-card-actions">
+            <button class="btn btn-primary btn-portal-watch" data-id="${t.id}">
+              <i class="fa-solid fa-play"></i> Tonton Live Bracket
+            </button>
+            ${isSetup ? `
+              <button class="btn btn-secondary btn-portal-register" data-id="${t.id}">
+                <i class="fa-solid fa-user-plus"></i> Daftar
+              </button>
+            ` : ''}
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    // Attach listeners to portal card action buttons
+    el.portalTournamentsGrid.querySelectorAll('.btn-portal-watch').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        navigateToLive(btn.dataset.id);
+      });
+    });
+
+    el.portalTournamentsGrid.querySelectorAll('.btn-portal-register').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        window.history.pushState({}, '', `?view=register&id=${btn.dataset.id}`);
+        loadPublicRegisterView(btn.dataset.id);
+      });
+    });
+  }
+
+  // ==================== DASHBOARD VIEW (ADMIN) ====================
+  async function loadDashboard() {
+    switchView('dashboard');
+    window.history.replaceState({}, '', '?view=admin');
 
     try {
       const res = await fetch('/api/tournaments');
@@ -341,7 +401,7 @@
 
   function renderDashboardTournaments() {
     const search = (el.dashboardSearchInput.value || '').trim().toLowerCase();
-    const activeChip = document.querySelector('.filter-chip.active');
+    const activeChip = document.querySelector('.filter-chip:not(.portal-filter).active');
     const filter = activeChip ? activeChip.dataset.filter : 'all';
 
     let filtered = state.tournaments.filter(t => {
@@ -364,41 +424,40 @@
 
       return `
         <div class="tournament-card" data-id="${t.id}">
-          <div>
-            <div class="card-top">
-              <span class="card-game-badge">${escapeHTML(t.game || 'Esports')}</span>
-              <span class="badge ${statusClass}">${statusText}</span>
-            </div>
-            <h3 class="card-title">${escapeHTML(t.name)}</h3>
-            <div class="card-stats">
-              <span><i class="fa-solid fa-users"></i> ${pCount} / ${t.maxParticipants || 8} Teams</span>
-              <span><i class="fa-solid fa-sitemap"></i> Single Elimination</span>
+          <div class="card-header">
+            <span class="badge ${statusClass}">${statusText}</span>
+            <div class="card-menu">
+              <button class="btn-card-delete btn-icon-subtle" data-id="${t.id}" title="Delete tournament">
+                <i class="fa-solid fa-trash-can"></i>
+              </button>
             </div>
           </div>
-          <div class="card-actions">
-            <button class="btn btn-sm btn-primary btn-open-studio" data-id="${t.id}">
+          <div class="card-body">
+            <h3 class="card-title">${escapeHTML(t.name)}</h3>
+            <span class="card-game">${escapeHTML(t.game || 'Generic Tournament')}</span>
+            <div class="card-meta">
+              <span><i class="fa-solid fa-sitemap"></i> ${t.type || 'Single Elimination'}</span>
+              <span><i class="fa-solid fa-users"></i> ${pCount} / ${t.maxParticipants || 8}</span>
+            </div>
+          </div>
+          <div class="card-footer">
+            <button class="btn btn-secondary btn-card-open" data-id="${t.id}">
               <i class="fa-solid fa-pen-to-square"></i> Studio
             </button>
-            <button class="btn btn-sm btn-outline btn-card-live" data-id="${t.id}" title="Spectator View">
-              <i class="fa-solid fa-eye"></i> Live
+            <button class="btn btn-tool btn-card-qr" data-id="${t.id}" title="Show Registration QR">
+              <i class="fa-solid fa-qrcode"></i> QR
             </button>
-            <button class="btn btn-sm btn-secondary btn-card-qr" data-id="${t.id}" title="Registration QR">
-              <i class="fa-solid fa-qrcode"></i>
-            </button>
-            <button class="btn btn-sm btn-ghost btn-card-delete" data-id="${t.id}" title="Delete Tournament">
-              <i class="fa-solid fa-trash"></i>
-            </button>
+            <a href="?view=live&id=${t.id}" target="_blank" class="btn btn-tool btn-card-live" title="Open Live Spectator View">
+              <i class="fa-solid fa-arrow-up-right-from-square"></i> Live
+            </a>
           </div>
         </div>
       `;
     }).join('');
 
     // Attach card event listeners
-    el.tournamentsGrid.querySelectorAll('.btn-open-studio').forEach(b => {
+    el.tournamentsGrid.querySelectorAll('.btn-card-open').forEach(b => {
       b.addEventListener('click', () => navigateToStudio(b.dataset.id));
-    });
-    el.tournamentsGrid.querySelectorAll('.btn-card-live').forEach(b => {
-      b.addEventListener('click', () => navigateToLive(b.dataset.id));
     });
     el.tournamentsGrid.querySelectorAll('.btn-card-qr').forEach(b => {
       b.addEventListener('click', () => openQrModalForTournament(b.dataset.id));
@@ -420,13 +479,6 @@
 
   // ==================== STUDIO VIEW ====================
   async function loadTournamentStudio(tournamentId) {
-    if (!isAdminAuthenticated()) {
-      switchView('studio');
-      promptAdminPin(() => {
-        loadTournamentStudio(tournamentId);
-      });
-      return;
-    }
     switchView('studio');
     try {
       const res = await fetch(`/api/tournaments/${tournamentId}`);
@@ -3369,64 +3421,39 @@
       });
     }
 
-    // PIN Lock Modal & Auth Listeners
-    if (el.formPinLock) {
-      el.formPinLock.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const pin = (el.inputAdminPin.value || '').trim();
-        if (pin === ADMIN_PIN) {
-          setAdminAuthenticated(true);
-          closeModal(el.modalPinLock);
-          if (el.pinErrorMsg) el.pinErrorMsg.classList.add('hidden');
-          showToast('PIN benar. Selamat datang di Dashboard!', 'success');
-          if (typeof pinSuccessCallback === 'function') {
-            const cb = pinSuccessCallback;
-            pinSuccessCallback = null;
-            cb();
-          }
-        } else {
-          if (el.pinErrorMsg) el.pinErrorMsg.classList.remove('hidden');
-          el.inputAdminPin.classList.add('input-error');
-          el.inputAdminPin.select();
-          showToast('PIN salah! Akses ditolak.', 'error');
-        }
-      });
-    }
-
-    if (el.btnTogglePinVisibility) {
-      el.btnTogglePinVisibility.addEventListener('click', () => {
-        const isPass = el.inputAdminPin.type === 'password';
-        el.inputAdminPin.type = isPass ? 'text' : 'password';
-        el.btnTogglePinVisibility.innerHTML = isPass ? '<i class="fa-solid fa-eye-slash"></i>' : '<i class="fa-solid fa-eye"></i>';
-      });
-    }
-
-    if (el.btnCancelPin) {
-      el.btnCancelPin.addEventListener('click', () => {
-        closeModal(el.modalPinLock);
-        const params = new URLSearchParams(window.location.search);
-        const tid = params.get('id') || (state.currentTournament && state.currentTournament.id);
-        if (tid) {
-          window.location.href = `/?view=live&id=${encodeURIComponent(tid)}`;
-        } else {
-          showToast('Akses dibatalkan. Dashboard terkunci.', 'info');
-        }
-      });
-    }
-
-    if (el.btnOpenPinPrompt) {
-      el.btnOpenPinPrompt.addEventListener('click', () => {
-        promptAdminPin(() => loadDashboard());
-      });
-    }
-
-    if (el.btnLockDashboard) {
-      el.btnLockDashboard.addEventListener('click', () => {
-        setAdminAuthenticated(false);
-        showToast('Dashboard telah dikunci.', 'info');
+    // Public Viewer Portal Listeners
+    if (el.btnGoAdmin) {
+      el.btnGoAdmin.addEventListener('click', () => {
+        window.history.pushState({}, '', '?view=admin');
         loadDashboard();
       });
     }
+
+    if (el.btnPortalFromAdmin) {
+      el.btnPortalFromAdmin.addEventListener('click', () => {
+        window.history.pushState({}, '', '/');
+        loadViewerPortal();
+      });
+    }
+
+    if (el.btnLiveBackPortal) {
+      el.btnLiveBackPortal.addEventListener('click', () => {
+        window.history.pushState({}, '', '/');
+        loadViewerPortal();
+      });
+    }
+
+    if (el.portalSearchInput) {
+      el.portalSearchInput.addEventListener('input', renderViewerPortalTournaments);
+    }
+
+    document.querySelectorAll('.portal-filter').forEach(chip => {
+      chip.addEventListener('click', () => {
+        document.querySelectorAll('.portal-filter').forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+        renderViewerPortalTournaments();
+      });
+    });
 
     // Initialize CSV Uploader (drag-and-drop & file selection)
     setupCsvUploader();
