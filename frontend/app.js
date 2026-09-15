@@ -1600,31 +1600,20 @@
     return r.matches[matchIdx] || null;
   }
 
-  function findNextUpMatch(rounds) {
-    if (!rounds || !Array.isArray(rounds)) return null;
-    // 1. Explicitly marked 'next_up' matches have top priority
+  function findNextUpMatches(rounds) {
+    if (!rounds || !Array.isArray(rounds)) return [];
+    // Only return matches that are explicitly and manually set to 'next_up' by the organizer
+    const matches = [];
     for (let rIdx = 0; rIdx < rounds.length; rIdx++) {
       const round = rounds[rIdx];
       for (let mIdx = 0; mIdx < (round.matches || []).length; mIdx++) {
         const m = round.matches[mIdx];
         if (m.status === 'next_up') {
-          return { match: m, rIdx, mIdx, roundTitle: round.title };
+          matches.push({ match: m, rIdx, mIdx, roundTitle: round.title });
         }
       }
     }
-    // 2. Fallback to first scheduled match with 2 ready players
-    for (let rIdx = 0; rIdx < rounds.length; rIdx++) {
-      const round = rounds[rIdx];
-      for (let mIdx = 0; mIdx < (round.matches || []).length; mIdx++) {
-        const m = round.matches[mIdx];
-        const p1Ready = m.p1 && m.p1.id && m.p1.name && m.p1.name !== 'TBD';
-        const p2Ready = m.p2 && m.p2.id && m.p2.name && m.p2.name !== 'TBD';
-        if (m.status === 'scheduled' && p1Ready && p2Ready) {
-          return { match: m, rIdx, mIdx, roundTitle: round.title };
-        }
-      }
-    }
-    return null;
+    return matches;
   }
 
   function renderBracketStudio() {
@@ -1730,7 +1719,6 @@
 
     const roundMatchPositions = []; // [roundIdx][matchIdx]
     const matchPositionsMap = {};   // matchId -> { x, y, width, height, match }
-    const nextUpInfo = findNextUpMatch(rounds);
 
     const t = isLiveView ? state.liveTournamentData : state.currentTournament;
     const bronzeMatch = getOrInitThirdPlaceMatch(t);
@@ -1845,8 +1833,7 @@
         matchPositionsMap[match.id] = posObj;
 
         // Render Match Node Card
-        const isNextUp = nextUpInfo && nextUpInfo.match.id === match.id;
-        const node = createMatchNodeElement(match, rIdx, origMIdx, isLiveView, finalY, isNextUp);
+        const node = createMatchNodeElement(match, rIdx, origMIdx, isLiveView, finalY);
         matchesHolder.appendChild(node);
 
         if (finalY + MATCH_HEIGHT > maxColY) {
@@ -1861,7 +1848,7 @@
     drawBracketConnectors(svgEl, matchPositionsMap, rounds);
   }
 
-  function createMatchNodeElement(match, rIdx, mIdx, isLiveView, posY, isNextUp = false) {
+  function createMatchNodeElement(match, rIdx, mIdx, isLiveView, posY) {
     const t = state.currentTournament;
     const node = document.createElement('div');
     node.className = 'match-node';
@@ -1875,10 +1862,9 @@
       node.classList.add('match-in-progress-highlight');
     }
 
-    // Highlight upcoming next match
-    const isManuallyNextUp = match.status === 'next_up';
-    const shouldHighlightNextUp = isManuallyNextUp || isNextUp;
-    if (shouldHighlightNextUp) {
+    // Highlight upcoming next match (PURELY MANUAL: set directly via match status option, supports multiple brackets)
+    const isNextUp = match.status === 'next_up';
+    if (isNextUp) {
       node.classList.add('match-up-next-highlight');
     }
 
@@ -1897,7 +1883,7 @@
 
     const isZh = state.lang === 'zh';
     let statusBadgeHtml = '';
-    if (shouldHighlightNextUp) {
+    if (isNextUp) {
       statusBadgeHtml = `<span class="match-status-tag next_up" title="${isZh ? '即将开赛的比赛！' : 'Pertandingan yang akan bertanding selanjutnya!'}"><span class="pulse-indicator-amber"></span> ${isZh ? '即将开赛' : 'AKAN BERMAIN'}</span>`;
     } else if (match.status === 'in_progress') {
       statusBadgeHtml = `<span class="match-status-tag in_progress">${isZh ? '进行中' : 'SEDANG MAIN'}</span>`;
@@ -3703,26 +3689,33 @@
     }
 
     if (upNextEl) {
-      const nextUp = findNextUpMatch(rounds);
-      if (nextUp) {
-        const p1 = nextUp.match.p1?.name || (isZh ? '待定' : 'TBD');
-        const p2 = nextUp.match.p2?.name || (isZh ? '待定' : 'TBD');
-        let rTitle = nextUp.roundTitle;
-        if (isZh) {
-          if (rTitle === 'Championship Final') rTitle = '总决赛';
-          else if (rTitle === 'Semifinals') rTitle = '半决赛';
-          else if (rTitle === 'Quarterfinals') rTitle = '四分之一决赛';
-          else if (rTitle === 'Round of 16') rTitle = '16强赛';
-          else if (rTitle === 'Round of 32') rTitle = '32强赛';
-          else if (rTitle === 'Round of 64') rTitle = '64强赛';
-          else if (/^Round\s+(\d+)$/i.test(rTitle)) rTitle = rTitle.replace(/^Round\s+(\d+)$/i, '第 $1 轮');
-        }
-        const mLabel = isZh ? `第 ${nextUp.mIdx + 1} 场` : `Match #${nextUp.mIdx + 1}`;
-        upNextEl.innerHTML = `<strong>${escapeHTML(p1)}</strong> <span style="color:var(--accent-gold); font-weight:700;">VS</span> <strong>${escapeHTML(p2)}</strong> <small style="color:var(--text-muted); font-size:10px; display:block;">${escapeHTML(rTitle)} • ${mLabel}</small>`;
+      const nextUpList = findNextUpMatches(rounds);
+      if (nextUpList.length > 0) {
+        upNextEl.innerHTML = nextUpList.map(item => {
+          const p1 = item.match.p1?.name || (isZh ? '待定' : 'TBD');
+          const p2 = item.match.p2?.name || (isZh ? '待定' : 'TBD');
+          let rTitle = item.roundTitle;
+          if (isZh) {
+            if (rTitle === 'Championship Final') rTitle = '总决赛';
+            else if (rTitle === 'Semifinals') rTitle = '半决赛';
+            else if (rTitle === 'Quarterfinals') rTitle = '四分之一决赛';
+            else if (rTitle === 'Round of 16') rTitle = '16强赛';
+            else if (rTitle === 'Round of 32') rTitle = '32强赛';
+            else if (rTitle === 'Round of 64') rTitle = '64强赛';
+            else if (/^Round\s+(\d+)$/i.test(rTitle)) rTitle = rTitle.replace(/^Round\s+(\d+)$/i, '第 $1 轮');
+          }
+          const mLabel = item.match.isBronzeMatch
+            ? (isZh ? '季军赛' : 'Bronze Match')
+            : (isZh ? `第 ${item.mIdx + 1} 场` : `Match #${item.mIdx + 1}`);
+          return `<div style="margin-bottom: 4px; padding-bottom: 4px; border-bottom: 1px dashed rgba(255,255,255,0.08);">
+            <strong>${escapeHTML(p1)}</strong> <span style="color:var(--accent-gold); font-weight:700;">VS</span> <strong>${escapeHTML(p2)}</strong>
+            <small style="color:var(--text-muted); font-size:10px; display:block;">${escapeHTML(rTitle)} • ${mLabel}</small>
+          </div>`;
+        }).join('');
       } else if (completedMatches === totalMatches && totalMatches > 0) {
         upNextEl.textContent = isZh ? '所有比赛均已结束 🏆' : 'Semua Match Selesai 🏆';
       } else {
-        upNextEl.textContent = isZh ? '等待排期' : 'Menunggu giliran';
+        upNextEl.textContent = isZh ? '暂无设置即将开赛' : 'Belum ada match diset akan main';
       }
     }
   }
