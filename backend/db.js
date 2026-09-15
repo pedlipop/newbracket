@@ -18,7 +18,11 @@ if (DATABASE_URL) {
   console.log('📦 Initializing PostgreSQL Database Connection (Railway Cloud Mode)...');
   pgPool = new pg.Pool({
     connectionString: DATABASE_URL,
-    ssl: DATABASE_URL.includes('localhost') ? false : { rejectUnauthorized: false }
+    ssl: DATABASE_URL.includes('localhost') ? false : { rejectUnauthorized: false },
+    // Ensure connection pool doesn't timeout on idle connections
+    idleTimeoutMillis: 30000,
+    connectionTimeoutMillis: 10000,
+    max: 20
   });
 
   pgPool.on('error', (err) => {
@@ -31,6 +35,7 @@ async function initPostgres() {
   try {
     const client = await pgPool.connect();
     try {
+      // NEVER drop tables on init - just ensure they exist
       await client.query(`
         CREATE TABLE IF NOT EXISTS tournaments (
           id VARCHAR(255) PRIMARY KEY,
@@ -304,3 +309,4 @@ export const db = {
     }
   }
 };
+
