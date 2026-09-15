@@ -46,8 +46,6 @@
     el.portalTournamentsGrid = document.getElementById('portal-tournaments-grid');
     el.portalSearchInput = document.getElementById('portal-search-input');
     el.portalEmptyState = document.getElementById('portal-empty-state');
-    el.btnGoAdmin = document.getElementById('btn-go-admin');
-    el.btnPortalFromAdmin = document.getElementById('btn-portal-from-admin');
 
     // Dashboard (Admin)
     el.tournamentsGrid = document.getElementById('tournaments-grid');
@@ -3422,15 +3420,8 @@
     }
 
     // Public Viewer Portal Listeners
-    if (el.btnGoAdmin) {
-      el.btnGoAdmin.addEventListener('click', () => {
-        window.history.pushState({}, '', '?view=admin');
-        loadDashboard();
-      });
-    }
-
-    if (el.btnPortalFromAdmin) {
-      el.btnPortalFromAdmin.addEventListener('click', () => {
+    if (el.btnLiveBackPortal) {
+      el.btnLiveBackPortal.addEventListener('click', () => {
         window.history.pushState({}, '', '/');
         loadViewerPortal();
       });
