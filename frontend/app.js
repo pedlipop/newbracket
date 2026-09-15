@@ -507,8 +507,8 @@
     const assignedIds = new Set();
     (t.rounds || []).forEach(r => {
       (r.matches || []).forEach(m => {
-        if (m.p1 && m.p1.id && !m.p1.isPlaceholder && !m.p1.isUnseeded) assignedIds.add(m.p1.id);
-        if (m.p2 && m.p2.id && !m.p2.isPlaceholder && !m.p2.isUnseeded) assignedIds.add(m.p2.id);
+        if (m.p1 && m.p1.id && !m.p1.isPlaceholder && !m.p1.isUnseeded && m.p1.name && m.p1.name.trim()) assignedIds.add(m.p1.id);
+        if (m.p2 && m.p2.id && !m.p2.isPlaceholder && !m.p2.isUnseeded && m.p2.name && m.p2.name.trim()) assignedIds.add(m.p2.id);
       });
     });
 
@@ -518,17 +518,19 @@
         : (p.partner && p.partner.name ? [p.partner] : []);
       const hasPartner = partnersList.length > 0;
       const teamSize = 1 + partnersList.length;
-      const isAssigned = assignedIds.has(p.id);
+      const hasInfo = !!(p.name && p.name.trim());
+      const isAssigned = hasInfo && assignedIds.has(p.id);
+      const canDrag = !t.isLocked && hasInfo;
 
       return `
-        <div class="participant-item" draggable="${!t.isLocked}" data-id="${p.id}" data-idx="${idx}">
-          <i class="fa-solid fa-grip-vertical participant-drag-grip"></i>
+        <div class="participant-item ${!hasInfo ? 'is-empty-slot' : ''}" draggable="${canDrag}" data-id="${p.id}" data-idx="${idx}">
+          <i class="fa-solid fa-grip-vertical participant-drag-grip" style="${!hasInfo ? 'opacity:0.25; cursor:not-allowed;' : ''}"></i>
           <span class="participant-seed">${idx + 1}</span>
-          <span class="participant-name ${!t.isLocked ? 'editable' : ''}" title="${escapeHTML(p.name || '')}${!t.isLocked ? ' (Klik untuk edit nama)' : ''}">
-            ${p.name ? escapeHTML(p.name) : '<span style="opacity:0.4; font-style:italic;">(Slot Kosong)</span>'}
+          <span class="participant-name ${!t.isLocked ? 'editable' : ''}" title="${hasInfo ? escapeHTML(p.name) : 'Slot Kosong (Isi nama terlebih dahulu untuk dapat memindahkannya ke bagan)'}">
+            ${hasInfo ? escapeHTML(p.name) : '<span style="opacity:0.4; font-style:italic;">(Slot Kosong)</span>'}
             ${hasPartner ? `<span class="team-partner-tag" title="Mode Tim (${teamSize} Pemain)">${teamSize}P</span>` : ''}
           </span>
-          <span class="participant-status-dot ${isAssigned ? 'seeded' : 'unseeded'}" title="${isAssigned ? 'Masuk Bagan' : 'Belum Di-seed'}"></span>
+          <span class="participant-status-dot ${isAssigned ? 'seeded' : 'unseeded'}" title="${isAssigned ? 'Masuk Bagan' : (hasInfo ? 'Belum Di-seed' : 'Wajib Diisi')}"></span>
           ${!t.isLocked ? `
             <button type="button" class="btn-edit-participant" data-id="${p.id}" title="Edit Nama"><i class="fa-solid fa-pen"></i></button>
             <button type="button" class="btn-remove-participant" data-id="${p.id}" title="Remove"><i class="fa-solid fa-xmark"></i></button>
@@ -598,14 +600,19 @@
 
     const seedMap = {};
     (participants || []).forEach((p, idx) => {
-      seedMap[idx + 1] = p;
+      if (p && p.name && p.name.trim()) {
+        seedMap[idx + 1] = p;
+      }
     });
 
     const makeEmpty = (s) => ({ name: '', id: null, isPlaceholder: true, isUnseeded: true, seed: s });
 
     const getValidExisting = (existingP, fallbackP) => {
       if (existingP && existingP.id && validParticipantIds.has(existingP.id) && !existingP.isPlaceholder && !existingP.isUnseeded) {
-        return existingP;
+        const part = (participants || []).find(p => p.id === existingP.id);
+        if (part && part.name && part.name.trim()) {
+          return existingP;
+        }
       }
       return fallbackP;
     };
@@ -1264,7 +1271,11 @@
       const isSlotLocked = slot === 'p1' ? !!match.p1Locked : !!match.p2Locked;
       const isFeeder = !!(slot === 'p1' ? match.feederTopId : match.feederBotId);
       const isEmpty = !p || !p.id || p.isUnseeded || (p.isPlaceholder && !isFeeder);
-      const displayName = isEmpty ? (isFeeder ? (p?.name || 'TBD') : '') : (p.name || '');
+      const rawName = (p?.name || '').trim();
+      const isUnnamed = !isEmpty && !rawName;
+      const displayName = isEmpty
+        ? (isFeeder ? (p?.name || 'TBD') : '')
+        : (rawName || '(Slot Kosong)');
 
       const partnersList = Array.isArray(p?.partners) && p.partners.length > 0
         ? p.partners
@@ -1287,8 +1298,8 @@
       return `
         <div class="match-team-row ${pClass} ${isEmpty ? 'is-empty' : ''} ${isSlotLocked ? 'slot-locked' : ''}" data-slot="${slot}" data-round="${rIdx}" data-match="${mIdx}">
           <span class="team-seed">${!isEmpty ? (p?.seed || '') : ''}</span>
-          <span class="team-name-text ${isEmpty ? 'empty-slot' : ''} ${(!isLiveView && !t?.isLocked && !isFeeder) ? 'editable' : ''}" title="${escapeHTML(displayName)}${(!isLiveView && !t?.isLocked && !isFeeder) ? ' (Dobel klik untuk edit)' : ''}">
-            ${escapeHTML(displayName)}
+          <span class="team-name-text ${isEmpty ? 'empty-slot' : ''} ${(!isLiveView && !t?.isLocked && !isFeeder) ? 'editable' : ''}" title="${escapeHTML(rawName || (isEmpty ? '' : '(Slot Kosong)'))}${(!isLiveView && !t?.isLocked && !isFeeder) ? ' (Dobel klik untuk edit)' : ''}">
+            ${isUnnamed ? '<span style="opacity:0.4; font-style:italic;">(Slot Kosong)</span>' : escapeHTML(displayName)}
             ${hasPartner ? `<span class="team-partner-tag" title="Mode Tim (${teamSize} Pemain)">${teamSize}P</span>` : ''}
           </span>
           <div class="slot-actions-cell" style="display:flex; align-items:center; gap:4px; margin-left:auto;">
@@ -1439,10 +1450,18 @@
 
   // ==================== DRAG AND DROP SEEDING ====================
   function handleParticipantDragStart(e) {
+    const t = state.currentTournament;
+    const participant = (t?.participants || []).find(p => p.id === this.dataset.id);
+    if (!participant || !participant.name || !participant.name.trim()) {
+      e.preventDefault();
+      showToast('Slot masih kosong! Masukkan nama peserta terlebih dahulu sebelum memindahkannya ke bagan.', 'warning');
+      return false;
+    }
+
     state.draggedParticipant = {
       id: this.dataset.id,
       index: parseInt(this.dataset.idx, 10),
-      name: this.querySelector('.participant-name').textContent
+      name: participant.name.trim()
     };
     state.draggedSlot = null;
     this.classList.add('dragging');
@@ -1490,16 +1509,32 @@
     if (state.draggedParticipant) {
       // Assign dragged participant to this match slot
       const participant = t.participants.find(p => p.id === state.draggedParticipant.id);
-      if (participant) {
-        match[targetSlot] = {
-          id: participant.id,
-          name: participant.name,
-          seed: state.draggedParticipant.index + 1
-        };
-        showToast(`Assigned ${participant.name} to Round ${targetRound + 1} Match ${targetMatch + 1}!`, 'success');
-        saveTournamentState(true);
-        renderBracketStudio();
+      if (!participant || !participant.name || !participant.name.trim()) {
+        showToast('Slot masih kosong! Masukkan nama peserta terlebih dahulu.', 'warning');
+        return;
       }
+
+      // Prevent duplicate assignment: clear from any other match slot first
+      (t.rounds || []).forEach(r => {
+        (r.matches || []).forEach(m => {
+          if (m.p1 && m.p1.id === participant.id) {
+            m.p1 = makeEmpty(m.p1.seed || '');
+          }
+          if (m.p2 && m.p2.id === participant.id) {
+            m.p2 = makeEmpty(m.p2.seed || '');
+          }
+        });
+      });
+
+      match[targetSlot] = {
+        id: participant.id,
+        name: participant.name.trim(),
+        seed: state.draggedParticipant.index + 1
+      };
+      showToast(`Assigned ${participant.name.trim()} to Round ${targetRound + 1} Match ${targetMatch + 1}!`, 'success');
+      saveTournamentState(true);
+      renderParticipantsDrawer();
+      renderBracketStudio();
     } else if (state.draggedSlot) {
       // Swap slots between two matches
       const srcMatch = t.rounds[state.draggedSlot.round].matches[state.draggedSlot.match];
@@ -2123,8 +2158,13 @@
       }
     });
 
-    // 3. Collect available (unlocked) participants
-    let pool = t.participants.filter(p => !lockedParticipantIds.has(p.id));
+    // 3. Collect available (unlocked) participants with valid names
+    let pool = t.participants.filter(p => !lockedParticipantIds.has(p.id) && p.name && p.name.trim());
+
+    if (pool.length === 0 && lockedParticipantIds.size === 0) {
+      showToast('Semua slot masih kosong! Masukkan nama peserta terlebih dahulu untuk melakukan seeding.', 'warning');
+      return;
+    }
 
     if (isRandom) {
       // Fisher-Yates random shuffle
