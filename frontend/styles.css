@@ -2600,6 +2600,36 @@ input:focus, select:focus, textarea:focus {
   letter-spacing: 0.5px;
 }
 
+/* PIN Lock Modal & Locked State */
+.pin-lock-content {
+  border: 1px solid rgba(0, 210, 255, 0.3) !important;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7), 0 0 30px rgba(0, 210, 255, 0.15) !important;
+  animation: modalPopIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
 
+@keyframes modalPopIn {
+  from {
+    opacity: 0;
+    transform: scale(0.92) translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
 
+.input-error {
+  border-color: #ff4d4f !important;
+  box-shadow: 0 0 0 2px rgba(255, 77, 79, 0.25) !important;
+  animation: shake 0.3s ease-in-out;
+}
 
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-6px); }
+  75% { transform: translateX(6px); }
+}
+
+#dashboard-locked-state {
+  margin-top: 3rem;
+}

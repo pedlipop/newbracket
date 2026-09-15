@@ -15,7 +15,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   
   <!-- Custom Stylesheet -->
-  <link rel="stylesheet" href="styles.css?v=2.3">
+  <link rel="stylesheet" href="styles.css?v=2.4">
 </head>
 <body class="theme-dark">
 
@@ -33,6 +33,10 @@
       </div>
 
       <div class="header-actions">
+        <button id="btn-lock-dashboard" class="btn btn-ghost" title="Kunci Dashboard (Logout)" style="gap: 6px;">
+          <i class="fa-solid fa-lock"></i>
+          <span>Kunci</span>
+        </button>
         <button id="btn-open-create-modal" class="btn btn-primary">
           <i class="fa-solid fa-plus"></i>
           <span>Create Tournament</span>
@@ -67,6 +71,16 @@
         <p>Get started by creating your first tournament bracket with QR registration!</p>
         <button id="btn-empty-create" class="btn btn-primary">
           <i class="fa-solid fa-plus"></i> Create Tournament
+        </button>
+      </div>
+
+      <!-- Locked State for Spectators / Unauthenticated Users -->
+      <div id="dashboard-locked-state" class="empty-state hidden">
+        <div class="empty-icon"><i class="fa-solid fa-shield-halved" style="color: var(--primary);"></i></div>
+        <h3>Akses Khusus Panitia</h3>
+        <p>Dashboard ini memerlukan PIN otorisasi panitia untuk dibuka.</p>
+        <button id="btn-open-pin-prompt" class="btn btn-primary" style="margin-top: 12px;">
+          <i class="fa-solid fa-key"></i> Masukkan PIN
         </button>
       </div>
     </main>
@@ -804,6 +818,44 @@
           <!-- Dynamically populated matches -->
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- Modal PIN: Protected Dashboard Access -->
+  <div id="modal-pin-lock" class="modal-overlay hidden" data-no-backdrop-close="true">
+    <div class="modal-content modal-sm pin-lock-content">
+      <div class="modal-header justify-center text-center" style="border-bottom: none; padding-bottom: 0;">
+        <div class="pin-lock-icon" style="width: 52px; height: 52px; background: rgba(0, 210, 255, 0.12); border: 1px solid rgba(0, 210, 255, 0.3); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px; color: var(--primary); font-size: 1.5rem;">
+          <i class="fa-solid fa-shield-halved"></i>
+        </div>
+        <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--text-primary); margin: 0;">Akses Panitia / Dashboard</h3>
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 6px; line-height: 1.4;">
+          Dashboard ini khusus untuk panitia penyelenggara. Masukkan PIN untuk membuka.
+        </p>
+      </div>
+
+      <form id="form-pin-lock" class="modal-body" style="padding-top: 1rem;">
+        <div class="form-group" style="margin-bottom: 0.8rem;">
+          <label for="input-admin-pin" style="font-size: 0.85rem; font-weight: 600;">PIN Organizer</label>
+          <div style="position: relative; display: flex; align-items: center;">
+            <input type="password" id="input-admin-pin" placeholder="Masukkan PIN..." required autocomplete="current-password" style="padding-right: 42px; font-size: 1rem; letter-spacing: 0.05em; width: 100%;">
+            <button type="button" id="btn-toggle-pin-visibility" style="position: absolute; right: 8px; background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 1rem; padding: 6px;">
+              <i class="fa-solid fa-eye"></i>
+            </button>
+          </div>
+          <div id="pin-error-msg" class="hidden" style="color: #ff4d4f; font-size: 0.82rem; margin-top: 6px; display: flex; align-items: center; gap: 6px; font-weight: 600;">
+            <i class="fa-solid fa-circle-exclamation"></i>
+            <span>PIN salah! Silakan coba lagi.</span>
+          </div>
+        </div>
+
+        <div class="modal-footer" style="padding: 0.8rem 0 0.2rem; justify-content: flex-end; gap: 10px; border-top: none;">
+          <button type="button" id="btn-cancel-pin" class="btn btn-ghost">Batal</button>
+          <button type="submit" id="btn-submit-pin" class="btn btn-primary" style="min-width: 110px;">
+            <i class="fa-solid fa-unlock-keyhole"></i> Masuk
+          </button>
+        </div>
+      </form>
     </div>
   </div>
 

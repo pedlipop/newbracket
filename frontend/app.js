@@ -45,8 +45,19 @@
     el.tournamentsGrid = document.getElementById('tournaments-grid');
     el.dashboardSearchInput = document.getElementById('dashboard-search-input');
     el.dashboardEmptyState = document.getElementById('dashboard-empty-state');
+    el.dashboardLockedState = document.getElementById('dashboard-locked-state');
+    el.btnLockDashboard = document.getElementById('btn-lock-dashboard');
+    el.btnOpenPinPrompt = document.getElementById('btn-open-pin-prompt');
     el.btnOpenCreateModal = document.getElementById('btn-open-create-modal');
     el.btnEmptyCreate = document.getElementById('btn-empty-create');
+
+    // PIN Lock Modal
+    el.modalPinLock = document.getElementById('modal-pin-lock');
+    el.formPinLock = document.getElementById('form-pin-lock');
+    el.inputAdminPin = document.getElementById('input-admin-pin');
+    el.pinErrorMsg = document.getElementById('pin-error-msg');
+    el.btnTogglePinVisibility = document.getElementById('btn-toggle-pin-visibility');
+    el.btnCancelPin = document.getElementById('btn-cancel-pin');
 
     // Studio Header
     el.btnBackDashboard = document.getElementById('btn-back-dashboard');
@@ -271,10 +282,53 @@
     }[m]));
   }
 
-  // ==================== DASHBOARD VIEW ====================
+  // ==================== DASHBOARD VIEW & ADMIN AUTH ====================
+  const ADMIN_PIN = 'cngrgf123';
+
+  function isAdminAuthenticated() {
+    return sessionStorage.getItem('cngr_pin_authenticated') === 'true';
+  }
+
+  function setAdminAuthenticated(val) {
+    if (val) {
+      sessionStorage.setItem('cngr_pin_authenticated', 'true');
+    } else {
+      sessionStorage.removeItem('cngr_pin_authenticated');
+    }
+  }
+
+  let pinSuccessCallback = null;
+
+  function promptAdminPin(onSuccess) {
+    pinSuccessCallback = onSuccess;
+    if (el.inputAdminPin) {
+      el.inputAdminPin.value = '';
+      el.inputAdminPin.classList.remove('input-error');
+    }
+    if (el.pinErrorMsg) el.pinErrorMsg.classList.add('hidden');
+    if (el.modalPinLock) {
+      openModal(el.modalPinLock);
+      setTimeout(() => el.inputAdminPin && el.inputAdminPin.focus(), 120);
+    }
+  }
+
   async function loadDashboard() {
     switchView('dashboard');
     window.history.replaceState({}, '', window.location.pathname);
+
+    if (!isAdminAuthenticated()) {
+      el.tournamentsGrid.innerHTML = '';
+      if (el.dashboardEmptyState) el.dashboardEmptyState.classList.add('hidden');
+      if (el.dashboardLockedState) el.dashboardLockedState.classList.remove('hidden');
+      promptAdminPin(() => {
+        if (el.dashboardLockedState) el.dashboardLockedState.classList.add('hidden');
+        loadDashboard();
+      });
+      return;
+    }
+
+    if (el.dashboardLockedState) el.dashboardLockedState.classList.add('hidden');
+
     try {
       const res = await fetch('/api/tournaments');
       const data = await res.json();
@@ -366,6 +420,13 @@
 
   // ==================== STUDIO VIEW ====================
   async function loadTournamentStudio(tournamentId) {
+    if (!isAdminAuthenticated()) {
+      switchView('studio');
+      promptAdminPin(() => {
+        loadTournamentStudio(tournamentId);
+      });
+      return;
+    }
     switchView('studio');
     try {
       const res = await fetch(`/api/tournaments/${tournamentId}`);
@@ -3308,6 +3369,65 @@
       });
     }
 
+    // PIN Lock Modal & Auth Listeners
+    if (el.formPinLock) {
+      el.formPinLock.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const pin = (el.inputAdminPin.value || '').trim();
+        if (pin === ADMIN_PIN) {
+          setAdminAuthenticated(true);
+          closeModal(el.modalPinLock);
+          if (el.pinErrorMsg) el.pinErrorMsg.classList.add('hidden');
+          showToast('PIN benar. Selamat datang di Dashboard!', 'success');
+          if (typeof pinSuccessCallback === 'function') {
+            const cb = pinSuccessCallback;
+            pinSuccessCallback = null;
+            cb();
+          }
+        } else {
+          if (el.pinErrorMsg) el.pinErrorMsg.classList.remove('hidden');
+          el.inputAdminPin.classList.add('input-error');
+          el.inputAdminPin.select();
+          showToast('PIN salah! Akses ditolak.', 'error');
+        }
+      });
+    }
+
+    if (el.btnTogglePinVisibility) {
+      el.btnTogglePinVisibility.addEventListener('click', () => {
+        const isPass = el.inputAdminPin.type === 'password';
+        el.inputAdminPin.type = isPass ? 'text' : 'password';
+        el.btnTogglePinVisibility.innerHTML = isPass ? '<i class="fa-solid fa-eye-slash"></i>' : '<i class="fa-solid fa-eye"></i>';
+      });
+    }
+
+    if (el.btnCancelPin) {
+      el.btnCancelPin.addEventListener('click', () => {
+        closeModal(el.modalPinLock);
+        const params = new URLSearchParams(window.location.search);
+        const tid = params.get('id') || (state.currentTournament && state.currentTournament.id);
+        if (tid) {
+          window.location.href = `/?view=live&id=${encodeURIComponent(tid)}`;
+        } else {
+          showToast('Akses dibatalkan. Dashboard terkunci.', 'info');
+        }
+      });
+    }
+
+    if (el.btnOpenPinPrompt) {
+      el.btnOpenPinPrompt.addEventListener('click', () => {
+        promptAdminPin(() => loadDashboard());
+      });
+    }
+
+    if (el.btnLockDashboard) {
+      el.btnLockDashboard.addEventListener('click', () => {
+        setAdminAuthenticated(false);
+        showToast('Dashboard telah dikunci.', 'info');
+        loadDashboard();
+      });
+    }
+
     // Initialize CSV Uploader (drag-and-drop & file selection)
     setupCsvUploader();
 
@@ -3319,9 +3439,10 @@
       });
     });
 
-    // Close modal when clicking on overlay background
+    // Close modal when clicking on overlay background (ignore if data-no-backdrop-close="true")
     document.querySelectorAll('.modal-overlay').forEach(overlay => {
       overlay.addEventListener('click', (e) => {
+        if (overlay.dataset.noBackdropClose === 'true') return;
         if (e.target === overlay) closeModal(overlay);
       });
     });
