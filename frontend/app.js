@@ -238,7 +238,11 @@
     if (viewName === 'dashboard') el.dashboardView.classList.remove('hidden');
     if (viewName === 'studio') el.studioView.classList.remove('hidden');
     if (viewName === 'live') el.liveView.classList.remove('hidden');
-    if (viewName === 'register') el.registerView.classList.remove('hidden');
+    if (viewName === 'register') {
+      el.registerView.classList.remove('hidden');
+      el.registerView.scrollTop = 0;
+      window.scrollTo(0, 0);
+    }
   }
 
   function showToast(message, type = 'info') {
@@ -2503,6 +2507,9 @@
   // ==================== PUBLIC MOBILE REGISTRATION VIEW ====================
   async function loadPublicRegisterView(tournamentId) {
     switchView('register');
+    if (el.registerView) el.registerView.scrollTop = 0;
+    window.scrollTo(0, 0);
+
     try {
       const res = await fetch(`/api/tournaments/${tournamentId}`);
       if (!res.ok) throw new Error('Tournament not found');
@@ -2519,7 +2526,7 @@
       }
 
       // Check if tournament specifies Mode Tim
-      const isTeamTournament = !!(t.settings && t.settings.isDoubles);
+      const isTeamTournament = !!(t.settings && (t.settings.isDoubles === true || t.settings.isDoubles === 'true' || t.settings.isDoubles === 1 || t.settings.isDoubles === '1'));
 
       // Hide or show Team Name input based on tournament setting
       if (el.regTeamNameGroup) {
@@ -2529,6 +2536,10 @@
       // Hide or show Partner Section directly based on tournament setting
       if (el.regPartnerSection) {
         el.regPartnerSection.classList.toggle('hidden', !isTeamTournament);
+      }
+
+      if (!isTeamTournament && el.regPartnersDynamicContainer) {
+        el.regPartnersDynamicContainer.innerHTML = '';
       }
 
       // Render dynamic teammate cards helper
@@ -3024,8 +3035,13 @@
     });
 
     // Create Tournament Modal
-    el.btnOpenCreateModal.addEventListener('click', () => openModal(el.modalCreateTournament));
-    el.btnEmptyCreate.addEventListener('click', () => openModal(el.modalCreateTournament));
+    const handleOpenCreateModal = () => {
+      if (el.formCreateTournament) el.formCreateTournament.reset();
+      if (el.createIsDoubles) el.createIsDoubles.checked = false;
+      openModal(el.modalCreateTournament);
+    };
+    el.btnOpenCreateModal.addEventListener('click', handleOpenCreateModal);
+    el.btnEmptyCreate.addEventListener('click', handleOpenCreateModal);
 
     el.formCreateTournament.addEventListener('submit', async (e) => {
       e.preventDefault();

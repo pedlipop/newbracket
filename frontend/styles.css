@@ -1323,32 +1323,39 @@ button {
 
 /* Public Mobile Registration Page */
 #register-view.app-view {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100vw;
   height: 100vh;
-  overflow-y: auto !important;
+  overflow-y: scroll !important;
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
-  display: block;
+  display: block !important;
+  z-index: 50;
+  background-color: var(--bg-app);
 }
 
 .register-container {
+  width: 100%;
   min-height: 100%;
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
-  padding: 2.5rem 1rem 4rem;
+  display: block;
+  padding: 40px 16px 80px;
   box-sizing: border-box;
-  background: radial-gradient(circle at 50% 30%, rgba(0, 210, 255, 0.08), transparent 70%);
+  background: radial-gradient(circle at 50% 20%, rgba(0, 210, 255, 0.08), transparent 70%);
 }
 
 .register-card {
   width: 100%;
   max-width: 500px;
+  margin: 0 auto 40px auto;
   background: var(--bg-surface);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-lg);
   overflow: visible;
-  margin-bottom: 2rem;
 }
 
 .register-card-header {
