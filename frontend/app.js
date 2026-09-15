@@ -150,7 +150,6 @@
     el.btnClearCsv = document.getElementById('btn-clear-csv');
 
     el.createIsDoubles = document.getElementById('create-is-doubles');
-    el.qrDoublesToggle = document.getElementById('qr-doubles-toggle');
 
     // Match Search Elements
     el.btnOpenMatchSearch = document.getElementById('btn-open-match-search');
@@ -163,19 +162,11 @@
     el.studioProgressPct = document.getElementById('studio-progress-pct');
     el.studioProgressFill = document.getElementById('studio-progress-fill');
     el.studioProgressCount = document.getElementById('studio-progress-count');
-    el.studioActiveNames = document.getElementById('studio-active-names');
-    el.studioUpNextNames = document.getElementById('studio-up-next-names');
-
     el.liveProgressPct = document.getElementById('live-progress-pct');
     el.liveProgressFill = document.getElementById('live-progress-fill');
     el.liveProgressCount = document.getElementById('live-progress-count');
-    el.liveActiveNames = document.getElementById('live-active-names');
-    el.liveUpNextNames = document.getElementById('live-up-next-names');
-
-    // Live Not Started Overlay
-    el.liveNotStartedOverlay = document.getElementById('live-not-started-overlay');
-    el.notStartedParticipantCount = document.getElementById('not-started-participant-count');
-    el.notStartedTimer = document.getElementById('not-started-timer');
+    el.liveActiveMatchNames = document.getElementById('live-active-match-names');
+    el.liveActiveMatchRound = document.getElementById('live-active-match-round');
 
     // QR Deadline Elements
     el.qrDeadlinePreset = document.getElementById('qr-deadline-preset');
@@ -183,22 +174,20 @@
     el.btnSaveQrDeadline = document.getElementById('btn-save-qr-deadline');
     el.qrDeadlineStatusBadge = document.getElementById('qr-deadline-status-badge');
 
-    // Auto-Lock Settings Elements
+    // Auto-Lock Bracket Elements
     el.settingAutoLockSelect = document.getElementById('setting-autolock-select');
     el.btnSaveAutoLock = document.getElementById('btn-save-autolock');
-    el.autolockCountdownBanner = document.getElementById('autolock-countdown-banner');
+    el.studioAutolockBanner = document.getElementById('studio-autolock-banner');
     el.autolockCountdownText = document.getElementById('autolock-countdown-text');
 
     // Registration Form Elements
     el.regTeamNameGroup = document.getElementById('reg-team-name-group');
-    el.regTeamModeBox = document.getElementById('reg-team-mode-box');
     el.regTeamName = document.getElementById('reg-team-name');
     el.regPlayerName = document.getElementById('reg-player-name');
     el.regPlayerWecom = document.getElementById('reg-player-wecom');
     el.regPlayerDept = document.getElementById('reg-player-dept');
-    el.regIsTeamCheck = document.getElementById('reg-is-team-check');
     el.regPartnerSection = document.getElementById('reg-partner-section');
-    el.teammateCountPills = document.getElementById('teammate-count-pills');
+    el.regTeammateCountSelect = document.getElementById('reg-teammate-count-select');
     el.regPartnersDynamicContainer = document.getElementById('reg-partners-dynamic-container');
     el.regDeadlineBadge = document.getElementById('reg-deadline-badge');
     el.regDeadlineText = document.getElementById('reg-deadline-text');
@@ -1760,10 +1749,6 @@
   async function openQrModalForTournament(tournamentId) {
     activeQrTournamentId = tournamentId;
     const t = (state.tournaments && state.tournaments.find(item => item.id === tournamentId)) || state.currentTournament;
-    const isDoubles = !!(t?.settings?.isDoubles);
-    if (el.qrDoublesToggle) {
-      el.qrDoublesToggle.checked = isDoubles;
-    }
     refreshQrDeadlineUI(t);
     await refreshQrDisplay();
     openModal(el.modalQrCode);
@@ -1771,7 +1756,8 @@
 
   async function refreshQrDisplay() {
     if (!activeQrTournamentId) return;
-    const isTeam = el.qrDoublesToggle ? el.qrDoublesToggle.checked : false;
+    const t = (state.tournaments && state.tournaments.find(item => item.id === activeQrTournamentId)) || state.currentTournament;
+    const isTeam = !!(t?.settings?.isDoubles);
     try {
       const res = await fetch(`/api/tournaments/${activeQrTournamentId}/qr${isTeam ? '?isTeam=1' : ''}`);
       const data = await res.json();
@@ -2541,9 +2527,9 @@
         el.regTeamNameGroup.classList.toggle('hidden', !isTeamTournament);
       }
 
-      // Hide or show Team Mode checkbox based on tournament setting
-      if (el.regTeamModeBox) {
-        el.regTeamModeBox.classList.toggle('hidden', !isTeamTournament);
+      // Hide or show Partner Section directly based on tournament setting
+      if (el.regPartnerSection) {
+        el.regPartnerSection.classList.toggle('hidden', !isTeamTournament);
       }
 
       // Render dynamic teammate cards helper
@@ -2557,50 +2543,36 @@
           card.className = 'teammate-card';
           card.innerHTML = `
             <div class="teammate-card-header">
-              <i class="fa-solid fa-user-plus"></i> Rekan #${i + 1}
+              <i class="fa-solid fa-user-plus"></i> Data Rekan #${i + 1}
             </div>
-            <div class="form-group" style="margin-bottom: 8px;">
-              <label class="form-label" style="font-size: 11px;">Nama Lengkap Rekan #${i + 1} *</label>
-              <input type="text" class="input-modern reg-partner-name" placeholder="Nama Lengkap Rekan" />
+            <div class="form-group" style="margin-bottom: 10px;">
+              <label class="form-label" style="font-size: 11px;">Nama Lengkap Rekan #${i + 1} <span class="required">*</span></label>
+              <input type="text" class="input-modern reg-partner-name" placeholder="Masukkan nama lengkap rekan #${i + 1}" required />
             </div>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-              <div class="form-group" style="margin-bottom: 0;">
-                <label class="form-label" style="font-size: 11px;">No. WeCom Rekan</label>
-                <input type="text" class="input-modern reg-partner-wecom" placeholder="No. WeCom" />
-              </div>
-              <div class="form-group" style="margin-bottom: 0;">
-                <label class="form-label" style="font-size: 11px;">Dept Rekan</label>
-                <input type="text" class="input-modern reg-partner-dept" placeholder="Departemen" />
-              </div>
+            <div class="form-group" style="margin-bottom: 10px;">
+              <label class="form-label" style="font-size: 11px;">No. WeCom Rekan #${i + 1}</label>
+              <input type="text" class="input-modern reg-partner-wecom" placeholder="No. WeCom / WA" />
+            </div>
+            <div class="form-group" style="margin-bottom: 0;">
+              <label class="form-label" style="font-size: 11px;">Departemen (Dept) Rekan #${i + 1}</label>
+              <input type="text" class="input-modern reg-partner-dept" placeholder="Contoh: Produksi, IT, HR" />
             </div>
           `;
           el.regPartnersDynamicContainer.appendChild(card);
         }
       }
 
-      if (el.teammateCountPills) {
-        el.teammateCountPills.querySelectorAll('.count-pill').forEach(pill => {
-          pill.onclick = () => {
-            el.teammateCountPills.querySelectorAll('.count-pill').forEach(p => p.classList.remove('active'));
-            pill.classList.add('active');
-            const cnt = parseInt(pill.dataset.count, 10) || 1;
-            renderTeammateCards(cnt);
-          };
-        });
+      // Dropdown selection for teammate count
+      if (el.regTeammateCountSelect) {
+        el.regTeammateCountSelect.value = '1';
+        el.regTeammateCountSelect.onchange = () => {
+          const cnt = parseInt(el.regTeammateCountSelect.value, 10) || 1;
+          renderTeammateCards(cnt);
+        };
       }
 
-      renderTeammateCards(1);
-
-      if (el.regIsTeamCheck) {
-        el.regIsTeamCheck.checked = isTeamTournament;
-        if (el.regPartnerSection) {
-          el.regPartnerSection.classList.toggle('hidden', !isTeamTournament);
-        }
-        el.regIsTeamCheck.onchange = () => {
-          if (el.regPartnerSection) {
-            el.regPartnerSection.classList.toggle('hidden', !el.regIsTeamCheck.checked);
-          }
-        };
+      if (isTeamTournament) {
+        renderTeammateCards(1);
       }
 
       el.publicRegisterForm.onsubmit = async (e) => {
@@ -2608,7 +2580,7 @@
         const playerName = el.regPlayerName ? el.regPlayerName.value.trim() : '';
         const wecom = el.regPlayerWecom ? el.regPlayerWecom.value.trim() : '';
         const dept = el.regPlayerDept ? el.regPlayerDept.value.trim() : '';
-        const isTeam = isTeamTournament && el.regIsTeamCheck && el.regIsTeamCheck.checked;
+        const isTeam = isTeamTournament;
         const teamNameInput = (isTeam && el.regTeamName) ? el.regTeamName.value.trim() : '';
 
         if (!playerName) {
@@ -3243,9 +3215,6 @@
       });
     });
 
-    if (el.qrDoublesToggle) {
-      el.qrDoublesToggle.addEventListener('change', refreshQrDisplay);
-    }
 
 
     // Match Search & Jump

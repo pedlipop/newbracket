@@ -486,30 +486,22 @@
             <input type="text" id="reg-player-dept" placeholder="Contoh: Produksi, IT, HR" required>
           </div>
 
-          <!-- Option checklist for Mode Tim -->
-          <div class="form-group team-mode-toggle-box" id="reg-team-mode-box">
-            <label class="toggle-label" id="label-team-toggle">
-              <input type="checkbox" id="reg-is-team-check">
-              <span><strong>Daftar sebagai Mode Tim</strong></span>
-            </label>
-          </div>
-
-          <!-- Partner Section: Revealed when Mode Tim is checked -->
+          <!-- Partner Section: Revealed when Tournament is configured for Team Mode -->
           <div id="reg-partner-section" class="partner-form-section hidden">
             <div class="form-section-title partner-accent">
               <i class="fa-solid fa-user-group"></i> Data Rekan Satu Tim
             </div>
 
-            <!-- Teammate Count Selector (1-5 orang) -->
+            <!-- Teammate Count Selector Dropdown -->
             <div class="form-group teammate-count-group">
-              <label><i class="fa-solid fa-users-gear"></i> Jumlah Rekan Tim:</label>
-              <div class="teammate-count-pills" id="teammate-count-pills">
-                <button type="button" class="count-pill active" data-count="1">1 Rekan</button>
-                <button type="button" class="count-pill" data-count="2">2 Rekan</button>
-                <button type="button" class="count-pill" data-count="3">3 Rekan</button>
-                <button type="button" class="count-pill" data-count="4">4 Rekan</button>
-                <button type="button" class="count-pill" data-count="5">5 Rekan</button>
-              </div>
+              <label for="reg-teammate-count-select"><i class="fa-solid fa-users-gear"></i> Jumlah Rekan Tim:</label>
+              <select id="reg-teammate-count-select" class="input-modern select-modern" style="width: 100%;">
+                <option value="1">1 Rekan (Ganda / 2 Pemain)</option>
+                <option value="2">2 Rekan (Trio / 3 Pemain)</option>
+                <option value="3">3 Rekan (Quad / 4 Pemain)</option>
+                <option value="4">4 Rekan (5 Pemain)</option>
+                <option value="5">5 Rekan (6 Pemain)</option>
+              </select>
             </div>
 
             <!-- Dynamic Teammate Input Cards Container -->
@@ -612,12 +604,6 @@
           </button>
         </div>
 
-        <div class="qr-options-box">
-          <label class="toggle-label" style="justify-content: center; cursor: pointer;">
-            <input type="checkbox" id="qr-doubles-toggle">
-            <span><strong>Mode Tim</strong> (Form otomatis meminta data Rekan)</span>
-          </label>
-        </div>
 
         <!-- QR Registration Closing Deadline Setting -->
         <div class="qr-deadline-box" style="margin-top: 12px; width: 100%; text-align: left; background: var(--bg-surface-elevated); padding: 12px 14px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">

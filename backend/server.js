@@ -183,7 +183,7 @@ app.get('/api/tournaments/:id/qr', async (req, res) => {
       return res.status(404).json({ success: false, error: 'Tournament not found' });
     }
 
-    const isDoubles = req.query.isTeam === '1' || req.query.isTeam === 'true' || !!(tournament.settings && tournament.settings.isDoubles);
+    const isDoubles = !!(tournament.settings && tournament.settings.isDoubles);
     // Determine host and protocol
     const host = req.get('host');
     const protocol = req.protocol;
