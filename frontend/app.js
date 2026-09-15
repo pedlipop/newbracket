@@ -92,7 +92,6 @@
     el.liveTournamentName = document.getElementById('live-tournament-name');
     el.liveGameBadge = document.getElementById('live-game-badge');
     el.btnLiveHighlight = document.getElementById('btn-live-highlight');
-    el.btnLiveBackAdmin = document.getElementById('btn-live-back-admin');
     el.btnLiveZoomIn = document.getElementById('btn-live-zoom-in');
     el.btnLiveZoomOut = document.getElementById('btn-live-zoom-out');
     el.btnLiveCenter = document.getElementById('btn-live-center');
@@ -2994,7 +2993,6 @@
   function setupEventListeners() {
     // Navigation
     if (el.btnBackDashboard) el.btnBackDashboard.addEventListener('click', loadDashboard);
-    if (el.btnLiveBackAdmin) el.btnLiveBackAdmin.addEventListener('click', loadDashboard);
 
     // Corner HUD widget collapse/expand toggles
     const studioHud = document.getElementById('studio-match-progress');
