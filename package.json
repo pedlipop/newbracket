@@ -1,0 +1,13 @@
+{
+  "name": "tournament-bracket-generator",
+  "version": "2.0.0",
+  "type": "module",
+  "description": "State-of-the-art BracketHQ-inspired Tournament Bracket Generator Web App with Dynamic Asymmetric Non-Power-of-2 Layout, QR Code Registration, and Live Spectator Viewer",
+  "scripts": {
+    "start": "node backend/server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "qrcode": "^1.5.4"
+  }
+}

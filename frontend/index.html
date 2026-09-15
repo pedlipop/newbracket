@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CNGR Tournament Engine | Bracket Maker</title>
+  <meta name="description" content="State-of-the-art Tournament Bracket Generator with QR Code Registration, Live Public Viewer, Dynamic Non-Power-of-2 Layout, and Esports Match Progress.">
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="theme-dark">
+
+  <!-- ==================== VIEW 1: TOURNAMENT MANAGEMENT DASHBOARD ==================== -->
+  <section id="dashboard-view" class="app-view">
+    <header class="app-header dashboard-header">
+      <div class="header-brand">
+        <div class="brand-icon">
+          <i class="fa-solid fa-sitemap"></i>
+        </div>
+        <div class="brand-text">
+          <h1>CNGR BRACKET ENGINE</h1>
+          <span class="brand-sub">Tournament Studio & Live Hub</span>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <button id="btn-open-create-modal" class="btn btn-primary">
+          <i class="fa-solid fa-plus"></i>
+          <span>Create Tournament</span>
+        </button>
+      </div>
+    </header>
+
+    <main class="dashboard-main">
+      <div class="dashboard-toolbar">
+        <div class="search-box">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="text" id="dashboard-search-input" placeholder="Search tournaments by name or game...">
+        </div>
+
+        <div class="filter-group">
+          <button class="filter-chip active" data-filter="all">All</button>
+          <button class="filter-chip" data-filter="setup">Setup</button>
+          <button class="filter-chip" data-filter="in_progress">In Progress</button>
+          <button class="filter-chip" data-filter="completed">Completed</button>
+        </div>
+      </div>
+
+      <!-- Tournaments Grid -->
+      <div id="tournaments-grid" class="tournaments-grid">
+        <!-- Rendered dynamically via app.js -->
+      </div>
+
+      <!-- Empty State -->
+      <div id="dashboard-empty-state" class="empty-state hidden">
+        <div class="empty-icon"><i class="fa-solid fa-trophy"></i></div>
+        <h3>No Tournaments Found</h3>
+        <p>Get started by creating your first tournament bracket with QR registration!</p>
+        <button id="btn-empty-create" class="btn btn-primary">
+          <i class="fa-solid fa-plus"></i> Create Tournament
+        </button>
+      </div>
+    </main>
+  </section>
+
+  <!-- ==================== VIEW 2: BRACKET STUDIO ==================== -->
+  <section id="studio-view" class="app-view hidden">
+    <!-- Studio Header -->
+    <header class="app-header studio-header">
+      <div class="studio-header-left">
+        <button id="btn-back-dashboard" class="btn btn-ghost" title="Back to Dashboard">
+          <i class="fa-solid fa-arrow-left"></i>
+          <span>Dashboard</span>
+        </button>
+        <div class="divider-vertical"></div>
+        
+        <!-- Editable Tournament Name -->
+        <div class="tournament-title-wrapper" id="tournament-title-container">
+          <span id="studio-tournament-name" class="editable-title" title="Click to edit tournament name">Loading...</span>
+          <button id="btn-edit-title" class="btn-icon-subtle" title="Edit tournament name">
+            <i class="fa-solid fa-pencil"></i>
+          </button>
+        </div>
+
+        <span id="studio-status-badge" class="badge badge-setup">SETUP</span>
+      </div>
+
+      <div class="studio-header-right">
+        <!-- Match Search Button -->
+        <button id="btn-open-match-search" class="btn btn-tool" title="Cari match dan pemain di bracket">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <span>Cari Match</span>
+        </button>
+
+        <!-- In-Progress Highlight Button -->
+        <button id="btn-toggle-highlight" class="btn btn-tool" title="Highlight all active live matches with glowing indicator">
+          <i class="fa-solid fa-bolt"></i>
+          <span>Live Focus</span>
+        </button>
+
+        <!-- Lock / Unlock Bracket -->
+        <button id="btn-toggle-lock" class="btn btn-lock" title="Lock bracket to start matches and report scores">
+          <i class="fa-solid fa-lock"></i>
+          <span id="lock-btn-text">Lock Bracket</span>
+        </button>
+
+        <div class="divider-vertical"></div>
+
+        <!-- QR Code Registration Modal Trigger -->
+        <button id="btn-open-qr-modal" class="btn btn-secondary" title="Show QR code for player registration">
+          <i class="fa-solid fa-qrcode"></i>
+          <span>Player QR</span>
+        </button>
+
+        <!-- Public Live View -->
+        <button id="btn-open-live-view" class="btn btn-outline" title="Open public live spectator bracket">
+          <i class="fa-solid fa-arrow-up-right-from-square"></i>
+          <span>Live Spectator</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Studio Body with Sidebar & Canvas -->
+    <div class="studio-body">
+      <!-- Left Navigation Bar -->
+      <nav class="studio-nav-rail">
+        <button class="rail-tab-btn active" data-panel="participants" title="Participants Management">
+          <i class="fa-solid fa-users"></i>
+          <span>Teams</span>
+        </button>
+        <button class="rail-tab-btn" data-panel="settings" title="Tournament Settings">
+          <i class="fa-solid fa-sliders"></i>
+          <span>Format</span>
+        </button>
+        <button class="rail-tab-btn" data-panel="themes" title="Visual Themes">
+          <i class="fa-solid fa-palette"></i>
+          <span>Themes</span>
+        </button>
+      </nav>
+
+      <!-- Side Drawer Panel -->
+      <aside id="studio-drawer" class="studio-drawer">
+        <!-- Panel 1: Participants -->
+        <div id="panel-participants" class="drawer-panel active">
+          <div class="panel-header">
+            <div class="panel-title">
+              <h3>Participants</h3>
+              <span id="participant-count-badge" class="count-pill">0</span>
+            </div>
+            <button id="btn-drawer-collapse" class="btn-icon-subtle" title="Collapse Panel">
+              <i class="fa-solid fa-chevron-left"></i>
+            </button>
+          </div>
+
+          <div class="panel-actions-row" style="display:flex; gap:6px; flex-wrap:wrap;">
+            <button id="btn-auto-seed" class="btn btn-sm btn-primary" style="flex:1;" title="Tempatkan peserta sesuai urutan seed standar">
+              <i class="fa-solid fa-wand-magic-sparkles"></i> Auto-Seed
+            </button>
+            <button id="btn-random-seed" class="btn btn-sm btn-secondary" style="flex:1;" title="Acak penempatan tim secara random (slot terkunci tetap aman)">
+              <i class="fa-solid fa-shuffle"></i> Random Seed
+            </button>
+            <button id="btn-bulk-add" class="btn btn-sm btn-ghost" title="Bulk paste / upload CSV">
+              <i class="fa-solid fa-list"></i> Bulk Add
+            </button>
+          </div>
+
+          <!-- Add Single Participant Form -->
+          <form id="add-participant-form" class="add-participant-form">
+            <div class="input-with-btn">
+              <input type="text" id="new-participant-input" placeholder="Add team/player name..." autocomplete="off">
+              <button type="submit" class="btn-add" title="Tambah Peserta / Slot Baru">
+                <i class="fa-solid fa-plus"></i>
+              </button>
+            </div>
+          </form>
+
+          <p class="drag-hint">
+            <i class="fa-solid fa-hand-pointer"></i> Drag any participant onto a bracket slot to assign or swap seeds!
+          </p>
+
+          <!-- Draggable Participants List -->
+          <div id="participants-list" class="participants-list">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+
+        <!-- Panel 2: Settings -->
+        <div id="panel-settings" class="drawer-panel">
+          <div class="panel-header">
+            <div class="panel-title">
+              <h3>Tournament Settings</h3>
+            </div>
+          </div>
+          <div class="panel-body settings-form">
+            <div class="form-group">
+              <label>Tournament Category / Game</label>
+              <input type="text" id="setting-game-input" placeholder="e.g. Valorant, MLBB, Tekken 8">
+            </div>
+            <div class="form-group">
+              <label>Bracket Format</label>
+              <select id="setting-format-select" disabled>
+                <option value="single_elimination">Single Elimination</option>
+                <option value="double_elimination">Double Elimination</option>
+              </select>
+              <small class="form-hint">Format is locked during active bracket generation.</small>
+            </div>
+            <div class="form-group">
+              <label class="toggle-label">
+                <input type="checkbox" id="setting-bronze-match">
+                <span>Include 3rd Place (Bronze) Match</span>
+              </label>
+            </div>
+            <div class="form-group auto-lock-group" style="padding: 12px; background: var(--bg-surface-elevated); border-radius: var(--radius-sm); border: 1px solid var(--border-subtle); margin-top: 10px;">
+              <label style="color: var(--primary);"><i class="fa-solid fa-clock-rotate-left"></i> Auto-Lock Bracket Timer</label>
+              <p class="form-hint" style="margin-top: 2px;">Kunci bracket secara otomatis setelah timer habis agar pertandingan langsung segera dimulai.</p>
+              <div style="display:flex; gap:8px; margin-top:8px;">
+                <select id="setting-autolock-select" style="font-size:12px; flex: 1;">
+                  <option value="none">Mati (Kunci Manual)</option>
+                  <option value="3">3 Menit Lagi</option>
+                  <option value="5">5 Menit Lagi</option>
+                  <option value="10">10 Menit Lagi</option>
+                  <option value="15">15 Menit Lagi</option>
+                  <option value="30">30 Menit Lagi</option>
+                  <option value="sync_qr">Sesuai Batas Waktu QR</option>
+                </select>
+                <button type="button" id="btn-save-autolock" class="btn btn-secondary btn-sm" style="white-space:nowrap;">Set Timer</button>
+              </div>
+              <div id="autolock-countdown-banner" class="autolock-status-banner hidden" style="margin-top:8px; font-size:11px; padding:6px 10px; border-radius:6px; background:rgba(0,210,255,0.12); border:1px solid rgba(0,210,255,0.3); color:var(--primary); display:flex; align-items:center; gap:6px;">
+                <i class="fa-solid fa-hourglass-start"></i> <span id="autolock-countdown-text">Auto-lock dalam: --:--</span>
+              </div>
+            </div>
+            <div class="settings-danger-zone">
+              <h4>Reset Tournament</h4>
+              <p>Reset all match scores and restore bracket to initial setup.</p>
+              <button id="btn-reset-scores" class="btn btn-danger btn-sm">
+                <i class="fa-solid fa-rotate-left"></i> Reset Match Scores
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Panel 3: Themes -->
+        <div id="panel-themes" class="drawer-panel">
+          <div class="panel-header">
+            <div class="panel-title">
+              <h3>Aesthetic Themes</h3>
+            </div>
+          </div>
+          <div class="panel-body themes-grid">
+            <div class="theme-card active" data-theme="dark">
+              <div class="theme-preview theme-dark-preview"></div>
+              <span>Modern Esports (Dark)</span>
+            </div>
+            <div class="theme-card" data-theme="cyber">
+              <div class="theme-preview theme-cyber-preview"></div>
+              <span>Midnight Neon</span>
+            </div>
+            <div class="theme-card" data-theme="light">
+              <div class="theme-preview theme-light-preview"></div>
+              <span>Clean Minimal (Light)</span>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Main Bracket Viewport -->
+      <main class="studio-canvas-container" id="canvas-container">
+        <!-- Floating Canvas Floating Toolbar (Zoom & Navigation) -->
+        <div class="canvas-controls">
+          <button id="btn-zoom-in" class="canvas-control-btn" title="Zoom In">
+            <i class="fa-solid fa-plus"></i>
+          </button>
+          <span id="zoom-level-text" class="zoom-display">100%</span>
+          <button id="btn-zoom-out" class="canvas-control-btn" title="Zoom Out">
+            <i class="fa-solid fa-minus"></i>
+          </button>
+          <div class="control-separator"></div>
+          <button id="btn-zoom-reset" class="canvas-control-btn" title="Reset Zoom">
+            <i class="fa-solid fa-arrows-rotate"></i>
+          </button>
+          <button id="btn-center-bracket" class="canvas-control-btn" title="Center Bracket">
+            <i class="fa-solid fa-crosshairs"></i>
+          </button>
+        </div>
+
+        <!-- Corner Match Progress HUD Widget -->
+        <div id="studio-match-progress" class="corner-match-widget">
+          <div class="widget-header">
+            <div class="widget-title"><i class="fa-solid fa-chart-pie"></i> <span>Progres Match</span></div>
+            <div class="widget-header-actions">
+              <span class="widget-pct" id="studio-progress-pct">0%</span>
+              <button type="button" class="btn-widget-toggle" id="btn-studio-hud-toggle" title="Kecilkan / Buka Panel Progres">
+                <i class="fa-solid fa-chevron-down"></i>
+              </button>
+            </div>
+          </div>
+          <div class="widget-body" id="studio-hud-body">
+            <div class="widget-progress-track">
+              <div class="widget-progress-fill" id="studio-progress-fill" style="width: 0%;"></div>
+            </div>
+            <div class="widget-stats-line">
+              <span id="studio-progress-count">0 / 0 Match Selesai</span>
+            </div>
+            <div class="widget-active-box" id="studio-active-box">
+              <div class="widget-active-title"><span class="pulse-indicator"></span> Match Berlangsung:</div>
+              <div class="widget-active-names" id="studio-active-names">Belum ada match aktif</div>
+            </div>
+            <div class="widget-up-next-box" id="studio-up-next-box">
+              <div class="widget-up-next-title"><span class="pulse-indicator-amber"></span> Akan Main Selanjutnya:</div>
+              <div class="widget-up-next-names" id="studio-up-next-names">Menunggu giliran</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- The Draggable / Zoomable Transform Canvas -->
+        <div id="bracket-canvas" class="bracket-canvas">
+          <!-- SVG Connectors Layer -->
+          <svg id="bracket-svg" class="bracket-svg" xmlns="http://www.w3.org/2000/svg"></svg>
+          
+          <!-- Round Columns & Match Nodes Layer -->
+          <div id="bracket-rounds-container" class="bracket-rounds-container">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+      </main>
+    </div>
+  </section>
+
+  <!-- ==================== VIEW 3: PUBLIC LIVE VIEWER ==================== -->
+  <section id="live-view" class="app-view hidden">
+    <header class="app-header live-header">
+      <div class="header-brand">
+        <button id="btn-live-back-admin" class="btn-icon" title="Kembali ke Dashboard">
+          <i class="fa-solid fa-arrow-left"></i>
+        </button>
+        <div class="brand-icon live-pulse">
+          <i class="fa-solid fa-broadcast-tower"></i>
+        </div>
+        <div class="brand-text">
+          <h1 id="live-tournament-name">Tournament Live Bracket</h1>
+          <span class="brand-sub" id="live-game-badge">Official Spectator View</span>
+        </div>
+      </div>
+
+      <div class="live-header-right">
+        <!-- Live status indicator -->
+        <div class="live-tag">
+          <span class="pulse-dot"></span> LIVE UPDATES
+        </div>
+
+        <!-- Match Search Button for Spectator -->
+        <button id="btn-live-match-search" class="btn btn-tool btn-sm" title="Cari match dan pemain di bracket">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <span>Cari</span>
+        </button>
+
+        <!-- Highlight In-Progress Matches for spectators -->
+        <button id="btn-live-highlight" class="btn btn-tool btn-sm" title="Highlight matches currently in progress">
+          <i class="fa-solid fa-bolt"></i>
+          <span>Live Focus</span>
+        </button>
+      </div>
+    </header>
+
+    <main class="live-canvas-container" id="live-canvas-container">
+      <div class="canvas-controls">
+        <button id="btn-live-zoom-in" class="canvas-control-btn"><i class="fa-solid fa-plus"></i></button>
+        <span id="live-zoom-text" class="zoom-display">100%</span>
+        <button id="btn-live-zoom-out" class="canvas-control-btn"><i class="fa-solid fa-minus"></i></button>
+        <button id="btn-live-center" class="canvas-control-btn"><i class="fa-solid fa-crosshairs"></i></button>
+      </div>
+
+      <!-- Not Started Live Overlay -->
+      <div id="live-not-started-overlay" class="live-not-started-overlay hidden">
+        <div class="not-started-card">
+          <div class="not-started-icon">
+            <i class="fa-solid fa-hourglass-half"></i>
+          </div>
+          <div class="not-started-badge">SEGERA DIMULAI</div>
+          <h2 class="not-started-title">Permainan Belum Dimulai</h2>
+          <p class="not-started-desc">
+            Bagan pertandingan (bracket) sedang dipersiapkan oleh panitia. Halaman ini akan otomatis terupdate begitu pertandingan dimulai.
+          </p>
+          <div class="not-started-meta" id="not-started-meta-info">
+            <div class="meta-item"><i class="fa-solid fa-users"></i> <span id="not-started-participant-count">0 Tim Terdaftar</span></div>
+            <div class="meta-item" id="not-started-deadline-item"><i class="fa-regular fa-clock"></i> <span id="not-started-timer">Menunggu Pembukaan</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Corner Match Progress HUD Widget for Live Spectator -->
+      <div id="live-match-progress" class="corner-match-widget">
+        <div class="widget-header">
+          <div class="widget-title"><i class="fa-solid fa-chart-pie"></i> <span>Progres Match</span></div>
+          <div class="widget-header-actions">
+            <span class="widget-pct" id="live-progress-pct">0%</span>
+            <button type="button" class="btn-widget-toggle" id="btn-live-hud-toggle" title="Kecilkan / Buka Panel Progres">
+              <i class="fa-solid fa-chevron-down"></i>
+            </button>
+          </div>
+        </div>
+        <div class="widget-body" id="live-hud-body">
+          <div class="widget-progress-track">
+            <div class="widget-progress-fill" id="live-progress-fill" style="width: 0%;"></div>
+          </div>
+          <div class="widget-stats-line">
+            <span id="live-progress-count">0 / 0 Match Selesai</span>
+          </div>
+          <div class="widget-active-box" id="live-active-box">
+            <div class="widget-active-title"><span class="pulse-indicator"></span> Match Berlangsung:</div>
+            <div class="widget-active-names" id="live-active-names">Belum ada match aktif</div>
+          </div>
+          <div class="widget-up-next-box" id="live-up-next-box">
+            <div class="widget-up-next-title"><span class="pulse-indicator-amber"></span> Akan Main Selanjutnya:</div>
+            <div class="widget-up-next-names" id="live-up-next-names">Menunggu giliran</div>
+          </div>
+        </div>
+      </div>
+
+      <div id="live-canvas" class="bracket-canvas">
+        <svg id="live-svg" class="bracket-svg" xmlns="http://www.w3.org/2000/svg"></svg>
+        <div id="live-rounds-container" class="bracket-rounds-container"></div>
+      </div>
+    </main>
+  </section>
+
+  <!-- ==================== VIEW 4: PUBLIC MOBILE REGISTRATION ==================== -->
+  <section id="register-view" class="app-view hidden">
+    <div class="register-container">
+      <div class="register-card">
+        <div class="register-card-header">
+          <div class="register-badge">PARTICIPANT REGISTRATION</div>
+          <h2 id="register-tournament-name">Tournament Registration</h2>
+          <p id="register-tournament-meta">Daftarkan tim Anda untuk masuk ke bagan turnamen.</p>
+          <div class="reg-counter-wrapper" style="display:flex; flex-direction:column; gap:6px; align-items:center;">
+            <span class="registered-counter-badge" id="register-counter-badge">
+              <i class="fa-solid fa-users"></i> <strong id="register-capacity-text">0</strong> Peserta Telah Terdaftar
+            </span>
+            <span class="reg-deadline-badge" id="reg-deadline-badge" style="font-size:11px; padding:4px 10px; border-radius:20px; background:rgba(245,158,11,0.15); border:1px solid rgba(245,158,11,0.35); color:#fbbf24; font-weight:600; display:inline-flex; align-items:center; gap:5px;">
+              <i class="fa-regular fa-clock"></i> <span id="reg-deadline-text">Pendaftaran Dibuka</span>
+            </span>
+          </div>
+        </div>
+
+        <!-- Registration Closed Message Box -->
+        <div id="register-closed-box" class="register-closed-box hidden" style="padding: 24px; text-align: center; background: rgba(239, 68, 68, 0.08); border-radius: var(--radius-sm); border: 1px solid rgba(239, 68, 68, 0.25); margin: 16px;">
+          <div style="font-size: 36px; color: #ef4444; margin-bottom: 8px;"><i class="fa-solid fa-lock"></i></div>
+          <h3 style="font-size: 1.1rem; color: #f87171; margin-bottom: 6px;">Pendaftaran Telah Ditutup</h3>
+          <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 16px;">Batas waktu pendaftaran telah berakhir atau bagan pertandingan telah dikunci oleh panitia.</p>
+          <button type="button" id="btn-closed-view-live" class="btn btn-primary btn-block">
+            <i class="fa-solid fa-trophy"></i> Lihat Live Bracket Pertandingan
+          </button>
+        </div>
+
+        <form id="public-register-form" class="register-card-body">
+          <div class="form-group" id="reg-team-name-group">
+            <label for="reg-team-name">Nama Tim <span class="text-subtle">(Opsional - jika kosong otomatis TIM [Nama Depan])</span></label>
+            <input type="text" id="reg-team-name" placeholder="Contoh: Garuda Team (Opsional)">
+          </div>
+
+          <div class="form-section-title">
+            <i class="fa-solid fa-user"></i> Data Pemain Utama
+          </div>
+
+          <div class="form-group">
+            <label for="reg-player-name">Nama Lengkap Pemain Utama <span class="required">*</span></label>
+            <input type="text" id="reg-player-name" placeholder="Masukkan nama lengkap pemain utama" required autocomplete="name">
+          </div>
+
+          <div class="form-group">
+            <label for="reg-player-wecom">No. Wecom <span class="required">*</span></label>
+            <input type="text" id="reg-player-wecom" placeholder="No. Wecom / WA" required>
+          </div>
+
+          <div class="form-group">
+            <label for="reg-player-dept">Departemen (Dept) <span class="required">*</span></label>
+            <input type="text" id="reg-player-dept" placeholder="Contoh: Produksi, IT, HR" required>
+          </div>
+
+          <!-- Option checklist for Mode Tim -->
+          <div class="form-group team-mode-toggle-box" id="reg-team-mode-box">
+            <label class="toggle-label" id="label-team-toggle">
+              <input type="checkbox" id="reg-is-team-check">
+              <span><strong>Daftar sebagai Mode Tim</strong></span>
+            </label>
+          </div>
+
+          <!-- Partner Section: Revealed when Mode Tim is checked -->
+          <div id="reg-partner-section" class="partner-form-section hidden">
+            <div class="form-section-title partner-accent">
+              <i class="fa-solid fa-user-group"></i> Data Rekan Satu Tim
+            </div>
+
+            <!-- Teammate Count Selector (1-5 orang) -->
+            <div class="form-group teammate-count-group">
+              <label><i class="fa-solid fa-users-gear"></i> Jumlah Rekan Tim:</label>
+              <div class="teammate-count-pills" id="teammate-count-pills">
+                <button type="button" class="count-pill active" data-count="1">1 Rekan</button>
+                <button type="button" class="count-pill" data-count="2">2 Rekan</button>
+                <button type="button" class="count-pill" data-count="3">3 Rekan</button>
+                <button type="button" class="count-pill" data-count="4">4 Rekan</button>
+                <button type="button" class="count-pill" data-count="5">5 Rekan</button>
+              </div>
+            </div>
+
+            <!-- Dynamic Teammate Input Cards Container -->
+            <div id="reg-partners-dynamic-container" class="partners-dynamic-container">
+              <!-- Rendered dynamically by app.js (1-5 cards) -->
+            </div>
+          </div>
+
+          <button type="submit" id="btn-submit-registration" class="btn btn-primary btn-block">
+            <i class="fa-solid fa-paper-plane"></i> Submit Pendaftaran
+          </button>
+        </form>
+
+        <div id="register-success-box" class="register-success-box hidden">
+          <div class="success-icon"><i class="fa-solid fa-circle-check"></i></div>
+          <h3>Pendaftaran Berhasil Terkonfirmasi!</h3>
+          <p>Anda resmi terdaftar dalam bagan pertandingan turnamen. Pantau live bracket pertandingan melalui link di bawah:</p>
+          <div class="success-live-box" style="margin: 14px 0; background: var(--bg-surface-elevated); padding: 10px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle); display:flex; gap:8px;">
+            <input type="text" id="success-live-url" readonly style="font-size: 11px; flex: 1;" />
+            <button type="button" id="btn-copy-success-live" class="btn btn-secondary btn-sm" style="white-space:nowrap;"><i class="fa-solid fa-copy"></i> Salin</button>
+          </div>
+          <button id="btn-view-live-bracket" class="btn btn-primary btn-block">
+            <i class="fa-solid fa-trophy"></i> Buka Live Bracket Sekarang
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== MODALS ==================== -->
+
+  <!-- Modal 1: Create Tournament Modal -->
+  <div id="modal-create-tournament" class="modal-overlay hidden">
+    <div class="modal-content modal-md">
+      <div class="modal-header">
+        <h3>Create New Tournament</h3>
+        <button class="btn-close-modal" data-close="modal-create-tournament">&times;</button>
+      </div>
+      <form id="form-create-tournament" class="modal-body">
+        <div class="form-group">
+          <label for="create-name">Tournament Title <span class="required">*</span></label>
+          <input type="text" id="create-name" placeholder="e.g. Valorant Championship Cup" required>
+        </div>
+        <div class="form-group">
+          <label for="create-game">Game / Category</label>
+          <input type="text" id="create-game" placeholder="e.g. Valorant, MLBB, Tekken 8, Badminton" required>
+        </div>
+        <div class="form-row">
+          <div class="form-group half">
+            <label for="create-type">Format</label>
+            <select id="create-type">
+              <option value="single_elimination">Single Elimination</option>
+              <option value="double_elimination">Double Elimination</option>
+            </select>
+          </div>
+          <div class="form-group half">
+            <label for="create-size">Initial Participants</label>
+            <select id="create-size">
+              <option value="4">4 Teams</option>
+              <option value="8" selected>8 Teams</option>
+              <option value="16">16 Teams</option>
+              <option value="32">32 Teams</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="toggle-label">
+            <input type="checkbox" id="create-is-doubles">
+            <span>Mode Ganda / Tim (2 Pemain per Tim)</span>
+          </label>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-ghost" data-close="modal-create-tournament">Cancel</button>
+          <button type="submit" class="btn btn-primary">Create Tournament</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal 2: QR Code Registration Modal -->
+  <div id="modal-qr-code" class="modal-overlay hidden">
+    <div class="modal-content modal-md text-center">
+      <div class="modal-header">
+        <h3>Participant Registration QR</h3>
+        <button class="btn-close-modal" data-close="modal-qr-code">&times;</button>
+      </div>
+      <div class="modal-body qr-modal-body">
+        <p class="qr-instructions">Scan this QR code with a phone to register participants directly into the tournament.</p>
+        
+        <div class="qr-preview-container">
+          <div id="qr-code-display" class="qr-image-wrapper">
+            <!-- QR image rendered dynamically -->
+          </div>
+        </div>
+
+        <div class="url-copy-box">
+          <input type="text" id="qr-url-text" readonly>
+          <button id="btn-copy-qr-url" class="btn btn-secondary">
+            <i class="fa-solid fa-copy"></i> Copy Link
+          </button>
+        </div>
+
+        <div class="qr-options-box">
+          <label class="toggle-label" style="justify-content: center; cursor: pointer;">
+            <input type="checkbox" id="qr-doubles-toggle">
+            <span><strong>Mode Tim</strong> (Form otomatis meminta data Rekan)</span>
+          </label>
+        </div>
+
+        <!-- QR Registration Closing Deadline Setting -->
+        <div class="qr-deadline-box" style="margin-top: 12px; width: 100%; text-align: left; background: var(--bg-surface-elevated); padding: 12px 14px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 6px;">
+            <label style="font-size: 12px; font-weight: 600; color: var(--text-secondary);"><i class="fa-regular fa-clock"></i> Batas Waktu QR / Pendaftaran Ditutup:</label>
+            <span id="qr-deadline-status-badge" style="font-size: 11px; font-weight: 700; color: var(--accent-gold);"></span>
+          </div>
+          <div style="display: flex; gap: 8px;">
+            <select id="qr-deadline-preset" style="font-size: 12px; flex: 1;">
+              <option value="none">Tanpa Batas Waktu (Buka Terus)</option>
+              <option value="5">5 Menit Lagi</option>
+              <option value="15">15 Menit Lagi</option>
+              <option value="30">30 Menit Lagi</option>
+              <option value="60">1 Jam Lagi</option>
+              <option value="120">2 Jam Lagi</option>
+              <option value="custom">Pilih Waktu Custom...</option>
+            </select>
+            <input type="datetime-local" id="qr-deadline-custom" class="hidden" style="font-size: 11px; max-width: 170px;" />
+            <button type="button" id="btn-save-qr-deadline" class="btn btn-secondary btn-sm" style="white-space: nowrap;">Simpan</button>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer justify-center">
+        <a id="btn-download-qr" class="btn btn-ghost" download="tournament-registration-qr.png">
+          <i class="fa-solid fa-download"></i> Download QR Image
+        </a>
+        <button id="btn-open-reg-page" class="btn btn-primary">
+          <i class="fa-solid fa-arrow-up-right-from-square"></i> Open Registration Page
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 3: Match Score & Direct Win Controller Modal -->
+  <div id="modal-match-control" class="modal-overlay hidden">
+    <div class="modal-content modal-md">
+      <div class="modal-header">
+        <div>
+          <h3 id="modal-match-title">Match Details</h3>
+          <span id="modal-match-round" class="text-subtle">Round 1</span>
+        </div>
+        <button class="btn-close-modal" data-close="modal-match-control">&times;</button>
+      </div>
+      <div class="modal-body match-controller-body">
+        <!-- Match Status Selector -->
+        <div class="match-status-bar">
+          <span class="status-label">Match Status:</span>
+          <div class="status-options">
+            <button class="status-btn" data-status="scheduled">Scheduled</button>
+            <button class="status-btn" data-status="in_progress">In Progress</button>
+            <button class="status-btn" data-status="completed">Completed</button>
+          </div>
+        </div>
+
+        <!-- Two Competitors Score Cards -->
+        <div class="competitors-grid">
+          <!-- Competitor 1 -->
+          <div class="competitor-card" id="match-card-p1">
+            <div class="comp-header">
+              <span class="seed-badge" id="modal-p1-seed">#1</span>
+              <span class="comp-name" id="modal-p1-name">Participant 1</span>
+            </div>
+            <div class="score-input-wrapper">
+              <label>Score / Points</label>
+              <input type="number" id="modal-p1-score" min="0" value="0" class="score-input">
+            </div>
+            <button type="button" id="btn-direct-win-p1" class="btn btn-sm btn-win">
+              <i class="fa-solid fa-crown"></i> Direct Win
+            </button>
+          </div>
+
+          <div class="vs-divider">VS</div>
+
+          <!-- Competitor 2 -->
+          <div class="competitor-card" id="match-card-p2">
+            <div class="comp-header">
+              <span class="seed-badge" id="modal-p2-seed">#8</span>
+              <span class="comp-name" id="modal-p2-name">Participant 2</span>
+            </div>
+            <div class="score-input-wrapper">
+              <label>Score / Points</label>
+              <input type="number" id="modal-p2-score" min="0" value="0" class="score-input">
+            </div>
+            <button type="button" id="btn-direct-win-p2" class="btn btn-sm btn-win">
+              <i class="fa-solid fa-crown"></i> Direct Win
+            </button>
+          </div>
+        </div>
+
+        <!-- Reset match result button -->
+        <div class="match-actions-secondary">
+          <button type="button" id="btn-clear-match-result" class="btn btn-ghost btn-sm">
+            <i class="fa-solid fa-rotate-left"></i> Reset Match Result
+          </button>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-ghost" data-close="modal-match-control">Cancel</button>
+        <button type="button" id="btn-save-match-score" class="btn btn-primary">
+          <i class="fa-solid fa-check"></i> Save Match Scores
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 4: Generic Confirmation Modal (Direct Win, Lock, Delete) -->
+  <div id="modal-confirm" class="modal-overlay hidden">
+    <div class="modal-content modal-sm">
+      <div class="modal-header">
+        <h3 id="confirm-title">Confirmation</h3>
+        <button class="btn-close-modal" data-close="modal-confirm">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p id="confirm-message">Are you sure you want to proceed?</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-ghost" data-close="modal-confirm">Cancel</button>
+        <button type="button" id="btn-confirm-action" class="btn btn-primary">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 5: Edit Tournament Name Modal -->
+  <div id="modal-edit-name" class="modal-overlay hidden">
+    <div class="modal-content modal-sm">
+      <div class="modal-header">
+        <h3>Edit Tournament Name</h3>
+        <button class="btn-close-modal" data-close="modal-edit-name">&times;</button>
+      </div>
+      <form id="form-edit-name" class="modal-body">
+        <div class="form-group">
+          <label for="input-edit-tournament-name">Tournament Title</label>
+          <input type="text" id="input-edit-tournament-name" required autocomplete="off">
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-ghost" data-close="modal-edit-name">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal 6: Bulk Add Participants Modal -->
+  <div id="modal-bulk-add" class="modal-overlay hidden">
+    <div class="modal-content modal-md">
+      <div class="modal-header">
+        <h3>Bulk Add Participants</h3>
+        <button class="btn-close-modal" data-close="modal-bulk-add">&times;</button>
+      </div>
+      <form id="form-bulk-add" class="modal-body">
+        <div class="csv-upload-box">
+          <label><i class="fa-solid fa-file-csv"></i> Upload File CSV</label>
+          <div class="csv-dropzone" id="csv-dropzone">
+            <i class="fa-solid fa-cloud-arrow-up"></i>
+            <p><strong>Klik atau tarik file CSV ke sini</strong></p>
+            <span class="text-subtle">Format: Nama Lengkap, No Wecom, Dept, [Nama Rekan, Wecom Rekan, Dept Rekan, Nama Tim]</span>
+            <input type="file" id="bulk-csv-file" accept=".csv,text/csv" class="hidden">
+          </div>
+          <div id="csv-file-status" class="csv-file-status hidden">
+            <span id="csv-file-name"></span>
+            <button type="button" id="btn-clear-csv" class="btn-icon-subtle"><i class="fa-solid fa-xmark"></i></button>
+          </div>
+        </div>
+
+        <div class="divider-text"><span>ATAU PASTE TEKS / CSV MANUAL</span></div>
+
+        <div class="form-group">
+          <label for="bulk-participants-text">Daftar Peserta (Satu per baris atau teks CSV):</label>
+          <textarea id="bulk-participants-text" rows="6" placeholder="Budi Santoso, 0812345678, IT&#10;Agus Wijaya, 0819876543, Produksi&#10;Siti Rahma, 0811223344, HR"></textarea>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-ghost" data-close="modal-bulk-add">Batal</button>
+          <button type="submit" class="btn btn-primary"><i class="fa-solid fa-file-import"></i> Import Peserta</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal 7: Match Search & Quick Focus Modal -->
+  <div id="modal-match-search" class="modal-overlay hidden">
+    <div class="modal-content modal-md">
+      <div class="modal-header">
+        <div>
+          <h3><i class="fa-solid fa-magnifying-glass"></i> Cari Pertandingan (Match)</h3>
+          <span class="text-subtle">Cari tim, pemain, ronde, atau status untuk langsung lompat ke match</span>
+        </div>
+        <button class="btn-close-modal" data-close="modal-match-search">&times;</button>
+      </div>
+      <div class="modal-body search-modal-body">
+        <div class="search-input-box">
+          <i class="fa-solid fa-search search-icon"></i>
+          <input type="text" id="input-search-match" placeholder="Ketik nama tim / pemain / nomor match..." autocomplete="off">
+        </div>
+        <div class="search-filters">
+          <button type="button" class="search-filter-btn active" data-filter="all">Semua</button>
+          <button type="button" class="search-filter-btn" data-filter="in_progress">Sedang Main</button>
+          <button type="button" class="search-filter-btn" data-filter="scheduled">Belum Main</button>
+          <button type="button" class="search-filter-btn" data-filter="completed">Selesai</button>
+        </div>
+        <div id="match-search-results" class="match-search-results">
+          <!-- Dynamically populated matches -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- Application Logic -->
+  <script src="app.js"></script>
+</body>
+</html>
