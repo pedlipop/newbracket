@@ -282,6 +282,10 @@ button {
   overflow: hidden;
 }
 
+.app-view.hidden {
+  display: none !important;
+}
+
 /* Headers */
 .app-header {
   height: 60px;
@@ -1330,12 +1334,17 @@ button {
   bottom: 0;
   width: 100vw;
   height: 100vh;
-  overflow-y: scroll !important;
+  overflow-y: auto;
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
-  display: block !important;
+  display: block;
   z-index: 50;
   background-color: var(--bg-app);
+}
+
+#register-view.hidden,
+#register-view.app-view.hidden {
+  display: none !important;
 }
 
 .register-container {

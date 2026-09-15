@@ -1,6 +1,28 @@
 {
   "tournaments": [
     {
+      "id": "t_1789456425335_txrx6",
+      "name": "awda",
+      "game": "awa",
+      "type": "single_elimination",
+      "status": "setup",
+      "isLocked": false,
+      "maxParticipants": 8,
+      "participants": [],
+      "rounds": [],
+      "lockedSeeds": [],
+      "inProgressHighlight": false,
+      "registrationDeadline": null,
+      "autoLockAt": null,
+      "settings": {
+        "thirdPlaceMatch": false,
+        "theme": "dark-modern",
+        "isDoubles": false
+      },
+      "createdAt": "2026-09-15T07:13:45.335Z",
+      "updatedAt": "2026-09-15T07:13:45.335Z"
+    },
+    {
       "id": "t_1789455772363_lw3ws",
       "name": "12311",
       "game": "1",
