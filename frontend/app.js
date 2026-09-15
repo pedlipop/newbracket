@@ -29,7 +29,9 @@
     parsedCsvParticipants: [],
     activeSearchFilter: 'all',
     regTeammateCount: 1,
-    lang: localStorage.getItem('cngr_lang') || 'id'
+    lang: localStorage.getItem('cngr_lang') || 'id',
+    drawerParticipants: { search: '', page: 1, pageSize: 16 },
+    reportFilter: { search: '', filter: 'all' }
   };
 
   // ==================== I18N TRANSLATION DICTIONARY ====================
@@ -176,7 +178,33 @@
       btn_import_participants: 'Import Peserta',
       modal_search_title: 'Cari Pertandingan (Match)',
       modal_search_sub: 'Cari tim, pemain, ronde, atau status untuk langsung lompat ke match',
-      search_match_ph: 'Ketik nama tim / pemain / nomor match...'
+      search_match_ph: 'Ketik nama tim / pemain / nomor match...',
+      status_next_up: 'Akan Bermain',
+      btn_quick_save_status: 'Simpan Status',
+      nav_reports: 'Laporan',
+      btn_participant_report: 'Laporan Peserta',
+      btn_full_report: 'Laporan Pendaftar Link',
+      btn_back_to_bracket: 'Kembali ke Bagan',
+      report_title: 'Laporan Pendaftar Turnamen',
+      report_stat_teams: 'Total Pendaftar / Tim',
+      report_stat_athletes: 'Total Atlet / Pemain',
+      report_stat_seeded: 'Masuk di Bagan',
+      report_stat_unseeded: 'Belum Masuk Bagan',
+      btn_export_csv: 'Export Excel / CSV',
+      btn_print_report: 'Cetak',
+      ph_search_participants: 'Cari nama peserta / seed...',
+      ph_search_report: 'Cari tim, pemain, divisi, atau WeCom...',
+      filter_seeded: 'Sudah di Bagan',
+      filter_unseeded: 'Belum di Bagan',
+      th_team_name: 'Nama Tim / Peserta',
+      th_captain: 'Ketua / Pemain',
+      th_dept: 'Divisi / Dept',
+      th_contact: 'Kontak / WeCom',
+      th_members: 'Anggota Tim',
+      th_reg_time: 'Waktu Mendaftar',
+      th_bracket_status: 'Status Bagan',
+      report_empty_title: 'Tidak Ada Data Pendaftar',
+      report_empty_desc: 'Belum ada peserta yang mendaftar melalui link atau form.'
     },
     zh: {
       portal_title: 'CNGR 赛事中心',
@@ -320,7 +348,33 @@
       btn_import_participants: '确认导入名单',
       modal_search_title: '搜索对战比赛',
       modal_search_sub: '可搜索选手、队伍名称、轮次或比赛状态快速定位',
-      search_match_ph: '输入战队名称、选手姓名或场次...'
+      search_match_ph: '输入战队名称、选手姓名或场次...',
+      status_next_up: '即将开赛',
+      btn_quick_save_status: '保存状态',
+      nav_reports: '报名报表',
+      btn_participant_report: '选手名单',
+      btn_full_report: '报名名单报表',
+      btn_back_to_bracket: '返回对阵图',
+      report_title: '赛事选手报名报表',
+      report_stat_teams: '报名总数 / 队伍',
+      report_stat_athletes: '参赛选手数',
+      report_stat_seeded: '已分配对阵',
+      report_stat_unseeded: '未分配对阵',
+      btn_export_csv: '导出 Excel / CSV',
+      btn_print_report: '打印报表',
+      ph_search_participants: '搜索选手姓名或签号...',
+      ph_search_report: '搜索队伍、选手、部门或微信号...',
+      filter_seeded: '已分配对阵',
+      filter_unseeded: '未分配对阵',
+      th_team_name: '队伍 / 选手名称',
+      th_captain: '队长 / 主力选手',
+      th_dept: '部门 / 车间',
+      th_contact: '联系方式 / 微信号',
+      th_members: '队伍成员',
+      th_reg_time: '报名时间',
+      th_bracket_status: '对阵状态',
+      report_empty_title: '暂无报名数据',
+      report_empty_desc: '暂无选手通过报名链接或表单提交报名。'
     }
   };
 
@@ -425,6 +479,34 @@
     el.settingGameInput = document.getElementById('setting-game-input');
     el.settingBronzeMatch = document.getElementById('setting-bronze-match');
     el.btnResetScores = document.getElementById('btn-reset-scores');
+
+    // Drawer Participant Search & Pagination
+    el.drawerParticipantSearch = document.getElementById('drawer-participant-search');
+    el.btnClearDrawerSearch = document.getElementById('btn-clear-drawer-search');
+    el.drawerPagination = document.getElementById('drawer-pagination');
+    el.drawerPageInfo = document.getElementById('drawer-page-info');
+    el.drawerPageIndicator = document.getElementById('drawer-page-indicator');
+    el.btnDrawerPrevPage = document.getElementById('btn-drawer-prev-page');
+    el.btnDrawerNextPage = document.getElementById('btn-drawer-next-page');
+    el.drawerPageSizeSelect = document.getElementById('drawer-page-size-select');
+    el.btnDrawerFullReport = document.getElementById('btn-drawer-full-report');
+
+    // Studio Reports View
+    el.btnStudioOpenReport = document.getElementById('btn-studio-open-report');
+    el.railBtnReports = document.getElementById('rail-btn-reports');
+    el.studioReportView = document.getElementById('studio-report-view');
+    el.btnCloseReportView = document.getElementById('btn-close-report-view');
+    el.btnReportExportCsv = document.getElementById('btn-report-export-csv');
+    el.btnReportPrint = document.getElementById('btn-report-print');
+    el.reportTournamentSubtitle = document.getElementById('report-tournament-subtitle');
+    el.reportStatTeams = document.getElementById('report-stat-teams');
+    el.reportStatAthletes = document.getElementById('report-stat-athletes');
+    el.reportStatSeeded = document.getElementById('report-stat-seeded');
+    el.reportStatUnseeded = document.getElementById('report-stat-unseeded');
+    el.reportSearchInput = document.getElementById('report-search-input');
+    el.reportTableBody = document.getElementById('report-table-body');
+    el.reportEmptyState = document.getElementById('report-empty-state');
+    el.btnQuickStatusSave = document.getElementById('btn-quick-status-save');
 
     // Canvas
     el.canvasContainer = document.getElementById('canvas-container');
@@ -808,6 +890,9 @@
             <button class="btn btn-secondary btn-card-open" data-id="${t.id}">
               <i class="fa-solid fa-pen-to-square"></i> ${studioLabel}
             </button>
+            <button class="btn btn-tool btn-card-report" data-id="${t.id}" title="${isZh ? '查看报名报表' : 'Laporan Pendaftar'}">
+              <i class="fa-solid fa-clipboard-user"></i> ${isZh ? '报表' : 'Laporan'}
+            </button>
             <button class="btn btn-tool btn-card-qr" data-id="${t.id}" title="${isZh ? '显示报名二维码' : 'Show Registration QR'}">
               <i class="fa-solid fa-qrcode"></i> QR
             </button>
@@ -822,6 +907,12 @@
     // Attach card event listeners
     el.tournamentsGrid.querySelectorAll('.btn-card-open').forEach(b => {
       b.addEventListener('click', () => navigateToStudio(b.dataset.id));
+    });
+    el.tournamentsGrid.querySelectorAll('.btn-card-report').forEach(b => {
+      b.addEventListener('click', () => {
+        navigateToStudio(b.dataset.id);
+        setTimeout(() => openStudioReportView(b.dataset.id), 120);
+      });
     });
     el.tournamentsGrid.querySelectorAll('.btn-card-qr').forEach(b => {
       b.addEventListener('click', () => openQrModalForTournament(b.dataset.id));
@@ -969,6 +1060,7 @@
 
     if (participants.length === 0) {
       el.participantsList.innerHTML = `<div class="text-subtle" style="padding: 1rem 0; text-align: center;">No participants registered yet. Scan QR or add below.</div>`;
+      if (el.drawerPagination) el.drawerPagination.style.display = 'none';
       return;
     }
 
@@ -981,7 +1073,54 @@
       });
     });
 
-    el.participantsList.innerHTML = participants.map((p, idx) => {
+    // 1. Filter by search query
+    const query = (state.drawerParticipants.search || '').trim().toLowerCase();
+    const indexedParticipants = participants.map((p, idx) => ({ p, idx }));
+    const filtered = query
+      ? indexedParticipants.filter(({ p, idx }) => {
+          const nameMatch = (p.name || '').toLowerCase().includes(query);
+          const playerMatch = (p.playerName || '').toLowerCase().includes(query);
+          const deptMatch = (p.dept || '').toLowerCase().includes(query);
+          const seedMatch = String(idx + 1) === query || `#${idx + 1}` === query;
+          return nameMatch || playerMatch || deptMatch || seedMatch;
+        })
+      : indexedParticipants;
+
+    // 2. Pagination calculation
+    const totalItems = filtered.length;
+    const rawPageSize = state.drawerParticipants.pageSize;
+    const pageSize = rawPageSize === 'all' ? totalItems : (parseInt(rawPageSize, 10) || 16);
+    const totalPages = Math.max(1, Math.ceil(totalItems / (pageSize || 1)));
+
+    if (state.drawerParticipants.page > totalPages) state.drawerParticipants.page = totalPages;
+    if (state.drawerParticipants.page < 1) state.drawerParticipants.page = 1;
+    const page = state.drawerParticipants.page;
+
+    const startIndex = (page - 1) * pageSize;
+    const pagedItems = rawPageSize === 'all' ? filtered : filtered.slice(startIndex, startIndex + pageSize);
+
+    // 3. Update pagination UI
+    if (el.drawerPagination) {
+      el.drawerPagination.style.display = totalItems > 0 ? 'flex' : 'none';
+      const endItem = Math.min(startIndex + pageSize, totalItems);
+      const displayStart = totalItems === 0 ? 0 : startIndex + 1;
+      if (el.drawerPageInfo) {
+        el.drawerPageInfo.textContent = `${displayStart}-${endItem} / ${totalItems}`;
+      }
+      if (el.drawerPageIndicator) {
+        el.drawerPageIndicator.textContent = `${page} / ${totalPages}`;
+      }
+      if (el.btnDrawerPrevPage) el.btnDrawerPrevPage.disabled = page <= 1;
+      if (el.btnDrawerNextPage) el.btnDrawerNextPage.disabled = page >= totalPages;
+      if (el.drawerPageSizeSelect) el.drawerPageSizeSelect.value = String(rawPageSize);
+    }
+
+    if (pagedItems.length === 0) {
+      el.participantsList.innerHTML = `<div class="text-subtle" style="padding: 1rem 0; text-align: center;">Tidak ada slot atau peserta yang cocok dengan "${escapeHTML(query)}".</div>`;
+      return;
+    }
+
+    el.participantsList.innerHTML = pagedItems.map(({ p, idx }) => {
       const partnersList = Array.isArray(p.partners) && p.partners.length > 0
         ? p.partners
         : (p.partner && p.partner.name ? [p.partner] : []);
@@ -1463,6 +1602,17 @@
 
   function findNextUpMatch(rounds) {
     if (!rounds || !Array.isArray(rounds)) return null;
+    // 1. Explicitly marked 'next_up' matches have top priority
+    for (let rIdx = 0; rIdx < rounds.length; rIdx++) {
+      const round = rounds[rIdx];
+      for (let mIdx = 0; mIdx < (round.matches || []).length; mIdx++) {
+        const m = round.matches[mIdx];
+        if (m.status === 'next_up') {
+          return { match: m, rIdx, mIdx, roundTitle: round.title };
+        }
+      }
+    }
+    // 2. Fallback to first scheduled match with 2 ready players
     for (let rIdx = 0; rIdx < rounds.length; rIdx++) {
       const round = rounds[rIdx];
       for (let mIdx = 0; mIdx < (round.matches || []).length; mIdx++) {
@@ -1726,7 +1876,9 @@
     }
 
     // Highlight upcoming next match
-    if (isNextUp) {
+    const isManuallyNextUp = match.status === 'next_up';
+    const shouldHighlightNextUp = isManuallyNextUp || isNextUp;
+    if (shouldHighlightNextUp) {
       node.classList.add('match-up-next-highlight');
     }
 
@@ -1744,16 +1896,16 @@
     const p2Class = p2IsWinner ? 'winner' : (p1IsWinner ? 'loser' : '');
 
     const isZh = state.lang === 'zh';
-    const statusBadgeClass = `match-status-tag ${match.status || 'scheduled'}`;
-    let statusText = (match.status || 'scheduled').replace('_', ' ');
-    if (isZh) {
-      if (match.status === 'in_progress') statusText = '进行中';
-      else if (match.status === 'completed') statusText = '已结束';
-      else statusText = '未开始';
+    let statusBadgeHtml = '';
+    if (shouldHighlightNextUp) {
+      statusBadgeHtml = `<span class="match-status-tag next_up" title="${isZh ? '即将开赛的比赛！' : 'Pertandingan yang akan bertanding selanjutnya!'}"><span class="pulse-indicator-amber"></span> ${isZh ? '即将开赛' : 'AKAN BERMAIN'}</span>`;
+    } else if (match.status === 'in_progress') {
+      statusBadgeHtml = `<span class="match-status-tag in_progress">${isZh ? '进行中' : 'SEDANG MAIN'}</span>`;
+    } else if (match.status === 'completed') {
+      statusBadgeHtml = `<span class="match-status-tag completed">${isZh ? '已结束' : 'SELESAI'}</span>`;
+    } else {
+      statusBadgeHtml = `<span class="match-status-tag scheduled">${isZh ? '未开始' : 'BELUM MULAI'}</span>`;
     }
-    const statusBadgeHtml = isNextUp
-      ? `<span class="match-status-tag next_up" title="${isZh ? '即将开赛的比赛！' : 'Pertandingan yang akan bertanding selanjutnya!'}"><span class="pulse-indicator-amber"></span> ${isZh ? '即将开赛' : 'AKAN MAIN'}</span>`
-      : `<span class="${statusBadgeClass}">${statusText}</span>`;
 
     const renderRow = (p, slot, score, pClass) => {
       const isSlotLocked = slot === 'p1' ? !!match.p1Locked : !!match.p2Locked;
@@ -2107,6 +2259,26 @@
     showToast('Match scores saved successfully!', 'success');
   }
 
+  function handleQuickStatusSave() {
+    if (!state.selectedMatchForEdit) return;
+    const { match } = state.selectedMatchForEdit;
+    const activeStatusBtn = el.modalMatchControl.querySelector('.status-btn.active');
+    if (!activeStatusBtn) return;
+    const nextStatus = activeStatusBtn.dataset.status;
+    match.status = nextStatus;
+
+    closeModal(el.modalMatchControl);
+    saveTournamentState(true);
+    renderBracketStudio();
+
+    let statusLabel = 'Belum Mulai';
+    if (nextStatus === 'next_up') statusLabel = state.lang === 'zh' ? '即将开赛' : 'Akan Bermain';
+    else if (nextStatus === 'in_progress') statusLabel = state.lang === 'zh' ? '进行中' : 'Sedang Main';
+    else if (nextStatus === 'completed') statusLabel = state.lang === 'zh' ? '已结束' : 'Selesai';
+
+    showToast(state.lang === 'zh' ? `比赛状态已更新: ${statusLabel}` : `Status pertandingan diubah ke: ${statusLabel}`, 'success');
+  }
+
   function handleDirectWin(playerSlot) {
     if (!state.selectedMatchForEdit) return;
     const { match, rIdx, mIdx } = state.selectedMatchForEdit;
@@ -2303,6 +2475,234 @@
         }
       }
     );
+  }
+
+  // ==================== PARTICIPANT REPORTS VIEW (NO BRACKET) ====================
+  function openStudioReportView(tournamentId) {
+    if (tournamentId && (!state.currentTournament || state.currentTournament.id !== tournamentId)) {
+      loadTournament(tournamentId, () => {
+        showStudioReportViewUI();
+      });
+      return;
+    }
+    showStudioReportViewUI();
+  }
+
+  function showStudioReportViewUI() {
+    if (el.canvasContainer) el.canvasContainer.classList.add('hidden');
+    if (el.studioDrawer) el.studioDrawer.classList.add('collapsed');
+    if (el.studioReportView) el.studioReportView.classList.remove('hidden');
+
+    document.querySelectorAll('.rail-tab-btn').forEach(b => b.classList.remove('active'));
+    if (el.railBtnReports) el.railBtnReports.classList.add('active');
+
+    renderParticipantReports();
+  }
+
+  function closeStudioReportView() {
+    if (el.studioReportView) el.studioReportView.classList.add('hidden');
+    if (el.canvasContainer) el.canvasContainer.classList.remove('hidden');
+    if (el.studioDrawer) el.studioDrawer.classList.remove('collapsed');
+
+    document.querySelectorAll('.rail-tab-btn').forEach(b => {
+      b.classList.toggle('active', b.dataset.panel === 'participants');
+    });
+    document.querySelectorAll('.drawer-panel').forEach(p => {
+      p.classList.toggle('active', p.id === 'panel-participants');
+    });
+  }
+
+  function renderParticipantReports() {
+    const t = state.currentTournament;
+    if (!t) return;
+
+    const isZh = state.lang === 'zh';
+    const participants = t.participants || [];
+
+    if (el.reportTournamentSubtitle) {
+      el.reportTournamentSubtitle.textContent = `${t.name} • ${t.game || 'Esports'} • ${isZh ? '最大' : 'Maks'} ${t.maxParticipants || 16} ${isZh ? '支队伍/选手' : 'Tim/Peserta'}`;
+    }
+
+    // Determine assigned IDs
+    const assignedIds = new Set();
+    (t.rounds || []).forEach(r => {
+      (r.matches || []).forEach(m => {
+        if (m.p1 && m.p1.id && !m.p1.isPlaceholder && !m.p1.isUnseeded && m.p1.name && m.p1.name.trim()) assignedIds.add(m.p1.id);
+        if (m.p2 && m.p2.id && !m.p2.isPlaceholder && !m.p2.isUnseeded && m.p2.name && m.p2.name.trim()) assignedIds.add(m.p2.id);
+      });
+    });
+
+    // Real registered participants (have a name or playerName or registeredAt)
+    const registeredList = participants.filter(p => {
+      const hasName = !!((p.name && p.name.trim()) || (p.playerName && p.playerName.trim()) || (p.teamName && p.teamName.trim()));
+      return hasName;
+    });
+
+    const totalTeams = registeredList.length;
+    let totalAthletes = 0;
+    let seededCount = 0;
+
+    registeredList.forEach(p => {
+      const partnersList = Array.isArray(p.partners) && p.partners.length > 0
+        ? p.partners
+        : (p.partner && p.partner.name ? [p.partner] : []);
+      totalAthletes += 1 + partnersList.length;
+      if (assignedIds.has(p.id)) seededCount++;
+    });
+
+    const unseededCount = Math.max(0, totalTeams - seededCount);
+
+    if (el.reportStatTeams) el.reportStatTeams.textContent = totalTeams;
+    if (el.reportStatAthletes) el.reportStatAthletes.textContent = totalAthletes;
+    if (el.reportStatSeeded) el.reportStatSeeded.textContent = seededCount;
+    if (el.reportStatUnseeded) el.reportStatUnseeded.textContent = unseededCount;
+
+    // Filter by query and active tab
+    const query = (state.reportFilter.search || '').trim().toLowerCase();
+    const filterType = state.reportFilter.filter || 'all';
+
+    const filtered = registeredList.filter((p, idx) => {
+      const isSeeded = assignedIds.has(p.id);
+      if (filterType === 'seeded' && !isSeeded) return false;
+      if (filterType === 'unseeded' && isSeeded) return false;
+
+      if (!query) return true;
+
+      const nameMatch = (p.name || '').toLowerCase().includes(query);
+      const playerMatch = (p.playerName || '').toLowerCase().includes(query);
+      const teamMatch = (p.teamName || '').toLowerCase().includes(query);
+      const deptMatch = (p.dept || '').toLowerCase().includes(query);
+      const wecomMatch = (p.wecom || '').toLowerCase().includes(query);
+      const partnersMatch = Array.isArray(p.partners) && p.partners.some(part => (part.name || '').toLowerCase().includes(query) || (part.dept || '').toLowerCase().includes(query));
+
+      return nameMatch || playerMatch || teamMatch || deptMatch || wecomMatch || partnersMatch;
+    });
+
+    if (!el.reportTableBody) return;
+
+    if (filtered.length === 0) {
+      el.reportTableBody.innerHTML = '';
+      if (el.reportEmptyState) el.reportEmptyState.classList.remove('hidden');
+      return;
+    }
+
+    if (el.reportEmptyState) el.reportEmptyState.classList.add('hidden');
+
+    el.reportTableBody.innerHTML = filtered.map((p, idx) => {
+      const isSeeded = assignedIds.has(p.id);
+      const partnersList = Array.isArray(p.partners) && p.partners.length > 0
+        ? p.partners
+        : (p.partner && p.partner.name ? [p.partner] : []);
+
+      const teamNameDisplay = p.teamName || p.name || '-';
+      const captainNameDisplay = p.playerName || p.name || '-';
+
+      let membersHtml = `<span class="text-subtle">-</span>`;
+      if (partnersList.length > 0) {
+        membersHtml = partnersList.map(m => `
+          <span class="report-member-badge" title="${escapeHTML(m.name)} (${escapeHTML(m.dept || '-')})">
+            <i class="fa-solid fa-user"></i> ${escapeHTML(m.name)} ${m.dept ? `<span style="opacity:0.65; font-size:0.7rem;">(${escapeHTML(m.dept)})</span>` : ''}
+          </span>
+        `).join('');
+      }
+
+      let dateFormatted = '-';
+      if (p.registeredAt) {
+        try {
+          const d = new Date(p.registeredAt);
+          dateFormatted = d.toLocaleString(isZh ? 'zh-CN' : 'id-ID', { dateStyle: 'short', timeStyle: 'short' });
+        } catch (e) {
+          dateFormatted = p.registeredAt;
+        }
+      }
+
+      const statusBadge = isSeeded
+        ? `<span class="badge-bracket-seeded"><i class="fa-solid fa-check"></i> ${isZh ? '已在对阵图' : 'Masuk Bagan'}</span>`
+        : `<span class="badge-bracket-unseeded"><i class="fa-solid fa-hourglass-half"></i> ${isZh ? '未入对阵' : 'Belum Masuk'}</span>`;
+
+      return `
+        <tr>
+          <td style="color:var(--text-muted); font-weight:700;">${idx + 1}</td>
+          <td style="font-weight:700; color:var(--text-main);">${escapeHTML(teamNameDisplay)}</td>
+          <td>${escapeHTML(captainNameDisplay)}</td>
+          <td><span style="background:rgba(255,255,255,0.06); padding:2px 6px; border-radius:4px; font-size:0.78rem;">${escapeHTML(p.dept || '-')}</span></td>
+          <td>${escapeHTML(p.wecom || '-')}</td>
+          <td>${membersHtml}</td>
+          <td style="font-size:0.78rem; color:var(--text-secondary); white-space:nowrap;">${dateFormatted}</td>
+          <td>${statusBadge}</td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  function exportParticipantsCSV() {
+    const t = state.currentTournament;
+    if (!t) return;
+
+    const isZh = state.lang === 'zh';
+    const participants = t.participants || [];
+
+    const assignedIds = new Set();
+    (t.rounds || []).forEach(r => {
+      (r.matches || []).forEach(m => {
+        if (m.p1 && m.p1.id && !m.p1.isPlaceholder && !m.p1.isUnseeded && m.p1.name && m.p1.name.trim()) assignedIds.add(m.p1.id);
+        if (m.p2 && m.p2.id && !m.p2.isPlaceholder && !m.p2.isUnseeded && m.p2.name && m.p2.name.trim()) assignedIds.add(m.p2.id);
+      });
+    });
+
+    const registeredList = participants.filter(p => !!((p.name && p.name.trim()) || (p.playerName && p.playerName.trim()) || (p.teamName && p.teamName.trim())));
+
+    if (registeredList.length === 0) {
+      showToast(isZh ? '暂无报名选手数据可导出' : 'Tidak ada data peserta untuk diexport', 'warning');
+      return;
+    }
+
+    const headers = isZh
+      ? ['序号', '队伍/选手名称', '队长/主要选手', '部门', '微信号/联系方式', '队友名单', '报名时间', '对阵图状态']
+      : ['No', 'Nama Tim / Peserta', 'Ketua / Pemain Utama', 'Departemen / Divisi', 'Kontak / WeCom', 'Anggota Tim (Rekan)', 'Waktu Pendaftaran', 'Status Bagan'];
+
+    const rows = [headers];
+
+    registeredList.forEach((p, idx) => {
+      const isSeeded = assignedIds.has(p.id);
+      const partnersList = Array.isArray(p.partners) && p.partners.length > 0
+        ? p.partners
+        : (p.partner && p.partner.name ? [p.partner] : []);
+      const partnerStr = partnersList.map(m => `${m.name}${m.dept ? ` (${m.dept})` : ''}`).join('; ');
+
+      let dateFormatted = '-';
+      if (p.registeredAt) {
+        try {
+          const d = new Date(p.registeredAt);
+          dateFormatted = d.toLocaleString(isZh ? 'zh-CN' : 'id-ID');
+        } catch (e) {
+          dateFormatted = p.registeredAt;
+        }
+      }
+
+      rows.push([
+        idx + 1,
+        p.teamName || p.name || '',
+        p.playerName || p.name || '',
+        p.dept || '',
+        p.wecom || '',
+        partnerStr || '-',
+        dateFormatted,
+        isSeeded ? (isZh ? '已在对阵' : 'Masuk Bagan') : (isZh ? '未入对阵' : 'Belum di Bagan')
+      ]);
+    });
+
+    const csvContent = '\uFEFF' + rows.map(r => r.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(',')).join('\r\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `Laporan_Peserta_${(t.name || 'Tournament').replace(/\s+/g, '_')}_${Date.now()}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast(isZh ? 'Excel / CSV 报表已成功导出！' : 'File Excel/CSV berhasil didownload!', 'success');
   }
 
   // ==================== PARTICIPANT MANAGEMENT ====================
@@ -3733,13 +4133,19 @@
     el.btnOpenQrModal.addEventListener('click', () => openQrModalForTournament(state.currentTournament.id));
     el.btnOpenLiveView.addEventListener('click', () => navigateToLive(state.currentTournament.id));
 
-    // Drawer Tabs
+    // Drawer Tabs (Teams, Format, Themes, Reports)
     document.querySelectorAll('.rail-tab-btn').forEach(btn => {
       btn.addEventListener('click', () => {
+        const panelId = btn.dataset.panel;
+        if (panelId === 'reports') {
+          openStudioReportView();
+          return;
+        }
+        closeStudioReportView();
+
         document.querySelectorAll('.rail-tab-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
 
-        const panelId = btn.dataset.panel;
         document.querySelectorAll('.drawer-panel').forEach(p => p.classList.remove('active'));
         const target = document.getElementById(`panel-${panelId}`);
         if (target) target.classList.add('active');
@@ -3751,6 +4157,56 @@
     el.btnDrawerCollapse.addEventListener('click', () => {
       el.studioDrawer.classList.toggle('collapsed');
     });
+
+    // Drawer Participant Search & Pagination
+    if (el.drawerParticipantSearch) {
+      el.drawerParticipantSearch.addEventListener('input', () => {
+        state.drawerParticipants.search = el.drawerParticipantSearch.value;
+        state.drawerParticipants.page = 1;
+        if (el.btnClearDrawerSearch) {
+          el.btnClearDrawerSearch.style.display = el.drawerParticipantSearch.value ? 'block' : 'none';
+        }
+        renderParticipantsDrawer();
+      });
+    }
+
+    if (el.btnClearDrawerSearch) {
+      el.btnClearDrawerSearch.addEventListener('click', () => {
+        el.drawerParticipantSearch.value = '';
+        state.drawerParticipants.search = '';
+        state.drawerParticipants.page = 1;
+        el.btnClearDrawerSearch.style.display = 'none';
+        renderParticipantsDrawer();
+      });
+    }
+
+    if (el.btnDrawerPrevPage) {
+      el.btnDrawerPrevPage.addEventListener('click', () => {
+        if (state.drawerParticipants.page > 1) {
+          state.drawerParticipants.page--;
+          renderParticipantsDrawer();
+        }
+      });
+    }
+
+    if (el.btnDrawerNextPage) {
+      el.btnDrawerNextPage.addEventListener('click', () => {
+        state.drawerParticipants.page++;
+        renderParticipantsDrawer();
+      });
+    }
+
+    if (el.drawerPageSizeSelect) {
+      el.drawerPageSizeSelect.addEventListener('change', () => {
+        state.drawerParticipants.pageSize = el.drawerPageSizeSelect.value;
+        state.drawerParticipants.page = 1;
+        renderParticipantsDrawer();
+      });
+    }
+
+    if (el.btnDrawerFullReport) {
+      el.btnDrawerFullReport.addEventListener('click', () => openStudioReportView());
+    }
 
     // Add Participant, Auto-Seed & Random Seed
     el.addParticipantForm.addEventListener('submit', handleAddParticipant);
@@ -3845,9 +4301,38 @@
       });
     });
     el.btnSaveMatchScore.addEventListener('click', handleSaveMatchScores);
+    if (el.btnQuickStatusSave) el.btnQuickStatusSave.addEventListener('click', handleQuickStatusSave);
     el.btnDirectWinP1.addEventListener('click', () => handleDirectWin('p1'));
     el.btnDirectWinP2.addEventListener('click', () => handleDirectWin('p2'));
     el.btnClearMatchResult.addEventListener('click', handleResetMatchResult);
+
+    // Studio Reports View Listeners
+    if (el.btnStudioOpenReport) {
+      el.btnStudioOpenReport.addEventListener('click', () => openStudioReportView());
+    }
+    if (el.btnCloseReportView) {
+      el.btnCloseReportView.addEventListener('click', () => closeStudioReportView());
+    }
+    if (el.btnReportExportCsv) {
+      el.btnReportExportCsv.addEventListener('click', exportParticipantsCSV);
+    }
+    if (el.btnReportPrint) {
+      el.btnReportPrint.addEventListener('click', () => window.print());
+    }
+    if (el.reportSearchInput) {
+      el.reportSearchInput.addEventListener('input', () => {
+        state.reportFilter.search = el.reportSearchInput.value;
+        renderParticipantReports();
+      });
+    }
+    document.querySelectorAll('.report-filter').forEach(chip => {
+      chip.addEventListener('click', () => {
+        document.querySelectorAll('.report-filter').forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+        state.reportFilter.filter = chip.dataset.filter;
+        renderParticipantReports();
+      });
+    });
 
     // QR Modal Copy URL & Doubles Mode Toggle
     el.btnCopyQrUrl.addEventListener('click', () => {

@@ -5,15 +5,15 @@
       "name": "Ganda Campuran 混双",
       "game": "1",
       "type": "single_elimination",
-      "status": "setup",
-      "isLocked": false,
+      "status": "in_progress",
+      "isLocked": true,
       "maxParticipants": 8,
       "participants": [
         {
           "id": "p_1789459278930_adt1",
-          "name": "",
+          "name": "dada",
           "teamName": "",
-          "playerName": "",
+          "playerName": "dada",
           "wecom": "",
           "dept": "",
           "isTeam": false,
@@ -22,190 +22,40 @@
           "registeredAt": "2026-09-15T08:01:18.930Z"
         },
         {
-          "id": "p_1789459279306_iv9r",
-          "name": "",
-          "teamName": "",
-          "playerName": "",
-          "wecom": "",
-          "dept": "",
-          "isTeam": false,
-          "partners": [],
-          "partner": null,
-          "registeredAt": "2026-09-15T08:01:19.306Z"
-        },
-        {
-          "id": "p_1789459279470_bglz",
-          "name": "",
-          "teamName": "",
-          "playerName": "",
-          "wecom": "",
-          "dept": "",
-          "isTeam": false,
-          "partners": [],
-          "partner": null,
-          "registeredAt": "2026-09-15T08:01:19.470Z"
-        },
-        {
-          "id": "p_1789459281010_h25q",
-          "name": "",
-          "teamName": "",
-          "playerName": "",
-          "wecom": "",
-          "dept": "",
-          "isTeam": false,
-          "partners": [],
-          "partner": null,
-          "registeredAt": "2026-09-15T08:01:21.010Z"
-        },
-        {
-          "id": "p_1789459284994_nkkd",
-          "name": "",
-          "teamName": "",
-          "playerName": "",
-          "wecom": "",
-          "dept": "",
-          "isTeam": false,
-          "partners": [],
-          "partner": null,
-          "registeredAt": "2026-09-15T08:01:24.994Z"
-        },
-        {
-          "id": "p_1789459285138_q6jy",
-          "name": "",
-          "teamName": "",
-          "playerName": "",
-          "wecom": "",
-          "dept": "",
-          "isTeam": false,
-          "partners": [],
-          "partner": null,
-          "registeredAt": "2026-09-15T08:01:25.138Z"
-        },
-        {
-          "id": "p_1789459285283_2ik8",
-          "name": "",
-          "teamName": "",
-          "playerName": "",
-          "wecom": "",
-          "dept": "",
-          "isTeam": false,
-          "partners": [],
-          "partner": null,
-          "registeredAt": "2026-09-15T08:01:25.283Z"
-        },
-        {
-          "id": "p_1789459285417_m2ds",
-          "name": "",
-          "teamName": "",
-          "playerName": "",
-          "wecom": "",
-          "dept": "",
-          "isTeam": false,
-          "partners": [],
-          "partner": null,
-          "registeredAt": "2026-09-15T08:01:25.417Z"
-        },
-        {
-          "id": "p_1789459285563_tf7l",
-          "name": "",
-          "teamName": "",
-          "playerName": "",
-          "wecom": "",
-          "dept": "",
-          "isTeam": false,
-          "partners": [],
-          "partner": null,
-          "registeredAt": "2026-09-15T08:01:25.563Z"
-        },
-        {
-          "id": "p_1789459285722_2btm",
-          "name": "",
-          "teamName": "",
-          "playerName": "",
-          "wecom": "",
-          "dept": "",
-          "isTeam": false,
-          "partners": [],
-          "partner": null,
-          "registeredAt": "2026-09-15T08:01:25.722Z"
-        },
-        {
-          "id": "p_1789459285866_hqce",
-          "name": "",
-          "teamName": "",
-          "playerName": "",
-          "wecom": "",
-          "dept": "",
-          "isTeam": false,
-          "partners": [],
-          "partner": null,
-          "registeredAt": "2026-09-15T08:01:25.866Z"
-        },
-        {
-          "id": "p_1789459286029_mmb5",
-          "name": "",
-          "teamName": "",
-          "playerName": "",
-          "wecom": "",
-          "dept": "",
-          "isTeam": false,
-          "partners": [],
-          "partner": null,
-          "registeredAt": "2026-09-15T08:01:26.029Z"
-        },
-        {
-          "id": "p_1789459286170_gvty",
-          "name": "",
-          "teamName": "",
-          "playerName": "",
-          "wecom": "",
-          "dept": "",
-          "isTeam": false,
-          "partners": [],
-          "partner": null,
-          "registeredAt": "2026-09-15T08:01:26.170Z"
-        },
-        {
-          "id": "p_1789459286330_qxhd",
-          "name": "",
-          "teamName": "",
-          "playerName": "",
-          "wecom": "",
-          "dept": "",
-          "isTeam": false,
-          "partners": [],
-          "partner": null,
-          "registeredAt": "2026-09-15T08:01:26.330Z"
-        },
-        {
-          "id": "p_1789459286473_rd3c",
-          "name": "",
-          "teamName": "",
-          "playerName": "",
-          "wecom": "",
-          "dept": "",
-          "isTeam": false,
-          "partners": [],
-          "partner": null,
-          "registeredAt": "2026-09-15T08:01:26.473Z"
-        },
-        {
           "id": "p_1789459286667_14n9",
-          "name": "",
+          "name": "dwa",
           "teamName": "",
-          "playerName": "",
+          "playerName": "dwa",
           "wecom": "",
           "dept": "",
           "isTeam": false,
           "partners": [],
           "partner": null,
           "registeredAt": "2026-09-15T08:01:26.667Z"
+        },
+        {
+          "id": "p_1789464054793_0g4o",
+          "name": "q",
+          "playerName": "q",
+          "teamName": "q",
+          "isTeam": false,
+          "partners": [],
+          "registeredAt": "2026-09-15T09:20:54.793Z"
+        },
+        {
+          "id": "p_1789464071200_ibzf",
+          "name": "aw",
+          "playerName": "aw",
+          "teamName": "aw",
+          "isTeam": false,
+          "partners": [],
+          "registeredAt": "2026-09-15T09:21:11.200Z"
         }
       ],
       "rounds": [
         {
           "roundNumber": 1,
-          "title": "Round of 16",
+          "title": "半决赛",
           "matches": [
             {
               "id": "r1_m1",
@@ -216,25 +66,41 @@
                 0
               ],
               "p1": {
-                "name": "",
-                "id": null,
-                "isPlaceholder": true,
-                "isUnseeded": true,
-                "seed": 1
+                "id": "p_1789459278930_adt1",
+                "name": "dada",
+                "teamName": "",
+                "playerName": "dada",
+                "wecom": "",
+                "dept": "",
+                "isTeam": false,
+                "partners": [],
+                "partner": null,
+                "registeredAt": "2026-09-15T08:01:18.930Z",
+                "seed": 1,
+                "isPlaceholder": false,
+                "isUnseeded": false
               },
               "p2": {
-                "name": "",
-                "id": null,
-                "isPlaceholder": true,
-                "isUnseeded": true,
-                "seed": 16
+                "id": "p_1789459286667_14n9",
+                "name": "dwa",
+                "teamName": "",
+                "playerName": "dwa",
+                "wecom": "",
+                "dept": "",
+                "isTeam": false,
+                "partners": [],
+                "partner": null,
+                "registeredAt": "2026-09-15T08:01:26.667Z",
+                "seed": 2,
+                "isPlaceholder": false,
+                "isUnseeded": false
               },
               "p1Locked": false,
               "p2Locked": false,
-              "score1": "",
-              "score2": "",
+              "score1": 0,
+              "score2": 0,
               "winnerId": null,
-              "status": "scheduled"
+              "status": "next_up"
             },
             {
               "id": "r1_m2",
@@ -245,205 +111,41 @@
                 1
               ],
               "p1": {
-                "name": "",
-                "id": null,
-                "isPlaceholder": true,
-                "isUnseeded": true,
-                "seed": 8
+                "id": "p_1789464054793_0g4o",
+                "name": "q",
+                "playerName": "q",
+                "teamName": "q",
+                "isTeam": false,
+                "partners": [],
+                "registeredAt": "2026-09-15T09:20:54.793Z",
+                "seed": 3,
+                "isPlaceholder": false,
+                "isUnseeded": false
               },
               "p2": {
-                "name": "",
-                "id": null,
-                "isPlaceholder": true,
-                "isUnseeded": true,
-                "seed": 9
+                "id": "p_1789464071200_ibzf",
+                "name": "aw",
+                "playerName": "aw",
+                "teamName": "aw",
+                "isTeam": false,
+                "partners": [],
+                "registeredAt": "2026-09-15T09:21:11.200Z",
+                "seed": 4,
+                "isPlaceholder": false,
+                "isUnseeded": false
               },
               "p1Locked": false,
               "p2Locked": false,
-              "score1": "",
-              "score2": "",
+              "score1": 0,
+              "score2": 0,
               "winnerId": null,
-              "status": "scheduled"
-            },
-            {
-              "id": "r1_m3",
-              "round": 1,
-              "matchIndex": 2,
-              "pairRange": [
-                2,
-                2
-              ],
-              "p1": {
-                "name": "",
-                "id": null,
-                "isPlaceholder": true,
-                "isUnseeded": true,
-                "seed": 4
-              },
-              "p2": {
-                "name": "",
-                "id": null,
-                "isPlaceholder": true,
-                "isUnseeded": true,
-                "seed": 13
-              },
-              "p1Locked": false,
-              "p2Locked": false,
-              "score1": "",
-              "score2": "",
-              "winnerId": null,
-              "status": "scheduled"
-            },
-            {
-              "id": "r1_m4",
-              "round": 1,
-              "matchIndex": 3,
-              "pairRange": [
-                3,
-                3
-              ],
-              "p1": {
-                "name": "",
-                "id": null,
-                "isPlaceholder": true,
-                "isUnseeded": true,
-                "seed": 5
-              },
-              "p2": {
-                "name": "",
-                "id": null,
-                "isPlaceholder": true,
-                "isUnseeded": true,
-                "seed": 12
-              },
-              "p1Locked": false,
-              "p2Locked": false,
-              "score1": "",
-              "score2": "",
-              "winnerId": null,
-              "status": "scheduled"
-            },
-            {
-              "id": "r1_m5",
-              "round": 1,
-              "matchIndex": 4,
-              "pairRange": [
-                4,
-                4
-              ],
-              "p1": {
-                "name": "",
-                "id": null,
-                "isPlaceholder": true,
-                "isUnseeded": true,
-                "seed": 2
-              },
-              "p2": {
-                "name": "",
-                "id": null,
-                "isPlaceholder": true,
-                "isUnseeded": true,
-                "seed": 15
-              },
-              "p1Locked": false,
-              "p2Locked": false,
-              "score1": "",
-              "score2": "",
-              "winnerId": null,
-              "status": "scheduled"
-            },
-            {
-              "id": "r1_m6",
-              "round": 1,
-              "matchIndex": 5,
-              "pairRange": [
-                5,
-                5
-              ],
-              "p1": {
-                "name": "",
-                "id": null,
-                "isPlaceholder": true,
-                "isUnseeded": true,
-                "seed": 7
-              },
-              "p2": {
-                "name": "",
-                "id": null,
-                "isPlaceholder": true,
-                "isUnseeded": true,
-                "seed": 10
-              },
-              "p1Locked": false,
-              "p2Locked": false,
-              "score1": "",
-              "score2": "",
-              "winnerId": null,
-              "status": "scheduled"
-            },
-            {
-              "id": "r1_m7",
-              "round": 1,
-              "matchIndex": 6,
-              "pairRange": [
-                6,
-                6
-              ],
-              "p1": {
-                "name": "",
-                "id": null,
-                "isPlaceholder": true,
-                "isUnseeded": true,
-                "seed": 3
-              },
-              "p2": {
-                "name": "",
-                "id": null,
-                "isPlaceholder": true,
-                "isUnseeded": true,
-                "seed": 14
-              },
-              "p1Locked": false,
-              "p2Locked": false,
-              "score1": "",
-              "score2": "",
-              "winnerId": null,
-              "status": "scheduled"
-            },
-            {
-              "id": "r1_m8",
-              "round": 1,
-              "matchIndex": 7,
-              "pairRange": [
-                7,
-                7
-              ],
-              "p1": {
-                "name": "",
-                "id": null,
-                "isPlaceholder": true,
-                "isUnseeded": true,
-                "seed": 6
-              },
-              "p2": {
-                "name": "",
-                "id": null,
-                "isPlaceholder": true,
-                "isUnseeded": true,
-                "seed": 11
-              },
-              "p1Locked": false,
-              "p2Locked": false,
-              "score1": "",
-              "score2": "",
-              "winnerId": null,
-              "status": "scheduled"
+              "status": "next_up"
             }
           ]
         },
         {
           "roundNumber": 2,
-          "title": "Quarterfinals",
+          "title": "总决赛",
           "matches": [
             {
               "id": "r2_m1",
@@ -456,173 +158,11 @@
               "feederTopId": "r1_m1",
               "feederBotId": "r1_m2",
               "p1": {
-                "name": "Winner R2 M1",
+                "name": "Winner R1 M1",
                 "isPlaceholder": true
               },
               "p2": {
                 "name": "Winner R1 M2",
-                "isPlaceholder": true
-              },
-              "p1Locked": false,
-              "p2Locked": false,
-              "score1": "",
-              "score2": "",
-              "winnerId": null,
-              "status": "scheduled"
-            },
-            {
-              "id": "r2_m2",
-              "round": 2,
-              "matchIndex": 1,
-              "pairRange": [
-                2,
-                3
-              ],
-              "feederTopId": "r1_m3",
-              "feederBotId": "r1_m4",
-              "p1": {
-                "name": "Winner R1 M3",
-                "isPlaceholder": true
-              },
-              "p2": {
-                "name": "Winner R1 M4",
-                "isPlaceholder": true
-              },
-              "p1Locked": false,
-              "p2Locked": false,
-              "score1": "",
-              "score2": "",
-              "winnerId": null,
-              "status": "scheduled"
-            },
-            {
-              "id": "r2_m3",
-              "round": 2,
-              "matchIndex": 2,
-              "pairRange": [
-                4,
-                5
-              ],
-              "feederTopId": "r1_m5",
-              "feederBotId": "r1_m6",
-              "p1": {
-                "name": "Winner R1 M5",
-                "isPlaceholder": true
-              },
-              "p2": {
-                "name": "Winner R1 M6",
-                "isPlaceholder": true
-              },
-              "p1Locked": false,
-              "p2Locked": false,
-              "score1": "",
-              "score2": "",
-              "winnerId": null,
-              "status": "scheduled"
-            },
-            {
-              "id": "r2_m4",
-              "round": 2,
-              "matchIndex": 3,
-              "pairRange": [
-                6,
-                7
-              ],
-              "feederTopId": "r1_m7",
-              "feederBotId": "r1_m8",
-              "p1": {
-                "name": "Winner R1 M7",
-                "isPlaceholder": true
-              },
-              "p2": {
-                "name": "Winner R1 M8",
-                "isPlaceholder": true
-              },
-              "p1Locked": false,
-              "p2Locked": false,
-              "score1": "",
-              "score2": "",
-              "winnerId": null,
-              "status": "scheduled"
-            }
-          ]
-        },
-        {
-          "roundNumber": 3,
-          "title": "Semifinals",
-          "matches": [
-            {
-              "id": "r3_m1",
-              "round": 3,
-              "matchIndex": 0,
-              "pairRange": [
-                0,
-                3
-              ],
-              "feederTopId": "r2_m1",
-              "feederBotId": "r2_m2",
-              "p1": {
-                "name": "Winner R2 M2",
-                "isPlaceholder": true
-              },
-              "p2": {
-                "name": "Winner R1 M1",
-                "isPlaceholder": true
-              },
-              "p1Locked": false,
-              "p2Locked": false,
-              "score1": "",
-              "score2": "",
-              "winnerId": null,
-              "status": "scheduled"
-            },
-            {
-              "id": "r3_m2",
-              "round": 3,
-              "matchIndex": 1,
-              "pairRange": [
-                4,
-                7
-              ],
-              "feederTopId": "r2_m3",
-              "feederBotId": "r2_m4",
-              "p1": {
-                "name": "Winner R2 M3",
-                "isPlaceholder": true
-              },
-              "p2": {
-                "name": "Winner R2 M4",
-                "isPlaceholder": true
-              },
-              "p1Locked": false,
-              "p2Locked": false,
-              "score1": "",
-              "score2": "",
-              "winnerId": null,
-              "status": "scheduled"
-            }
-          ]
-        },
-        {
-          "roundNumber": 4,
-          "title": "Championship Final",
-          "matches": [
-            {
-              "id": "r4_m1",
-              "round": 4,
-              "matchIndex": 0,
-              "pairRange": [
-                0,
-                7
-              ],
-              "feederTopId": "r3_m1",
-              "feederBotId": "r3_m2",
-              "p1": {
-                "name": "Winner R3 M1",
-                "isPlaceholder": true
-              },
-              "p2": {
-                "name": "Winner R3 M2",
                 "isPlaceholder": true
               },
               "p1Locked": false,
@@ -645,7 +185,7 @@
         "isDoubles": true
       },
       "createdAt": "2026-09-15T07:49:24.160Z",
-      "updatedAt": "2026-09-15T08:01:34.186Z"
+      "updatedAt": "2026-09-15T09:22:46.641Z"
     },
     {
       "id": "t_1789456425335_txrx6",
