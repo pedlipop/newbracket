@@ -9,6 +9,7 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const HOST = '0.0.0.0';
 
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
@@ -31,9 +32,9 @@ app.use(express.static(FRONTEND_DIR));
 // === TOURNAMENT CRUD APIS ===
 
 // 1. Get all tournaments
-app.get('/api/tournaments', (req, res) => {
+app.get('/api/tournaments', async (req, res) => {
   try {
-    const list = db.getAllTournaments();
+    const list = await db.getAllTournaments();
     res.json({ success: true, tournaments: list });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
@@ -41,10 +42,10 @@ app.get('/api/tournaments', (req, res) => {
 });
 
 // 2. Create tournament
-app.post('/api/tournaments', (req, res) => {
+app.post('/api/tournaments', async (req, res) => {
   try {
     const { name, game, type, maxParticipants, settings, participants } = req.body;
-    const tournament = db.createTournament({
+    const tournament = await db.createTournament({
       name,
       game,
       type,
@@ -58,27 +59,27 @@ app.post('/api/tournaments', (req, res) => {
   }
 });
 
-function checkAutoLock(tournament) {
+async function checkAutoLock(tournament) {
   if (!tournament || tournament.isLocked) return tournament;
   if (tournament.autoLockAt) {
     const lockTime = new Date(tournament.autoLockAt).getTime();
     if (!isNaN(lockTime) && Date.now() >= lockTime) {
       tournament.isLocked = true;
       tournament.status = 'in_progress';
-      db.updateTournament(tournament.id, { isLocked: true, status: 'in_progress' });
+      await db.updateTournament(tournament.id, { isLocked: true, status: 'in_progress' });
     }
   }
   return tournament;
 }
 
 // 3. Get single tournament
-app.get('/api/tournaments/:id', (req, res) => {
+app.get('/api/tournaments/:id', async (req, res) => {
   try {
-    let tournament = db.getTournament(req.params.id);
+    let tournament = await db.getTournament(req.params.id);
     if (!tournament) {
       return res.status(404).json({ success: false, error: 'Tournament not found' });
     }
-    tournament = checkAutoLock(tournament);
+    tournament = await checkAutoLock(tournament);
     res.json({ success: true, tournament });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
@@ -86,9 +87,9 @@ app.get('/api/tournaments/:id', (req, res) => {
 });
 
 // 4. Update tournament metadata / state
-app.put('/api/tournaments/:id', (req, res) => {
+app.put('/api/tournaments/:id', async (req, res) => {
   try {
-    const updated = db.updateTournament(req.params.id, req.body);
+    const updated = await db.updateTournament(req.params.id, req.body);
     if (!updated) {
       return res.status(404).json({ success: false, error: 'Tournament not found' });
     }
@@ -99,9 +100,9 @@ app.put('/api/tournaments/:id', (req, res) => {
 });
 
 // 5. Delete tournament
-app.delete('/api/tournaments/:id', (req, res) => {
+app.delete('/api/tournaments/:id', async (req, res) => {
   try {
-    const ok = db.deleteTournament(req.params.id);
+    const ok = await db.deleteTournament(req.params.id);
     if (!ok) {
       return res.status(404).json({ success: false, error: 'Tournament not found' });
     }
@@ -112,7 +113,7 @@ app.delete('/api/tournaments/:id', (req, res) => {
 });
 
 // 6. Save entire bracket state (rounds, matches, participants, lock status)
-app.post('/api/tournaments/:id/state', (req, res) => {
+app.post('/api/tournaments/:id/state', async (req, res) => {
   try {
     const { rounds, participants, isLocked, status, inProgressHighlight, lockedSeeds, settings, name, registrationDeadline, autoLockAt } = req.body;
     const updates = {};
@@ -127,7 +128,7 @@ app.post('/api/tournaments/:id/state', (req, res) => {
     if (registrationDeadline !== undefined) updates.registrationDeadline = registrationDeadline;
     if (autoLockAt !== undefined) updates.autoLockAt = autoLockAt;
 
-    const updated = db.updateTournament(req.params.id, updates);
+    const updated = await db.updateTournament(req.params.id, updates);
     if (!updated) {
       return res.status(404).json({ success: false, error: 'Tournament not found' });
     }
@@ -138,9 +139,9 @@ app.post('/api/tournaments/:id/state', (req, res) => {
 });
 
 // 7. Register / Add participant (public or admin)
-app.post('/api/tournaments/:id/register', (req, res) => {
+app.post('/api/tournaments/:id/register', async (req, res) => {
   try {
-    const tournament = db.getTournament(req.params.id);
+    const tournament = await db.getTournament(req.params.id);
     if (!tournament) {
       return res.status(404).json({ success: false, error: 'Tournament not found' });
     }
@@ -156,7 +157,7 @@ app.post('/api/tournaments/:id/register', (req, res) => {
 
     const { name, playerName, teamName, wecom, dept, contact, tag, isTeam, partner, partners } = req.body;
     const effectiveName = (playerName || name || teamName || '').trim();
-    const result = db.addParticipant(req.params.id, {
+    const result = await db.addParticipant(req.params.id, {
       name: effectiveName,
       playerName: (playerName || name || '').trim(),
       teamName: (teamName || '').trim(),
@@ -178,18 +179,16 @@ app.post('/api/tournaments/:id/register', (req, res) => {
 // 8. Generate QR Code for Tournament Registration Link
 app.get('/api/tournaments/:id/qr', async (req, res) => {
   try {
-    const tournament = db.getTournament(req.params.id);
+    const tournament = await db.getTournament(req.params.id);
     if (!tournament) {
       return res.status(404).json({ success: false, error: 'Tournament not found' });
     }
 
     const isDoubles = !!(tournament.settings && tournament.settings.isDoubles);
-    // Determine host and protocol
     const host = req.get('host');
-    const protocol = req.protocol;
+    const protocol = req.headers['x-forwarded-proto'] || req.protocol;
     const registrationUrl = `${protocol}://${host}/?view=register&id=${tournament.id}${isDoubles ? '&isTeam=1' : ''}`;
 
-    // Generate high quality QR code data URL
     const qrDataUrl = await QRCode.toDataURL(registrationUrl, {
       errorCorrectionLevel: 'H',
       type: 'image/png',
@@ -224,23 +223,20 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(FRONTEND_DIR, 'index.html'));
 });
 
-// Start server with automatic port retry if occupied
-function startServer(port) {
-  const server = app.listen(port, () => {
-    console.log(`===================================================`);
-    console.log(`🏆 TOURNAMENT BRACKET ENGINE RUNNING ON PORT ${port}`);
-    console.log(`🌐 Web App URL: http://localhost:${port}`);
-    console.log(`===================================================`);
-  });
+// Start server
+const server = app.listen(PORT, HOST, () => {
+  console.log(`===================================================`);
+  console.log(`🏆 TOURNAMENT BRACKET ENGINE RUNNING ON PORT ${PORT}`);
+  console.log(`🌐 Host: ${HOST} | Mode: ${db.isCloudMode() ? 'Railway PostgreSQL' : 'Local JSON'}`);
+  console.log(`===================================================`);
+});
 
-  server.on('error', (err) => {
-    if (err.code === 'EADDRINUSE') {
-      console.warn(`Port ${port} is in use, trying port ${port + 1}...`);
-      startServer(port + 1);
-    } else {
-      console.error('Server error:', err);
-    }
-  });
-}
-
-startServer(PORT);
+server.on('error', (err) => {
+  if (err.code === 'EADDRINUSE' && !process.env.PORT) {
+    const nextPort = Number(PORT) + 1;
+    console.warn(`Port ${PORT} is in use, trying port ${nextPort}...`);
+    app.listen(nextPort, HOST);
+  } else {
+    console.error('Server error:', err);
+  }
+});

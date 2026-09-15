@@ -1,17 +1,63 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import pg from 'pg';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const DB_DIR = path.join(__dirname, '..', 'database');
 const DB_FILE = path.join(DB_DIR, 'tournaments.json');
 
-if (!fs.existsSync(DB_DIR)) {
-  fs.mkdirSync(DB_DIR, { recursive: true });
+const DATABASE_URL = process.env.DATABASE_URL;
+
+// ==================== POSTGRESQL CLOUD DATABASE (FOR RAILWAY) ====================
+let pgPool = null;
+let isPgInitialized = false;
+
+if (DATABASE_URL) {
+  console.log('📦 Initializing PostgreSQL Database Connection (Railway Cloud Mode)...');
+  pgPool = new pg.Pool({
+    connectionString: DATABASE_URL,
+    ssl: DATABASE_URL.includes('localhost') ? false : { rejectUnauthorized: false }
+  });
+
+  pgPool.on('error', (err) => {
+    console.error('⚠️ Unexpected error on idle PostgreSQL client:', err);
+  });
 }
 
-function readData() {
+async function initPostgres() {
+  if (!pgPool || isPgInitialized) return;
+  try {
+    const client = await pgPool.connect();
+    try {
+      await client.query(`
+        CREATE TABLE IF NOT EXISTS tournaments (
+          id VARCHAR(255) PRIMARY KEY,
+          data JSONB NOT NULL,
+          created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+          updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+        );
+        CREATE INDEX IF NOT EXISTS idx_tournaments_updated_at ON tournaments(updated_at DESC);
+      `);
+      isPgInitialized = true;
+      console.log('✅ PostgreSQL "tournaments" table verified & ready.');
+    } finally {
+      client.release();
+    }
+  } catch (err) {
+    console.error('❌ Failed to initialize PostgreSQL table:', err.message);
+  }
+}
+
+// ==================== LOCAL JSON DATABASE (FALLBACK OFFLINE MODE) ====================
+if (!fs.existsSync(DB_DIR)) {
+  try {
+    fs.mkdirSync(DB_DIR, { recursive: true });
+  } catch (e) {}
+}
+
+function readLocalData() {
   try {
     if (!fs.existsSync(DB_FILE)) {
       const initial = { tournaments: [] };
@@ -21,50 +67,69 @@ function readData() {
     const content = fs.readFileSync(DB_FILE, 'utf8');
     return JSON.parse(content || '{"tournaments":[]}');
   } catch (err) {
-    console.error('Error reading database file:', err);
+    console.error('Error reading local database file:', err);
     return { tournaments: [] };
   }
 }
 
-function writeData(data) {
+function writeLocalData(data) {
   try {
     const tmpFile = `${DB_FILE}.tmp`;
-    const bakFile = `${DB_FILE}.bak`;
     const serialized = JSON.stringify(data, null, 2);
-    
     fs.writeFileSync(tmpFile, serialized, 'utf8');
-    if (fs.existsSync(DB_FILE)) {
-      try {
-        fs.copyFileSync(DB_FILE, bakFile);
-      } catch (e) {}
-    }
     fs.renameSync(tmpFile, DB_FILE);
     return true;
   } catch (err) {
-    console.error('Error writing database file:', err);
+    console.error('Error writing local database file:', err);
     return false;
   }
 }
 
+// ==================== UNIFIED DATABASE INTERFACE ====================
 export const db = {
-  getAllTournaments() {
-    const data = readData();
-    return data.tournaments || [];
+  isCloudMode() {
+    return !!DATABASE_URL;
   },
 
-  getTournament(id) {
-    const data = readData();
-    return (data.tournaments || []).find(t => t.id === id) || null;
+  async getAllTournaments() {
+    if (DATABASE_URL) {
+      await initPostgres();
+      try {
+        const res = await pgPool.query(
+          'SELECT data FROM tournaments ORDER BY updated_at DESC'
+        );
+        return res.rows.map(row => row.data);
+      } catch (err) {
+        console.error('PostgreSQL getAllTournaments error:', err);
+        return [];
+      }
+    } else {
+      const data = readLocalData();
+      return data.tournaments || [];
+    }
   },
 
-  createTournament(payload) {
-    const data = readData();
+  async getTournament(id) {
+    if (DATABASE_URL) {
+      await initPostgres();
+      try {
+        const res = await pgPool.query('SELECT data FROM tournaments WHERE id = $1', [id]);
+        return res.rows.length > 0 ? res.rows[0].data : null;
+      } catch (err) {
+        console.error('PostgreSQL getTournament error:', err);
+        return null;
+      }
+    } else {
+      const data = readLocalData();
+      return (data.tournaments || []).find(t => t.id === id) || null;
+    }
+  },
+
+  async createTournament(payload) {
     const now = new Date().toISOString();
     const id = payload.id || `t_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
-    
-    // Default participant list if provided or generate empty slots
     const participants = Array.isArray(payload.participants) ? payload.participants : [];
-    
+
     const tournament = {
       id,
       name: payload.name || 'New Tournament',
@@ -73,7 +138,7 @@ export const db = {
       status: payload.status || 'setup',
       isLocked: false,
       maxParticipants: payload.maxParticipants || 8,
-      participants: participants,
+      participants,
       rounds: payload.rounds || [],
       lockedSeeds: [],
       inProgressHighlight: false,
@@ -88,50 +153,95 @@ export const db = {
       updatedAt: now
     };
 
-    data.tournaments = [tournament, ...(data.tournaments || [])];
-    writeData(data);
-    return tournament;
-  },
-
-  updateTournament(id, updates) {
-    const data = readData();
-    const idx = (data.tournaments || []).findIndex(t => t.id === id);
-    if (idx === -1) return null;
-
-    const existing = data.tournaments[idx];
-    const updated = {
-      ...existing,
-      ...updates,
-      updatedAt: new Date().toISOString()
-    };
-
-    // Ensure id does not change
-    updated.id = id;
-    data.tournaments[idx] = updated;
-    writeData(data);
-    return updated;
-  },
-
-  deleteTournament(id) {
-    const data = readData();
-    const initialLen = (data.tournaments || []).length;
-    data.tournaments = (data.tournaments || []).filter(t => t.id !== id);
-    if (data.tournaments.length !== initialLen) {
-      writeData(data);
-      return true;
+    if (DATABASE_URL) {
+      await initPostgres();
+      try {
+        await pgPool.query(
+          `INSERT INTO tournaments (id, data, created_at, updated_at)
+           VALUES ($1, $2, $3, $4)`,
+          [id, JSON.stringify(tournament), now, now]
+        );
+        return tournament;
+      } catch (err) {
+        console.error('PostgreSQL createTournament error:', err);
+        throw err;
+      }
+    } else {
+      const data = readLocalData();
+      data.tournaments = [tournament, ...(data.tournaments || [])];
+      writeLocalData(data);
+      return tournament;
     }
-    return false;
   },
 
-  addParticipant(tournamentId, participantData) {
-    const data = readData();
-    const t = (data.tournaments || []).find(item => item.id === tournamentId);
-    if (!t) return null;
+  async updateTournament(id, updates) {
+    if (DATABASE_URL) {
+      await initPostgres();
+      try {
+        const existing = await this.getTournament(id);
+        if (!existing) return null;
 
+        const updated = {
+          ...existing,
+          ...updates,
+          id, // protect ID from changing
+          updatedAt: new Date().toISOString()
+        };
+
+        await pgPool.query(
+          `UPDATE tournaments SET data = $1, updated_at = NOW() WHERE id = $2`,
+          [JSON.stringify(updated), id]
+        );
+        return updated;
+      } catch (err) {
+        console.error('PostgreSQL updateTournament error:', err);
+        throw err;
+      }
+    } else {
+      const data = readLocalData();
+      const idx = (data.tournaments || []).findIndex(t => t.id === id);
+      if (idx === -1) return null;
+
+      const existing = data.tournaments[idx];
+      const updated = {
+        ...existing,
+        ...updates,
+        id,
+        updatedAt: new Date().toISOString()
+      };
+
+      data.tournaments[idx] = updated;
+      writeLocalData(data);
+      return updated;
+    }
+  },
+
+  async deleteTournament(id) {
+    if (DATABASE_URL) {
+      await initPostgres();
+      try {
+        const res = await pgPool.query('DELETE FROM tournaments WHERE id = $1', [id]);
+        return (res.rowCount || 0) > 0;
+      } catch (err) {
+        console.error('PostgreSQL deleteTournament error:', err);
+        return false;
+      }
+    } else {
+      const data = readLocalData();
+      const initialLen = (data.tournaments || []).length;
+      data.tournaments = (data.tournaments || []).filter(t => t.id !== id);
+      if (data.tournaments.length !== initialLen) {
+        writeLocalData(data);
+        return true;
+      }
+      return false;
+    }
+  },
+
+  async addParticipant(tournamentId, participantData) {
     const rawName = (participantData.name || '').trim();
     const playerName = (participantData.playerName !== undefined ? participantData.playerName : rawName).trim();
     
-    // Nama Tim: only use teamName or playerName if provided, otherwise keep empty string
     let teamName = (participantData.teamName || '').trim();
     if (!teamName && playerName) {
       teamName = playerName;
@@ -162,10 +272,35 @@ export const db = {
       registeredAt: new Date().toISOString()
     };
 
-    t.participants = t.participants || [];
-    t.participants.push(participant);
-    t.updatedAt = new Date().toISOString();
-    writeData(data);
-    return { tournament: t, participant };
+    if (DATABASE_URL) {
+      await initPostgres();
+      try {
+        const t = await this.getTournament(tournamentId);
+        if (!t) return null;
+
+        t.participants = t.participants || [];
+        t.participants.push(participant);
+        t.updatedAt = new Date().toISOString();
+
+        await pgPool.query(
+          `UPDATE tournaments SET data = $1, updated_at = NOW() WHERE id = $2`,
+          [JSON.stringify(t), tournamentId]
+        );
+        return { tournament: t, participant };
+      } catch (err) {
+        console.error('PostgreSQL addParticipant error:', err);
+        throw err;
+      }
+    } else {
+      const data = readLocalData();
+      const t = (data.tournaments || []).find(item => item.id === tournamentId);
+      if (!t) return null;
+
+      t.participants = t.participants || [];
+      t.participants.push(participant);
+      t.updatedAt = new Date().toISOString();
+      writeLocalData(data);
+      return { tournament: t, participant };
+    }
   }
 };
