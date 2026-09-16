@@ -2502,16 +2502,29 @@
         }
       );
     } else {
+      const isZh = state.lang === 'zh';
       openConfirmModal(
-        'Unlock Tournament Bracket?',
-        'Unlocking allows you to re-order seeds and add participants, but may reset ongoing match progressions.',
+        isZh ? '解锁并清空对阵图？' : 'Buka Kunci & Kosongkan Bracket?',
+        isZh
+          ? '解锁后将<b>清空并重置整个淘汰赛对阵图</b>，所有已录入的比分、晋级结果以及轮空名额将全部重置清空，选手将回到选手列表中供您重新抽签或自由排阵。确定要解锁吗？'
+          : 'Membuka kunci bracket akan <b>mengosongkan dan mereset seluruh bagan pertandingan</b>. Semua skor, pemenang lanjutan, dan slot bye/play-in akan dikosongkan kembali sehingga peserta dapat diundi atau diatur ulang dari daftar peserta. Yakin ingin membuka kunci?',
         () => {
           t.isLocked = false;
           t.status = 'setup';
+          // Completely reset bracket tree: empties all matches, clears scores, winners, and bye advancements
+          t.rounds = generateBracketTree(t.participants || [], null, false);
+          if (t.thirdPlaceMatch) {
+            t.thirdPlaceMatch.winnerId = null;
+            t.thirdPlaceMatch.score1 = '';
+            t.thirdPlaceMatch.score2 = '';
+            t.thirdPlaceMatch.status = 'scheduled';
+            t.thirdPlaceMatch.p1 = null;
+            t.thirdPlaceMatch.p2 = null;
+          }
           saveTournamentState(true);
           setupStudioUI();
           renderBracketStudio();
-          showToast('🔓 Bracket unlocked. Seeding editing enabled.', 'warning');
+          showToast(isZh ? '🔓 对阵图已解锁并已清空重置，可重新进行抽签排阵。' : '🔓 Bracket berhasil dibuka dan seluruh bagan dikosongkan kembali.', 'warning');
         }
       );
     }
@@ -3239,13 +3252,18 @@
     t.rounds.forEach((round, rIdx) => {
       round.matches.forEach((m, mIdx) => {
         if (!m.feederTopId) {
-          entrySlots.push({ roundIdx: rIdx, matchIdx: mIdx, slot: 'p1', isLocked: !!m.p1Locked, currentP: m.p1 });
+          const canonicalSeed = parseInt(m.p1?.seed, 10) || 9999;
+          entrySlots.push({ roundIdx: rIdx, matchIdx: mIdx, slot: 'p1', isLocked: !!m.p1Locked, currentP: m.p1, canonicalSeed });
         }
         if (!m.feederBotId) {
-          entrySlots.push({ roundIdx: rIdx, matchIdx: mIdx, slot: 'p2', isLocked: !!m.p2Locked, currentP: m.p2 });
+          const canonicalSeed = parseInt(m.p2?.seed, 10) || 9999;
+          entrySlots.push({ roundIdx: rIdx, matchIdx: mIdx, slot: 'p2', isLocked: !!m.p2Locked, currentP: m.p2, canonicalSeed });
         }
       });
     });
+
+    // Sort entrySlots by canonical seed ascending so top seeds get BYEs in Round 2 and lower seeds play in Round 1
+    entrySlots.sort((a, b) => a.canonicalSeed - b.canonicalSeed);
 
     // 2. Identify which participants are locked in place
     const lockedParticipantIds = new Set();
@@ -3278,7 +3296,7 @@
 
       const match = t.rounds[s.roundIdx].matches[s.matchIdx];
       if (pIdx < pool.length) {
-        const assigned = { ...pool[pIdx], seed: pIdx + 1, isPlaceholder: false, isUnseeded: false };
+        const assigned = { ...pool[pIdx], seed: s.canonicalSeed !== 9999 ? s.canonicalSeed : (pIdx + 1), isPlaceholder: false, isUnseeded: false };
         if (s.slot === 'p1') {
           match.p1 = assigned;
         } else {
