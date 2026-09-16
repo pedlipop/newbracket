@@ -205,30 +205,32 @@
 
     <!-- Studio Body with Sidebar & Canvas -->
     <div class="studio-body">
-      <!-- Left Navigation Bar -->
-      <nav class="studio-nav-rail">
-        <button class="rail-tab-btn active" data-panel="participants" title="Participants Management">
-          <i class="fa-solid fa-users"></i>
-          <span data-i18n="nav_teams">Teams</span>
-        </button>
-        <button class="rail-tab-btn" data-panel="settings" title="Tournament Settings">
-          <i class="fa-solid fa-sliders"></i>
-          <span data-i18n="nav_format">Format</span>
-        </button>
-        <button class="rail-tab-btn" data-panel="themes" title="Visual Themes">
-          <i class="fa-solid fa-palette"></i>
-          <span data-i18n="nav_themes">Themes</span>
-        </button>
-        <button class="rail-tab-btn" data-panel="reports" id="rail-btn-reports" title="Laporan Pendaftar Link (Full)">
-          <i class="fa-solid fa-clipboard-list"></i>
-          <span data-i18n="nav_reports">Laporan</span>
-        </button>
-      </nav>
-
-      <!-- Side Drawer Panel -->
+      <!-- Side Drawer Panel (Now integrates navigation rail + panels + resize handle) -->
       <aside id="studio-drawer" class="studio-drawer">
-        <!-- Panel 1: Participants -->
-        <div id="panel-participants" class="drawer-panel active">
+        <!-- Inside Navigation Rail -->
+        <nav class="studio-nav-rail">
+          <button class="rail-tab-btn active" data-panel="participants" title="Participants Management">
+            <i class="fa-solid fa-users"></i>
+            <span data-i18n="nav_teams">Teams</span>
+          </button>
+          <button class="rail-tab-btn" data-panel="settings" title="Tournament Settings">
+            <i class="fa-solid fa-sliders"></i>
+            <span data-i18n="nav_format">Format</span>
+          </button>
+          <button class="rail-tab-btn" data-panel="themes" title="Visual Themes">
+            <i class="fa-solid fa-palette"></i>
+            <span data-i18n="nav_themes">Themes</span>
+          </button>
+          <button class="rail-tab-btn" data-panel="reports" id="rail-btn-reports" title="Laporan Pendaftar Link (Full)">
+            <i class="fa-solid fa-clipboard-list"></i>
+            <span data-i18n="nav_reports">Laporan</span>
+          </button>
+        </nav>
+
+        <!-- Drawer Content Area (Panels) -->
+        <div class="drawer-content-area">
+          <!-- Panel 1: Participants -->
+          <div id="panel-participants" class="drawer-panel active">
           <div class="panel-header">
             <div class="panel-title">
               <h3 data-i18n="drawer_participants">Participants</h3>
@@ -376,10 +378,17 @@
             </div>
           </div>
         </div>
+        <!-- 50% Max Width Resizable Handle -->
+        <div class="drawer-resize-handle" id="drawer-resize-handle" title="Tarik untuk mengubah lebar panel"></div>
       </aside>
 
       <!-- Main Bracket Viewport -->
       <main class="studio-canvas-container" id="canvas-container">
+        <!-- Floating Drawer Toggle (Appears when drawer is collapsed) -->
+        <button type="button" id="btn-floating-drawer-toggle" class="btn-floating-drawer-toggle hidden" title="Buka Panel Samping">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+
         <!-- Floating Canvas Floating Toolbar (Zoom & Navigation) -->
         <div class="canvas-controls">
           <button id="btn-zoom-in" class="canvas-control-btn" title="Zoom In">

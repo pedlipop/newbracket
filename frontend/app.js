@@ -475,6 +475,8 @@
     // Studio Drawer
     el.studioDrawer = document.getElementById('studio-drawer');
     el.btnDrawerCollapse = document.getElementById('btn-drawer-collapse');
+    el.drawerResizeHandle = document.getElementById('drawer-resize-handle');
+    el.btnFloatingDrawerToggle = document.getElementById('btn-floating-drawer-toggle');
     el.participantCountBadge = document.getElementById('participant-count-badge');
     el.btnAutoSeed = document.getElementById('btn-auto-seed');
     el.btnRandomSeed = document.getElementById('btn-random-seed');
@@ -662,6 +664,7 @@
   async function initApp() {
     initElements();
     setupEventListeners();
+    setupDrawerResize();
     setLanguage(state.lang);
     handleRoute();
     window.addEventListener('popstate', handleRoute);
@@ -1037,43 +1040,92 @@
       ? p.partners
       : (p.partner && p.partner.name ? [p.partner] : []);
 
-    if (partnersList.length === 0) return;
+    const isZh = state.lang === 'zh';
+    const mainPlayerName = p.playerName || p.name || '';
+    const mainDept = p.dept || '';
+    const mainWecom = p.wecom || p.contact || '';
+    const hasAnyInfo = !!(mainPlayerName || mainDept || mainWecom || partnersList.length > 0);
+    if (!hasAnyInfo) return;
+
     ensureGlobalTooltip();
 
-    globalTooltipEl.innerHTML = `
-      <div class="member-row">
-        <span class="member-label">Tim:</span>
-        <span class="member-val">${escapeHTML(p.name)}</span>
-      </div>
-      <div class="member-row">
-        <span class="member-label">Pemain Utama:</span>
-        <span class="member-val">${escapeHTML(p.playerName || p.name)}</span>
-        ${p.dept ? `<span class="member-dept">(${escapeHTML(p.dept)})</span>` : ''}
-      </div>
-      ${partnersList.map((partner, pIdx) => `
-        <div class="member-row">
-          <span class="member-label">Rekan ${partnersList.length > 1 ? `#${pIdx + 1}` : ''}:</span>
-          <span class="member-val partner-highlight">${escapeHTML(partner.name)}</span>
-          ${partner.dept ? `<span class="member-dept">(${escapeHTML(partner.dept)})</span>` : ''}
-          ${partner.wecom ? `<span class="member-dept">• Wecom: ${escapeHTML(partner.wecom)}</span>` : ''}
+    let contentHtml = '';
+    if (partnersList.length > 0 || p.isTeam) {
+      contentHtml = `
+        <div class="tooltip-header-strip">
+          <i class="fa-solid fa-users"></i> ${isZh ? '团队成员登记信息' : 'Informasi Tim Pendaftar'}
         </div>
-      `).join('')}
-    `;
+        <div class="member-row">
+          <span class="member-label">${isZh ? '战队名称:' : 'Tim:'}</span>
+          <span class="member-val">${escapeHTML(p.name)}</span>
+        </div>
+        <div class="member-row">
+          <span class="member-label">${isZh ? '队长/主力:' : 'Pemain Utama:'}</span>
+          <span class="member-val">${escapeHTML(mainPlayerName || p.name)}</span>
+          ${mainDept ? `<span class="member-dept">(${escapeHTML(mainDept)})</span>` : ''}
+          ${mainWecom ? `<span class="member-dept">• WeCom: ${escapeHTML(mainWecom)}</span>` : ''}
+        </div>
+        ${partnersList.map((partner, pIdx) => `
+          <div class="member-row">
+            <span class="member-label">${isZh ? `队员 #${pIdx + 1}:` : `Rekan ${partnersList.length > 1 ? `#${pIdx + 1}` : ''}:`}</span>
+            <span class="member-val partner-highlight">${escapeHTML(partner.name)}</span>
+            ${partner.dept ? `<span class="member-dept">(${escapeHTML(partner.dept)})</span>` : ''}
+            ${partner.wecom ? `<span class="member-dept">• WeCom: ${escapeHTML(partner.wecom)}</span>` : ''}
+          </div>
+        `).join('')}
+      `;
+    } else {
+      contentHtml = `
+        <div class="tooltip-header-strip">
+          <i class="fa-solid fa-id-card"></i> ${isZh ? '选手登记信息' : 'Data Pendaftaran Peserta'}
+        </div>
+        <div class="member-row">
+          <span class="member-label">${isZh ? '选手姓名:' : 'Nama Lengkap:'}</span>
+          <span class="member-val" style="color:var(--primary); font-weight:700;">${escapeHTML(mainPlayerName || p.name)}</span>
+        </div>
+        ${mainDept ? `
+          <div class="member-row">
+            <span class="member-label">${isZh ? '所属部门:' : 'Departemen:'}</span>
+            <span class="member-val">${escapeHTML(mainDept)}</span>
+          </div>
+        ` : ''}
+        ${mainWecom ? `
+          <div class="member-row">
+            <span class="member-label">${isZh ? '联系方式:' : 'No. WeCom / WA:'}</span>
+            <span class="member-val">${escapeHTML(mainWecom)}</span>
+          </div>
+        ` : ''}
+        ${p.registeredAt ? `
+          <div class="member-row" style="opacity:0.65; font-size:0.68rem; margin-top:2px;">
+            <span class="member-label">${isZh ? '报名时间:' : 'Waktu Daftar:'}</span>
+            <span class="member-val">${new Date(p.registeredAt).toLocaleDateString()}</span>
+          </div>
+        ` : ''}
+      `;
+    }
 
+    globalTooltipEl.innerHTML = contentHtml;
     globalTooltipEl.classList.remove('hidden');
 
     const rect = targetEl.getBoundingClientRect();
     const tooltipRect = globalTooltipEl.getBoundingClientRect();
 
-    let top = rect.top - tooltipRect.height - 8;
-    let left = rect.left + (rect.width - tooltipRect.width) / 2;
+    // Match exact width of the participant card
+    const cardWidth = rect.width;
+    globalTooltipEl.style.width = `${cardWidth}px`;
+    globalTooltipEl.style.minWidth = `${cardWidth}px`;
+    globalTooltipEl.style.maxWidth = `${cardWidth}px`;
+    globalTooltipEl.style.boxSizing = 'border-box';
+
+    let top = rect.top - tooltipRect.height - 6;
+    let left = rect.left;
 
     if (top < 10) {
-      top = rect.bottom + 8;
+      top = rect.bottom + 6;
     }
     if (left < 10) left = 10;
-    if (left + tooltipRect.width > window.innerWidth - 10) {
-      left = window.innerWidth - tooltipRect.width - 10;
+    if (left + cardWidth > window.innerWidth - 10) {
+      left = window.innerWidth - cardWidth - 10;
     }
 
     globalTooltipEl.style.top = `${top}px`;
@@ -1180,13 +1232,10 @@
       `;
     }).join('');
 
-    // Attach hover events for team member tooltip
+    // Attach hover events for participant details overlay tooltip
     el.participantsList.querySelectorAll('.participant-item').forEach(item => {
       const p = participants.find(part => part.id === item.dataset.id);
-      const partnersList = Array.isArray(p?.partners) && p.partners.length > 0
-        ? p.partners
-        : (p?.partner && p.partner.name ? [p.partner] : []);
-      if (partnersList.length > 0) {
+      if (p && (p.name || p.playerName || p.dept || p.wecom)) {
         item.addEventListener('mouseenter', () => showGlobalTooltip(item, p));
         item.addEventListener('mouseleave', hideGlobalTooltip);
       }
@@ -1877,6 +1926,27 @@
       matchesHolder.style.minHeight = `${maxColY + 40}px`;
     });
 
+    // Dynamically calculate canvas & SVG bounds so large brackets (e.g. 78+ participants) never get clipped
+    let maxOverallX = 0;
+    let maxOverallY = 0;
+    Object.values(matchPositionsMap).forEach(pos => {
+      if (pos.x + pos.width > maxOverallX) maxOverallX = pos.x + pos.width;
+      if (pos.y + pos.height > maxOverallY) maxOverallY = pos.y + pos.height;
+    });
+
+    const canvasW = Math.max(6000, maxOverallX + 1200);
+    const canvasH = Math.max(8000, maxOverallY + 1200);
+
+    const canvasParent = svgEl.closest('.bracket-canvas, .live-canvas') || svgEl.parentElement;
+    if (canvasParent) {
+      canvasParent.style.width = `${canvasW}px`;
+      canvasParent.style.height = `${canvasH}px`;
+    }
+    svgEl.setAttribute('width', canvasW);
+    svgEl.setAttribute('height', canvasH);
+    svgEl.style.width = `${canvasW}px`;
+    svgEl.style.height = `${canvasH}px`;
+
     // Draw SVG Connectors between rounds
     drawBracketConnectors(svgEl, matchPositionsMap, rounds);
   }
@@ -1966,7 +2036,7 @@
       return `
         <div class="match-team-row ${pClass} ${isEmpty ? 'is-empty' : ''} ${isSlotLocked ? 'slot-locked' : ''}" data-slot="${slot}" data-round="${rIdx}" data-match="${mIdx}">
           <span class="team-seed">${!isEmpty ? (p?.seed || '') : ''}</span>
-          <span class="team-name-text ${isEmpty ? 'empty-slot' : ''} ${(!isLiveView && !t?.isLocked && !isFeeder) ? 'editable' : ''}" title="${escapeHTML(rawName || (isEmpty ? '' : emptyPlaceholder))}${(!isLiveView && !t?.isLocked && !isFeeder) ? (isZh ? ' (双击可编辑)' : ' (Dobel klik untuk edit)') : ''}">
+          <span class="team-name-text ${isFeeder ? 'is-feeder-text' : ''} ${isEmpty ? 'empty-slot' : ''} ${(!isLiveView && !t?.isLocked && !isFeeder) ? 'editable' : ''}" title="${escapeHTML(rawName || (isEmpty ? '' : emptyPlaceholder))}${(!isLiveView && !t?.isLocked && !isFeeder) ? (isZh ? ' (双击可编辑)' : ' (Dobel klik untuk edit)') : ''}">
             ${isUnnamed ? `<span style="opacity:0.4; font-style:italic;">${emptyPlaceholder}</span>` : escapeHTML(displayName)}
           </span>
           ${hasPartner ? `<span class="team-partner-tag" title="${partnerTagTitle}">${teamSize}P</span>` : ''}
@@ -2021,17 +2091,16 @@
       });
     }
 
-    // Attach hover events for team member tooltip on match rows
+    // Attach hover events for registration & member overlay tooltip on match rows
     const row1 = node.querySelector('[data-slot="p1"]');
     const row2 = node.querySelector('[data-slot="p2"]');
-    const p1Partners = Array.isArray(p1.partners) && p1.partners.length > 0 ? p1.partners : (p1.partner && p1.partner.name ? [p1.partner] : []);
-    const p2Partners = Array.isArray(p2.partners) && p2.partners.length > 0 ? p2.partners : (p2.partner && p2.partner.name ? [p2.partner] : []);
+    const hasParticipantInfo = (p) => !!(p && !p.isPlaceholder && !p.isUnseeded && (p.name || p.playerName || p.dept || p.wecom || (Array.isArray(p.partners) && p.partners.length > 0) || (p.partner && p.partner.name)));
 
-    if (row1 && p1Partners.length > 0) {
+    if (row1 && hasParticipantInfo(p1)) {
       row1.addEventListener('mouseenter', () => showGlobalTooltip(row1, p1));
       row1.addEventListener('mouseleave', hideGlobalTooltip);
     }
-    if (row2 && p2Partners.length > 0) {
+    if (row2 && hasParticipantInfo(p2)) {
       row2.addEventListener('mouseenter', () => showGlobalTooltip(row2, p2));
       row2.addEventListener('mouseleave', hideGlobalTooltip);
     }
@@ -2040,11 +2109,24 @@
     if (!isLiveView && !t?.isLocked) {
       const rows = node.querySelectorAll('.match-team-row');
       rows.forEach(row => {
-        row.setAttribute('draggable', 'true');
-        row.addEventListener('dragstart', handleMatchSlotDragStart);
-        row.addEventListener('dragover', handleSlotDragOver);
-        row.addEventListener('dragleave', handleSlotDragLeave);
-        row.addEventListener('drop', handleSlotDrop);
+        const slot = row.dataset.slot;
+        const isFeeder = !!(slot === 'p1' ? match.feederTopId : match.feederBotId);
+        const p = slot === 'p1' ? p1 : p2;
+        const canDrag = !match.isBronzeMatch && !isFeeder && !!(p && p.id && !p.isPlaceholder && !p.isUnseeded && p.name && p.name.trim());
+
+        if (canDrag) {
+          row.setAttribute('draggable', 'true');
+          row.addEventListener('dragstart', handleMatchSlotDragStart);
+        } else {
+          row.removeAttribute('draggable');
+          row.setAttribute('draggable', 'false');
+        }
+
+        if (!match.isBronzeMatch) {
+          row.addEventListener('dragover', handleSlotDragOver);
+          row.addEventListener('dragleave', handleSlotDragLeave);
+          row.addEventListener('drop', handleSlotDrop);
+        }
       });
     }
 
@@ -2143,10 +2225,23 @@
   }
 
   function handleMatchSlotDragStart(e) {
+    const roundIdx = parseInt(this.dataset.round, 10);
+    const matchIdx = parseInt(this.dataset.match, 10);
+    const slot = this.dataset.slot;
+    const t = state.currentTournament;
+    const match = t?.rounds?.[roundIdx]?.matches?.[matchIdx];
+    const isFeeder = !!(slot === 'p1' ? match?.feederTopId : match?.feederBotId);
+    const p = slot === 'p1' ? match?.p1 : match?.p2;
+
+    if (isFeeder || !p || !p.id || p.isPlaceholder || p.isUnseeded || !p.name || !p.name.trim()) {
+      e.preventDefault();
+      return false;
+    }
+
     state.draggedSlot = {
-      round: parseInt(this.dataset.round, 10),
-      match: parseInt(this.dataset.match, 10),
-      slot: this.dataset.slot
+      round: roundIdx,
+      match: matchIdx,
+      slot: slot
     };
     state.draggedParticipant = null;
     e.dataTransfer.setData('text/plain', 'match-slot');
@@ -4409,12 +4504,25 @@
         if (target) target.classList.add('active');
 
         el.studioDrawer.classList.remove('collapsed');
+        if (el.btnFloatingDrawerToggle) el.btnFloatingDrawerToggle.classList.add('hidden');
       });
     });
 
-    el.btnDrawerCollapse.addEventListener('click', () => {
-      el.studioDrawer.classList.toggle('collapsed');
-    });
+    if (el.btnDrawerCollapse) {
+      el.btnDrawerCollapse.addEventListener('click', () => {
+        const isCollapsed = el.studioDrawer.classList.toggle('collapsed');
+        if (el.btnFloatingDrawerToggle) {
+          el.btnFloatingDrawerToggle.classList.toggle('hidden', !isCollapsed);
+        }
+      });
+    }
+
+    if (el.btnFloatingDrawerToggle) {
+      el.btnFloatingDrawerToggle.addEventListener('click', () => {
+        el.studioDrawer.classList.remove('collapsed');
+        el.btnFloatingDrawerToggle.classList.add('hidden');
+      });
+    }
 
     // Drawer Participant Search & Pagination
     if (el.drawerParticipantSearch) {
@@ -4865,6 +4973,65 @@
         if (e.target === overlay) closeModal(overlay);
       });
     });
+  }
+
+  // ==================== DRAWER RESIZING ====================
+  function setupDrawerResize() {
+    const handle = el.drawerResizeHandle;
+    const drawer = el.studioDrawer;
+    if (!handle || !drawer) return;
+
+    let isResizing = false;
+    let startX = 0;
+    let startWidth = 0;
+
+    const onStart = (clientX) => {
+      isResizing = true;
+      startX = clientX;
+      startWidth = drawer.getBoundingClientRect().width;
+      document.body.style.userSelect = 'none';
+      document.body.style.cursor = 'col-resize';
+      handle.classList.add('resizing');
+    };
+
+    const onMove = (clientX) => {
+      if (!isResizing) return;
+      const dx = clientX - startX;
+      const minW = 340; // Cannot shrink below current width
+      const maxW = Math.max(minW, Math.floor(window.innerWidth * 0.5)); // Up to 50% width
+      const newWidth = Math.min(maxW, Math.max(minW, startWidth + dx));
+      drawer.style.width = `${newWidth}px`;
+    };
+
+    const onEnd = () => {
+      if (!isResizing) return;
+      isResizing = false;
+      document.body.style.userSelect = '';
+      document.body.style.cursor = '';
+      handle.classList.remove('resizing');
+    };
+
+    handle.addEventListener('mousedown', (e) => {
+      e.preventDefault();
+      onStart(e.clientX);
+    });
+
+    handle.addEventListener('touchstart', (e) => {
+      if (e.touches.length === 1) {
+        onStart(e.touches[0].clientX);
+      }
+    }, { passive: true });
+
+    window.addEventListener('mousemove', (e) => onMove(e.clientX));
+    window.addEventListener('touchmove', (e) => {
+      if (isResizing && e.touches.length === 1) {
+        onMove(e.touches[0].clientX);
+      }
+    }, { passive: true });
+
+    window.addEventListener('mouseup', onEnd);
+    window.addEventListener('touchend', onEnd);
+    window.addEventListener('touchcancel', onEnd);
   }
 
   // Run on DOM Ready

@@ -547,35 +547,39 @@ button {
   overflow: hidden;
 }
 
-/* Navigation Rail (BracketHQ style) */
+/* Navigation Rail (Integrated Inside Drawer to save canvas space) */
 .studio-nav-rail {
-  width: 60px;
+  width: 52px;
   background: var(--bg-surface);
   border-right: 1px solid var(--border-subtle);
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 1rem 0;
-  gap: 0.75rem;
+  padding: 0.75rem 0;
+  gap: 0.5rem;
   flex-shrink: 0;
+  height: 100%;
 }
 
 .rail-tab-btn {
-  width: 48px;
-  height: 48px;
+  width: 44px;
+  height: 44px;
   border-radius: var(--radius-sm);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   color: var(--text-muted);
-  font-size: 0.65rem;
-  gap: 3px;
+  font-size: 0.62rem;
+  gap: 2px;
   transition: all var(--transition-fast);
+  cursor: pointer;
+  background: transparent;
+  border: none;
 }
 
 .rail-tab-btn i {
-  font-size: 1.1rem;
+  font-size: 1rem;
 }
 
 .rail-tab-btn:hover {
@@ -589,21 +593,83 @@ button {
   border-left: 3px solid var(--primary);
 }
 
-/* Side Drawer Panel */
+/* Side Drawer Panel (Resizable up to 50% width, min 340px) */
 .studio-drawer {
-  width: 300px;
+  width: 350px;
+  min-width: 340px;
+  max-width: 50vw;
   background: var(--bg-surface-elevated);
   border-right: 1px solid var(--border-subtle);
   display: flex;
-  flex-direction: column;
-  overflow: hidden;
+  flex-direction: row;
+  overflow: visible;
+  position: relative;
   flex-shrink: 0;
-  transition: width var(--transition-normal);
+  transition: width 0.12s ease-out;
+  z-index: 30;
 }
 
 .studio-drawer.collapsed {
-  width: 0;
+  width: 0 !important;
+  min-width: 0 !important;
   border-right: none;
+  overflow: hidden;
+  visibility: hidden;
+}
+
+.drawer-content-area {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  position: relative;
+}
+
+/* 50% Max Width Resizable Drag Handle */
+.drawer-resize-handle {
+  position: absolute;
+  top: 0;
+  right: -5px;
+  width: 10px;
+  height: 100%;
+  cursor: col-resize;
+  z-index: 60;
+  background: transparent;
+  transition: background 0.15s ease;
+}
+
+.drawer-resize-handle:hover,
+.drawer-resize-handle.active {
+  background: var(--primary);
+  box-shadow: 0 0 10px var(--primary-glow);
+}
+
+/* Floating Drawer Toggle on Canvas (Visible when collapsed) */
+.btn-floating-drawer-toggle {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  z-index: 35;
+  width: 38px;
+  height: 38px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: var(--shadow-md);
+  transition: all var(--transition-fast);
+}
+
+.btn-floating-drawer-toggle:hover {
+  background: var(--primary);
+  color: #ffffff;
+  box-shadow: 0 0 12px var(--primary-glow);
 }
 
 .drawer-panel {
@@ -807,7 +873,7 @@ button {
 .participant-name {
   flex: 1;
   min-width: 0;
-  font-size: 0.82rem;
+  font-size: 0.76rem;
   font-weight: 500;
   white-space: nowrap;
   overflow: hidden;
@@ -1108,19 +1174,23 @@ button {
   margin: 0 2px;
 }
 
-/* Canvas Container */
-.bracket-canvas {
+/* Canvas Container (Expanded to comfortably support large brackets with 78+ participants without clipping) */
+.bracket-canvas,
+.live-canvas {
   position: absolute;
   top: 0;
   left: 0;
-  width: 5000px;
-  height: 5000px;
+  min-width: 6000px;
+  min-height: 8000px;
+  width: 14000px;
+  height: 20000px;
   transform-origin: 0 0;
   will-change: transform;
 }
 
-/* SVG Connectors */
-.bracket-svg {
+/* SVG Connectors Layer */
+.bracket-svg,
+.live-svg {
   position: absolute;
   top: 0;
   left: 0;
@@ -1993,22 +2063,57 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
   animation: tooltip-fade 0.15s ease-out;
 }
 
-/* Global Floating Tooltip */
+/* Global Floating Overlay Tooltip - Matches Card Width */
 #global-member-tooltip {
   position: fixed;
   z-index: 99999;
   pointer-events: none;
-  background: #181b26;
-  border: 1px solid var(--primary);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.7), 0 0 14px var(--primary-glow);
-  padding: 0.65rem 0.85rem;
+  background: #141722;
+  border: 1px solid rgba(0, 210, 255, 0.45);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.85), 0 0 16px rgba(0, 210, 255, 0.2);
+  padding: 8px 10px;
   border-radius: var(--radius-sm);
-  white-space: nowrap;
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  font-size: 0.75rem;
-  transition: opacity 0.1s ease, transform 0.1s ease;
+  gap: 3px;
+  font-size: 0.72rem;
+  line-height: 1.35;
+  box-sizing: border-box;
+  animation: tooltip-fade 0.12s ease-out;
+}
+
+#global-member-tooltip .tooltip-header-strip {
+  font-size: 0.66rem;
+  font-weight: 700;
+  color: var(--primary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding-bottom: 3px;
+  margin-bottom: 2px;
+}
+
+#global-member-tooltip .member-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  font-size: 0.72rem;
+  word-break: break-word;
+}
+
+#global-member-tooltip .member-label {
+  color: var(--text-muted);
+  font-size: 0.7rem;
+  min-width: 65px;
+  flex-shrink: 0;
+}
+
+#global-member-tooltip .member-val {
+  color: var(--text-primary);
+  flex: 1;
 }
 
 #global-member-tooltip.hidden {
@@ -2819,13 +2924,32 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
   opacity: 0.6;
 }
 
+/* Empty & Placeholder Match Slots (Thin, subtle dashed outline) */
 .match-team-row.is-empty {
-  border-style: dashed;
+  border: 1px dashed rgba(255, 255, 255, 0.16) !important;
+  border-radius: 4px;
+  margin: 1px 4px;
+  background: rgba(255, 255, 255, 0.015);
+  box-sizing: border-box;
+}
+
+.match-team-row.is-empty:hover {
+  border-color: rgba(0, 210, 255, 0.35) !important;
+  background: rgba(0, 210, 255, 0.04);
+}
+
+.team-name-text.is-feeder-text {
+  user-select: none !important;
+  -webkit-user-select: none !important;
+  pointer-events: none !important;
+  cursor: default !important;
+  opacity: 0.55;
+  font-style: italic;
 }
 
 .match-team-row:hover .team-name-text.empty-slot {
-  opacity: 1;
-  color: var(--primary);
+  opacity: 0.9;
+  color: var(--text-primary);
 }
 
 .match-team-row.slot-locked {
@@ -3710,8 +3834,85 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
   border: 1px solid rgba(239, 68, 68, 0.3);
   padding: 3px 8px;
   border-radius: var(--radius-sm);
-  font-size: 0.75rem;
-  font-weight: 600;
+/* ==================== TABLET & SMARTPHONE RESPONSIVE OPTIMIZATION ==================== */
+@media (max-width: 1024px) {
+  .studio-drawer {
+    width: 320px;
+    min-width: 280px;
+  }
+  .modal-content {
+    max-width: 90vw !important;
+    max-height: 88vh !important;
+  }
+  .corner-match-widget {
+    bottom: 16px;
+    left: 16px;
+    max-width: calc(100vw - 32px);
+  }
+}
+
+@media (max-width: 768px) {
+  .studio-drawer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 88vw !important;
+    max-width: 340px !important;
+    min-width: 260px !important;
+    box-shadow: 0 0 24px rgba(0, 0, 0, 0.7);
+    z-index: 100;
+  }
+  .studio-drawer.collapsed {
+    transform: translateX(-100%);
+    width: 0 !important;
+    min-width: 0 !important;
+  }
+  .drawer-resize-handle {
+    display: none; /* Hide resize drag handle on mobile screens */
+  }
+  .modal-content {
+    width: 95vw !important;
+    max-width: 95vw !important;
+    max-height: 90vh !important;
+    padding: 1rem !important;
+    margin: 8px auto !important;
+    border-radius: 12px !important;
+  }
+  .modal-header h3 {
+    font-size: 1rem !important;
+  }
+  .modal-body {
+    padding: 0.75rem 0 !important;
+    max-height: calc(90vh - 110px) !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
+  .form-group {
+    margin-bottom: 0.75rem !important;
+  }
+  .form-row {
+    flex-direction: column !important;
+    gap: 0.5rem !important;
+  }
+  .form-group.half {
+    width: 100% !important;
+  }
+  .canvas-controls {
+    bottom: 16px !important;
+    right: 16px !important;
+    padding: 4px 6px !important;
+    gap: 4px !important;
+  }
+  .canvas-control-btn {
+    width: 32px !important;
+    height: 32px !important;
+    font-size: 0.8rem !important;
+  }
+  .participants-list {
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-y;
+  }
 }
 
 @media print {
