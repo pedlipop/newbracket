@@ -2063,27 +2063,27 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
   animation: tooltip-fade 0.15s ease-out;
 }
 
-/* Global Floating Overlay Tooltip - Matches Card Width */
+/* Global Floating Overlay Tooltip - Matches Card Width with Stacked Details */
 #global-member-tooltip {
   position: fixed;
   z-index: 99999;
   pointer-events: none;
-  background: #141722;
+  background: rgba(17, 21, 32, 0.96);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(0, 210, 255, 0.45);
-  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.85), 0 0 16px rgba(0, 210, 255, 0.2);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.85), 0 0 16px rgba(0, 210, 255, 0.2);
   padding: 8px 10px;
   border-radius: var(--radius-sm);
   display: flex;
   flex-direction: column;
-  gap: 3px;
-  font-size: 0.72rem;
-  line-height: 1.35;
+  gap: 6px;
   box-sizing: border-box;
   animation: tooltip-fade 0.12s ease-out;
 }
 
 #global-member-tooltip .tooltip-header-strip {
-  font-size: 0.66rem;
+  font-size: 0.65rem;
   font-weight: 700;
   color: var(--primary);
   text-transform: uppercase;
@@ -2092,28 +2092,101 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
   align-items: center;
   gap: 5px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  padding-bottom: 3px;
-  margin-bottom: 2px;
+  padding-bottom: 4px;
 }
 
-#global-member-tooltip .member-row {
+#global-member-tooltip .tooltip-team-banner {
   display: flex;
-  align-items: flex-start;
-  gap: 6px;
-  font-size: 0.72rem;
+  align-items: baseline;
+  gap: 5px;
+  font-size: 0.75rem;
+  padding: 2px 0;
   word-break: break-word;
 }
 
-#global-member-tooltip .member-label {
+#global-member-tooltip .tooltip-team-banner .team-label {
+  font-size: 0.68rem;
   color: var(--text-muted);
-  font-size: 0.7rem;
-  min-width: 65px;
   flex-shrink: 0;
 }
 
-#global-member-tooltip .member-val {
-  color: var(--text-primary);
-  flex: 1;
+#global-member-tooltip .tooltip-team-banner .team-name {
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 0.8rem;
+}
+
+#global-member-tooltip .tooltip-person-block {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 4px;
+  padding: 6px 8px;
+  box-sizing: border-box;
+}
+
+#global-member-tooltip .tooltip-person-block.partner-block {
+  background: rgba(168, 85, 247, 0.04);
+  border-color: rgba(168, 85, 247, 0.18);
+}
+
+#global-member-tooltip .person-role-tag {
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: #38bdf8;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  margin-bottom: 1px;
+}
+
+#global-member-tooltip .person-role-tag.partner {
+  color: #c084fc;
+}
+
+#global-member-tooltip .person-name {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #ffffff;
+  word-break: break-word;
+  white-space: normal;
+  line-height: 1.25;
+}
+
+#global-member-tooltip .person-name.partner-highlight {
+  color: #e9d5ff;
+}
+
+#global-member-tooltip .person-name.primary-highlight {
+  color: var(--primary);
+}
+
+#global-member-tooltip .person-meta-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 5px;
+  font-size: 0.7rem;
+  color: var(--text-secondary);
+  word-break: break-word;
+  white-space: normal;
+  line-height: 1.3;
+}
+
+#global-member-tooltip .person-meta-item i {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  width: 12px;
+  text-align: center;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+#global-member-tooltip .person-meta-item.time {
+  font-size: 0.64rem;
+  color: var(--text-muted);
+  opacity: 0.8;
+  margin-top: 1px;
 }
 
 #global-member-tooltip.hidden {
@@ -2123,8 +2196,8 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
 }
 
 @keyframes tooltip-fade {
-  from { opacity: 0; transform: translate(-50%, 4px); }
-  to { opacity: 1; transform: translate(-50%, 0); }
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .member-tooltip .member-row {

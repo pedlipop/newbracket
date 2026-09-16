@@ -1055,22 +1055,22 @@
         <div class="tooltip-header-strip">
           <i class="fa-solid fa-users"></i> ${isZh ? '团队成员登记信息' : 'Informasi Tim Pendaftar'}
         </div>
-        <div class="member-row">
-          <span class="member-label">${isZh ? '战队名称:' : 'Tim:'}</span>
-          <span class="member-val">${escapeHTML(p.name)}</span>
+        <div class="tooltip-team-banner">
+          <span class="team-label">${isZh ? '战队名称:' : 'Tim:'}</span>
+          <span class="team-name">${escapeHTML(p.name)}</span>
         </div>
-        <div class="member-row">
-          <span class="member-label">${isZh ? '队长/主力:' : 'Pemain Utama:'}</span>
-          <span class="member-val">${escapeHTML(mainPlayerName || p.name)}</span>
-          ${mainDept ? `<span class="member-dept">(${escapeHTML(mainDept)})</span>` : ''}
-          ${mainWecom ? `<span class="member-dept">• WeCom: ${escapeHTML(mainWecom)}</span>` : ''}
+        <div class="tooltip-person-block">
+          <div class="person-role-tag">${isZh ? '队长 / 主力选手' : 'Pemain Utama'}</div>
+          <div class="person-name">${escapeHTML(mainPlayerName || p.name)}</div>
+          ${mainDept ? `<div class="person-meta-item"><i class="fa-solid fa-building"></i> ${escapeHTML(mainDept)}</div>` : ''}
+          ${mainWecom ? `<div class="person-meta-item"><i class="fa-solid fa-address-book"></i> No. WeCom: ${escapeHTML(mainWecom)}</div>` : ''}
         </div>
         ${partnersList.map((partner, pIdx) => `
-          <div class="member-row">
-            <span class="member-label">${isZh ? `队员 #${pIdx + 1}:` : `Rekan ${partnersList.length > 1 ? `#${pIdx + 1}` : ''}:`}</span>
-            <span class="member-val partner-highlight">${escapeHTML(partner.name)}</span>
-            ${partner.dept ? `<span class="member-dept">(${escapeHTML(partner.dept)})</span>` : ''}
-            ${partner.wecom ? `<span class="member-dept">• WeCom: ${escapeHTML(partner.wecom)}</span>` : ''}
+          <div class="tooltip-person-block partner-block">
+            <div class="person-role-tag partner">${isZh ? `队员 #${pIdx + 1}` : `Rekan #${pIdx + 1}`}</div>
+            <div class="person-name partner-highlight">${escapeHTML(partner.name)}</div>
+            ${partner.dept ? `<div class="person-meta-item"><i class="fa-solid fa-building"></i> ${escapeHTML(partner.dept)}</div>` : ''}
+            ${partner.wecom ? `<div class="person-meta-item"><i class="fa-solid fa-address-book"></i> No. WeCom: ${escapeHTML(partner.wecom)}</div>` : ''}
           </div>
         `).join('')}
       `;
@@ -1079,28 +1079,12 @@
         <div class="tooltip-header-strip">
           <i class="fa-solid fa-id-card"></i> ${isZh ? '选手登记信息' : 'Data Pendaftaran Peserta'}
         </div>
-        <div class="member-row">
-          <span class="member-label">${isZh ? '选手姓名:' : 'Nama Lengkap:'}</span>
-          <span class="member-val" style="color:var(--primary); font-weight:700;">${escapeHTML(mainPlayerName || p.name)}</span>
+        <div class="tooltip-person-block">
+          <div class="person-name primary-highlight">${escapeHTML(mainPlayerName || p.name)}</div>
+          ${mainDept ? `<div class="person-meta-item"><i class="fa-solid fa-building"></i> ${escapeHTML(mainDept)}</div>` : ''}
+          ${mainWecom ? `<div class="person-meta-item"><i class="fa-solid fa-address-book"></i> No. WeCom: ${escapeHTML(mainWecom)}</div>` : ''}
+          ${p.registeredAt ? `<div class="person-meta-item time"><i class="fa-regular fa-clock"></i> ${new Date(p.registeredAt).toLocaleDateString()}</div>` : ''}
         </div>
-        ${mainDept ? `
-          <div class="member-row">
-            <span class="member-label">${isZh ? '所属部门:' : 'Departemen:'}</span>
-            <span class="member-val">${escapeHTML(mainDept)}</span>
-          </div>
-        ` : ''}
-        ${mainWecom ? `
-          <div class="member-row">
-            <span class="member-label">${isZh ? '联系方式:' : 'No. WeCom / WA:'}</span>
-            <span class="member-val">${escapeHTML(mainWecom)}</span>
-          </div>
-        ` : ''}
-        ${p.registeredAt ? `
-          <div class="member-row" style="opacity:0.65; font-size:0.68rem; margin-top:2px;">
-            <span class="member-label">${isZh ? '报名时间:' : 'Waktu Daftar:'}</span>
-            <span class="member-val">${new Date(p.registeredAt).toLocaleDateString()}</span>
-          </div>
-        ` : ''}
       `;
     }
 
@@ -1108,20 +1092,25 @@
     globalTooltipEl.classList.remove('hidden');
 
     const rect = targetEl.getBoundingClientRect();
-    const tooltipRect = globalTooltipEl.getBoundingClientRect();
-
-    // Match exact width of the participant card
     const cardWidth = rect.width;
+
+    // Maintain exact width of the card
     globalTooltipEl.style.width = `${cardWidth}px`;
     globalTooltipEl.style.minWidth = `${cardWidth}px`;
     globalTooltipEl.style.maxWidth = `${cardWidth}px`;
     globalTooltipEl.style.boxSizing = 'border-box';
+
+    // Measure height after width has been set and innerHTML applied
+    const tooltipRect = globalTooltipEl.getBoundingClientRect();
 
     let top = rect.top - tooltipRect.height - 6;
     let left = rect.left;
 
     if (top < 10) {
       top = rect.bottom + 6;
+    }
+    if (top + tooltipRect.height > window.innerHeight - 10) {
+      top = Math.max(10, window.innerHeight - tooltipRect.height - 10);
     }
     if (left < 10) left = 10;
     if (left + cardWidth > window.innerWidth - 10) {
