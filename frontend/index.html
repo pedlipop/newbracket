@@ -139,10 +139,10 @@
     <!-- Studio Header -->
     <header class="app-header studio-header">
       <div class="studio-header-left">
-        <button id="btn-back-dashboard" class="btn btn-ghost" title="Back to Dashboard">
+        <a href="?view=admin" id="btn-back-dashboard" class="btn btn-ghost" title="Back to Dashboard">
           <i class="fa-solid fa-arrow-left"></i>
           <span data-i18n="studio_back_dash">Dashboard</span>
-        </button>
+        </a>
         <div class="divider-vertical"></div>
         
         <!-- Editable Tournament Name -->
@@ -196,10 +196,10 @@
         </button>
 
         <!-- Public Live View -->
-        <button id="btn-open-live-view" class="btn btn-outline" title="Open public live spectator bracket">
+        <a href="?view=live" id="btn-open-live-view" class="btn btn-outline" title="Open public live spectator bracket">
           <i class="fa-solid fa-arrow-up-right-from-square"></i>
           <span data-i18n="studio_live_btn">Live Spectator</span>
-        </button>
+        </a>
       </div>
     </header>
 
@@ -601,10 +601,10 @@
   <section id="live-view" class="app-view hidden">
     <header class="app-header live-header">
       <div class="header-brand" style="display: flex; align-items: center; gap: 0.75rem;">
-        <button id="btn-live-back-portal" class="btn btn-ghost btn-sm" title="Kembali ke Daftar Turnamen" style="gap: 6px;">
+        <a href="?view=portal" id="btn-live-back-portal" class="btn btn-ghost btn-sm" title="Kembali ke Daftar Turnamen" style="gap: 6px;">
           <i class="fa-solid fa-arrow-left"></i>
           <span data-i18n="live_all_tournaments">Semua Turnamen</span>
-        </button>
+        </a>
         <div class="divider-vertical"></div>
         <div class="brand-icon live-pulse">
           <i class="fa-solid fa-broadcast-tower"></i>
@@ -732,9 +732,9 @@
           <div style="font-size: 36px; color: #ef4444; margin-bottom: 8px;"><i class="fa-solid fa-lock"></i></div>
           <h3 style="font-size: 1.1rem; color: #f87171; margin-bottom: 6px;" data-i18n="reg_closed_title">Pendaftaran Telah Ditutup</h3>
           <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 16px;" data-i18n="reg_closed_desc">Batas waktu pendaftaran telah berakhir atau bagan pertandingan telah dikunci oleh panitia.</p>
-          <button type="button" id="btn-closed-view-live" class="btn btn-primary btn-block">
+          <a href="?view=live" id="btn-closed-view-live" class="btn btn-primary btn-block">
             <i class="fa-solid fa-trophy"></i> <span data-i18n="reg_view_live_btn">Lihat Live Bracket Pertandingan</span>
-          </button>
+          </a>
         </div>
 
         <form id="public-register-form" class="register-card-body">
@@ -799,9 +799,9 @@
             <input type="text" id="success-live-url" readonly style="font-size: 11px; flex: 1;" />
             <button type="button" id="btn-copy-success-live" class="btn btn-secondary btn-sm" style="white-space:nowrap;"><i class="fa-solid fa-copy"></i> <span data-i18n="btn_copy">Salin</span></button>
           </div>
-          <button id="btn-view-live-bracket" class="btn btn-primary btn-block">
+          <a href="?view=live" id="btn-view-live-bracket" class="btn btn-primary btn-block">
             <i class="fa-solid fa-trophy"></i> <span data-i18n="btn_open_live_now">Buka Live Bracket Sekarang</span>
-          </button>
+          </a>
         </div>
       </div>
     </div>
@@ -927,7 +927,7 @@
 
   <!-- Modal 3: Match Score & Direct Win Controller Modal -->
   <div id="modal-match-control" class="modal-overlay hidden">
-    <div class="modal-content modal-md">
+    <div class="modal-content modal-md modal-match-dialog">
       <div class="modal-header">
         <div>
           <h3 id="modal-match-title" data-i18n="modal_match_details">Match Details</h3>
@@ -937,19 +937,25 @@
       </div>
       <div class="modal-body match-controller-body">
         <!-- Match Status Selector -->
-        <div class="match-status-bar" style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;">
-          <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-            <span class="status-label" data-i18n="label_match_status">Match Status:</span>
-            <div class="status-options">
-              <button type="button" class="status-btn" data-status="scheduled" data-i18n="status_scheduled">Belum Mulai</button>
-              <button type="button" class="status-btn status-btn-next-up" data-status="next_up" data-i18n="status_next_up"><span class="pulse-indicator-amber"></span> Akan Bermain</button>
-              <button type="button" class="status-btn" data-status="in_progress" data-i18n="status_in_progress">Sedang Main</button>
-              <button type="button" class="status-btn" data-status="completed" data-i18n="status_completed">Selesai</button>
-            </div>
+        <div class="match-status-bar">
+          <div class="status-bar-header">
+            <span class="status-label"><i class="fa-solid fa-flag"></i> <span data-i18n="label_match_status">Status Pertandingan:</span></span>
+            <button type="button" id="btn-quick-status-save" class="btn btn-sm btn-secondary btn-quick-status-save" title="Langsung simpan status tanpa isi skor">
+              <i class="fa-solid fa-bolt"></i> <span data-i18n="btn_quick_save_status">Simpan Status</span>
+            </button>
           </div>
-          <button type="button" id="btn-quick-status-save" class="btn btn-sm btn-secondary" style="gap:4px;" title="Langsung simpan status tanpa isi skor">
-            <i class="fa-solid fa-bolt"></i> <span data-i18n="btn_quick_save_status">Simpan Status</span>
-          </button>
+          <div class="status-options-grid">
+            <button type="button" class="status-btn" data-status="scheduled" data-i18n="status_scheduled">Belum Mulai</button>
+            <button type="button" class="status-btn status-btn-next-up" data-status="next_up" data-i18n="status_next_up"><span class="pulse-indicator-amber"></span> Akan Bermain</button>
+            <button type="button" class="status-btn" data-status="in_progress" data-i18n="status_in_progress">Sedang Main</button>
+            <button type="button" class="status-btn" data-status="completed" data-i18n="status_completed">Selesai</button>
+          </div>
+        </div>
+
+        <!-- Waiting for Opponent Notice -->
+        <div id="modal-match-waiting-notice" class="match-waiting-notice hidden">
+          <i class="fa-solid fa-hourglass-half"></i>
+          <span id="modal-match-waiting-text">Pertandingan ini masih menunggu pemenang dari babak sebelumnya. Skor dan pemenang baru dapat ditentukan setelah lawan lolos.</span>
         </div>
 
         <!-- Two Competitors Score Cards -->
@@ -958,10 +964,10 @@
           <div class="competitor-card" id="match-card-p1">
             <div class="comp-header">
               <span class="seed-badge" id="modal-p1-seed">#1</span>
-              <span class="comp-name" id="modal-p1-name">Participant 1</span>
+              <span class="comp-name" id="modal-p1-name" title="Participant 1">Participant 1</span>
             </div>
             <div class="score-input-wrapper">
-              <label data-i18n="label_score_points">Score / Points</label>
+              <label data-i18n="label_score_points">Skor / Points</label>
               <input type="number" id="modal-p1-score" min="0" value="0" class="score-input">
             </div>
             <button type="button" id="btn-direct-win-p1" class="btn btn-sm btn-win">
@@ -975,10 +981,10 @@
           <div class="competitor-card" id="match-card-p2">
             <div class="comp-header">
               <span class="seed-badge" id="modal-p2-seed">#8</span>
-              <span class="comp-name" id="modal-p2-name">Participant 2</span>
+              <span class="comp-name" id="modal-p2-name" title="Participant 2">Participant 2</span>
             </div>
             <div class="score-input-wrapper">
-              <label data-i18n="label_score_points">Score / Points</label>
+              <label data-i18n="label_score_points">Skor / Points</label>
               <input type="number" id="modal-p2-score" min="0" value="0" class="score-input">
             </div>
             <button type="button" id="btn-direct-win-p2" class="btn btn-sm btn-win">
@@ -990,7 +996,7 @@
         <!-- Match Notes (Catatan Pertandingan) -->
         <div class="match-notes-section">
           <label for="modal-match-note" class="match-notes-label">
-            <i class="fa-solid fa-note-sticky"></i> <span data-i18n="label_match_note">Catatan Pertandingan</span>
+            <i class="fa-solid fa-note-sticky"></i> <span data-i18n="label_match_note">Catatan Pertandingan (Opsional)</span>
           </label>
           <textarea id="modal-match-note" class="match-notes-input" placeholder="Tulis catatan (misal: Lapangan 2, WO karena cedera, ditunda 15 menit, dll.)..." rows="2"></textarea>
         </div>

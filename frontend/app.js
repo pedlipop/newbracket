@@ -18,6 +18,7 @@
     panX: 40,
     panY: 40,
     isDraggingCanvas: false,
+    isDraggingSlot: false,
     dragStartX: 0,
     dragStartY: 0,
     highlightInProgress: false,
@@ -159,15 +160,18 @@
       btn_save: 'Simpan',
       btn_download_qr: 'Download QR Image',
       btn_open_reg_page: 'Open Registration Page',
-      modal_match_details: 'Match Details',
-      label_match_status: 'Match Status:',
-      status_scheduled: 'Scheduled',
-      status_in_progress: 'In Progress',
-      status_completed: 'Completed',
-      label_score_points: 'Score / Points',
-      btn_direct_win: 'Direct Win',
-      btn_reset_match: 'Reset Match Result',
-      btn_save_score: 'Save Match Scores',
+      modal_match_details: 'Pengaturan Pertandingan & Skor',
+      label_match_status: 'Status Pertandingan:',
+      status_scheduled: 'Belum Mulai',
+      status_in_progress: 'Sedang Main',
+      status_completed: 'Selesai',
+      label_score_points: 'Skor / Poin',
+      btn_direct_win: 'Menang Langsung 👑',
+      btn_reset_match: 'Reset Skor Pertandingan',
+      btn_save_score: 'Simpan Skor Pertandingan',
+      label_match_note: 'Catatan Pertandingan (Opsional)',
+      nav_logs: 'Log Bagan',
+      drawer_logs: 'Riwayat / Log Bagan',
       modal_confirm_title: 'Confirmation',
       btn_confirm: 'Confirm',
       modal_edit_name_title: 'Edit Tournament Name',
@@ -380,7 +384,10 @@
       th_reg_time: '报名时间',
       th_bracket_status: '对阵状态',
       report_empty_title: '暂无报名数据',
-      report_empty_desc: '暂无选手通过报名链接或表单提交报名。'
+      report_empty_desc: '暂无选手通过报名链接或表单提交报名。',
+      label_match_note: '比赛备注（选填）',
+      nav_logs: '对阵日志',
+      drawer_logs: '对阵变更日志'
     }
   };
 
@@ -575,13 +582,17 @@
     el.modalP1Name = document.getElementById('modal-p1-name');
     el.modalP1Score = document.getElementById('modal-p1-score');
     el.btnDirectWinP1 = document.getElementById('btn-direct-win-p1');
+    el.cardMatchP1 = document.getElementById('match-card-p1');
     el.modalP2Seed = document.getElementById('modal-p2-seed');
     el.modalP2Name = document.getElementById('modal-p2-name');
     el.modalP2Score = document.getElementById('modal-p2-score');
     el.btnDirectWinP2 = document.getElementById('btn-direct-win-p2');
+    el.cardMatchP2 = document.getElementById('match-card-p2');
     el.btnSaveMatchScore = document.getElementById('btn-save-match-score');
     el.btnClearMatchResult = document.getElementById('btn-clear-match-result');
     el.modalMatchNote = document.getElementById('modal-match-note');
+    el.modalMatchWaitingNotice = document.getElementById('modal-match-waiting-notice');
+    el.modalMatchWaitingText = document.getElementById('modal-match-waiting-text');
 
     // Drawer Logs Elements
     el.railBtnLogs = document.getElementById('rail-btn-logs');
@@ -825,13 +836,13 @@
           </div>
 
           <div class="portal-card-actions">
-            <button class="btn btn-primary btn-portal-watch" data-id="${t.id}">
+            <a href="?view=live&id=${t.id}" class="btn btn-primary btn-portal-watch" data-id="${t.id}">
               <i class="fa-solid fa-play"></i> ${watchText}
-            </button>
+            </a>
             ${isSetup ? `
-              <button class="btn btn-secondary btn-portal-register" data-id="${t.id}">
+              <a href="?view=register&id=${t.id}" class="btn btn-secondary btn-portal-register" data-id="${t.id}">
                 <i class="fa-solid fa-user-plus"></i> ${registerText}
-              </button>
+              </a>
             ` : ''}
           </div>
         </div>
@@ -841,6 +852,8 @@
     // Attach listeners to portal card action buttons
     el.portalTournamentsGrid.querySelectorAll('.btn-portal-watch').forEach(btn => {
       btn.addEventListener('click', (e) => {
+        if (e.ctrlKey || e.metaKey || e.shiftKey || e.button === 1) return;
+        e.preventDefault();
         e.stopPropagation();
         navigateToLive(btn.dataset.id);
       });
@@ -848,6 +861,8 @@
 
     el.portalTournamentsGrid.querySelectorAll('.btn-portal-register').forEach(btn => {
       btn.addEventListener('click', (e) => {
+        if (e.ctrlKey || e.metaKey || e.shiftKey || e.button === 1) return;
+        e.preventDefault();
         e.stopPropagation();
         window.history.pushState({}, '', `?view=register&id=${btn.dataset.id}`);
         loadPublicRegisterView(btn.dataset.id);
@@ -931,16 +946,16 @@
             </div>
           </div>
           <div class="card-footer">
-            <button class="btn btn-secondary btn-card-open" data-id="${t.id}">
+            <a href="?view=studio&id=${t.id}" class="btn btn-secondary btn-card-open" data-id="${t.id}">
               <i class="fa-solid fa-pen-to-square"></i> ${studioLabel}
-            </button>
-            <button class="btn btn-tool btn-card-report" data-id="${t.id}" title="${isZh ? '查看报名报表' : 'Laporan Pendaftar'}">
+            </a>
+            <a href="?view=studio&id=${t.id}&tab=report" class="btn btn-tool btn-card-report" data-id="${t.id}" title="${isZh ? '查看报名报表' : 'Laporan Pendaftar'}">
               <i class="fa-solid fa-clipboard-user"></i> ${isZh ? '报表' : 'Laporan'}
-            </button>
+            </a>
             <button class="btn btn-tool btn-card-qr" data-id="${t.id}" title="${isZh ? '显示报名二维码' : 'Show Registration QR'}">
               <i class="fa-solid fa-qrcode"></i> QR
             </button>
-            <a href="?view=live&id=${t.id}" target="_blank" class="btn btn-tool btn-card-live" title="${isZh ? '打开实时观赛页面' : 'Open Live Spectator View'}">
+            <a href="?view=live&id=${t.id}" class="btn btn-tool btn-card-live" data-id="${t.id}" title="${isZh ? '打开实时观赛页面' : 'Open Live Spectator View'}">
               <i class="fa-solid fa-arrow-up-right-from-square"></i> ${liveLabel}
             </a>
           </div>
@@ -950,12 +965,25 @@
 
     // Attach card event listeners
     el.tournamentsGrid.querySelectorAll('.btn-card-open').forEach(b => {
-      b.addEventListener('click', () => navigateToStudio(b.dataset.id));
+      b.addEventListener('click', (e) => {
+        if (e.ctrlKey || e.metaKey || e.shiftKey || e.button === 1) return;
+        e.preventDefault();
+        navigateToStudio(b.dataset.id);
+      });
     });
     el.tournamentsGrid.querySelectorAll('.btn-card-report').forEach(b => {
-      b.addEventListener('click', () => {
+      b.addEventListener('click', (e) => {
+        if (e.ctrlKey || e.metaKey || e.shiftKey || e.button === 1) return;
+        e.preventDefault();
         navigateToStudio(b.dataset.id);
         setTimeout(() => openStudioReportView(b.dataset.id), 120);
+      });
+    });
+    el.tournamentsGrid.querySelectorAll('.btn-card-live').forEach(b => {
+      b.addEventListener('click', (e) => {
+        if (e.ctrlKey || e.metaKey || e.shiftKey || e.button === 1) return;
+        e.preventDefault();
+        navigateToLive(b.dataset.id);
       });
     });
     el.tournamentsGrid.querySelectorAll('.btn-card-qr').forEach(b => {
@@ -984,6 +1012,9 @@
       if (!res.ok) throw new Error('Tournament not found');
       const data = await res.json();
       state.currentTournament = data.tournament;
+      if (reconcileFeederAdvancements(state.currentTournament)) {
+        saveTournamentState(false);
+      }
       setupStudioUI();
       renderBracketStudio();
     } catch (err) {
@@ -997,6 +1028,10 @@
     el.studioTournamentName.textContent = t.name;
     el.studioStatusBadge.className = `badge badge-${t.status || 'setup'}`;
     el.studioStatusBadge.textContent = (t.status || 'setup').replace('_', ' ').toUpperCase();
+
+    if (el.btnOpenLiveView) {
+      el.btnOpenLiveView.href = `?view=live&id=${t.id}`;
+    }
 
     // Lock button state
     if (t.isLocked) {
@@ -2139,6 +2174,7 @@
         if (canDrag) {
           row.setAttribute('draggable', 'true');
           row.addEventListener('dragstart', handleMatchSlotDragStart);
+          row.addEventListener('dragend', handleMatchSlotDragEnd);
         } else {
           row.removeAttribute('draggable');
           row.setAttribute('draggable', 'false');
@@ -2154,8 +2190,17 @@
 
     // Click to open Match Controller Modal
     if (!isLiveView) {
+      let downPos = null;
+      node.addEventListener('mousedown', (e) => {
+        downPos = { x: e.clientX, y: e.clientY };
+      });
       node.addEventListener('click', (e) => {
         if (e.target.closest('.btn-slot-lock, .btn-slot-edit, .slot-inline-edit')) return;
+        if (state.isDraggingSlot) return;
+        if (downPos) {
+          const dist = Math.hypot(e.clientX - downPos.x, e.clientY - downPos.y);
+          if (dist > 5) return;
+        }
         openMatchControlModal(match, rIdx, mIdx);
       });
     }
@@ -2240,9 +2285,13 @@
 
   function handleParticipantDragEnd() {
     this.classList.remove('dragging');
+    state.isDraggingSlot = false;
+    state.isDraggingCanvas = false;
   }
 
   function handleMatchSlotDragStart(e) {
+    state.isDraggingCanvas = false;
+    state.isDraggingSlot = true;
     const roundIdx = parseInt(this.dataset.round, 10);
     const matchIdx = parseInt(this.dataset.match, 10);
     const slot = this.dataset.slot;
@@ -2252,6 +2301,7 @@
     const p = slot === 'p1' ? match?.p1 : match?.p2;
 
     if (isFeeder || !p || !p.id || p.isPlaceholder || p.isUnseeded || !p.name || !p.name.trim()) {
+      state.isDraggingSlot = false;
       e.preventDefault();
       return false;
     }
@@ -2262,7 +2312,15 @@
       slot: slot
     };
     state.draggedParticipant = null;
+    this.classList.add('dragging');
     e.dataTransfer.setData('text/plain', 'match-slot');
+  }
+
+  function handleMatchSlotDragEnd() {
+    state.isDraggingSlot = false;
+    state.isDraggingCanvas = false;
+    this.classList.remove('dragging');
+    document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
   }
 
   function handleSlotDragOver(e) {
@@ -2272,6 +2330,151 @@
 
   function handleSlotDragLeave() {
     this.classList.remove('drag-over');
+  }
+
+  function findMatchById(t, matchId) {
+    if (!t || !t.rounds || !matchId) return null;
+    for (const r of t.rounds) {
+      if (r.matches) {
+        const found = r.matches.find(m => m.id === matchId);
+        if (found) return found;
+      }
+    }
+    return null;
+  }
+
+  function promptFeederAdvancement(t, srcMatch, srcRound, srcMatchIdx, srcSlot, targetMatch, targetRound, targetMatchIdx, targetSlot, draggedP) {
+    const isZh = state.lang === 'zh';
+    const srcRoundTitle = t.rounds[srcRound]?.title || `Round ${srcRound + 1}`;
+    const targetRoundTitle = t.rounds[targetRound]?.title || `Round ${targetRound + 1}`;
+    const participantName = draggedP.name || 'Peserta';
+
+    const confirmTitle = isZh ? '确认选手直接晋级？' : 'Konfirmasi Loloskan Peserta Play-In?';
+    const confirmMsg = isZh
+      ? `您正在将入围赛（${srcRoundTitle}）选手 <b>${escapeHTML(participantName)}</b> 直接移入下一轮（${targetRoundTitle}）。<br><br>
+         • 选手 <b>${escapeHTML(participantName)}</b> 将<b>继续保留在原入围赛</b>槽位中，不会变成空位。<br>
+         • 原入围赛状态将自动设为<b>已结束</b>，并判定 <b>${escapeHTML(participantName)}</b> 获胜晋级。<br><br>
+         是否确认直接晋级该选手？`
+      : `Anda sedang memindahkan peserta <b>${escapeHTML(participantName)}</b> dari babak play-in (${srcRoundTitle}) langsung ke babak berikutnya (${targetRoundTitle}).<br><br>
+         • Nama <b>${escapeHTML(participantName)}</b> akan <b>tetap tercatat</b> di babak play-in (tidak menjadi slot kosong).<br>
+         • Pertandingan play-in otomatis berstatus <b>Selesai</b> dengan <b>${escapeHTML(participantName)} Menang</b>.<br><br>
+         Apakah Anda yakin ingin meloloskan peserta ini?`;
+
+    openConfirmModal(
+      confirmTitle,
+      confirmMsg,
+      () => {
+        // Keep draggedP in srcMatch!
+        srcMatch[srcSlot] = { ...draggedP, isPlaceholder: false, isUnseeded: false };
+        srcMatch.winnerId = draggedP.id;
+        srcMatch.status = 'completed';
+        if (srcSlot === 'p1') {
+          srcMatch.score1 = (srcMatch.score1 !== undefined && srcMatch.score1 !== '') ? srcMatch.score1 : 1;
+          srcMatch.score2 = (srcMatch.score2 !== undefined && srcMatch.score2 !== '') ? srcMatch.score2 : 0;
+        } else {
+          srcMatch.score2 = (srcMatch.score2 !== undefined && srcMatch.score2 !== '') ? srcMatch.score2 : 1;
+          srcMatch.score1 = (srcMatch.score1 !== undefined && srcMatch.score1 !== '') ? srcMatch.score1 : 0;
+        }
+
+        // Put in target feeder slot
+        targetMatch[targetSlot] = {
+          id: draggedP.id,
+          name: draggedP.name,
+          seed: draggedP.seed,
+          partners: draggedP.partners,
+          partner: draggedP.partner,
+          isPlaceholder: false,
+          isUnseeded: false
+        };
+
+        sanitizeBracketDuplicates(t);
+        addTournamentLog(t, 'match', `Peserta "${draggedP.name}" diloloskan langsung dari ${srcRoundTitle} (M${srcMatchIdx + 1}) ke ${targetRoundTitle} (M${targetMatch + 1}) - Menang Play-In.`);
+        showToast(isZh ? `选手 ${draggedP.name} 已获胜并晋级！` : `Peserta ${draggedP.name} berhasil diloloskan sebagai pemenang play-in!`, 'success');
+        saveTournamentState(true);
+        renderBracketStudio();
+      }
+    );
+  }
+
+  function reconcileFeederAdvancements(t) {
+    if (!t || !t.rounds) return false;
+    let changed = false;
+
+    (t.rounds || []).forEach(r => {
+      (r.matches || []).forEach(m => {
+        // 1. Feeder for slot p1
+        if (m.feederTopId && m.p1 && m.p1.id && !m.p1.isPlaceholder && !m.p1.isUnseeded) {
+          const feeder = findMatchById(t, m.feederTopId);
+          if (feeder) {
+            const advP = m.p1;
+            let feederUpdated = false;
+
+            if (feeder.p1?.id !== advP.id && feeder.p2?.id !== advP.id) {
+              if (!feeder.p1 || !feeder.p1.id || feeder.p1.isPlaceholder || feeder.p1.isUnseeded) {
+                feeder.p1 = { ...advP, isPlaceholder: false, isUnseeded: false };
+                feederUpdated = true;
+              } else if (!feeder.p2 || !feeder.p2.id || feeder.p2.isPlaceholder || feeder.p2.isUnseeded) {
+                feeder.p2 = { ...advP, isPlaceholder: false, isUnseeded: false };
+                feederUpdated = true;
+              }
+            }
+
+            if (feeder.winnerId !== advP.id) {
+              feeder.winnerId = advP.id;
+              feeder.status = 'completed';
+              if (feeder.p1?.id === advP.id) {
+                feeder.score1 = (feeder.score1 !== undefined && feeder.score1 !== '') ? feeder.score1 : 1;
+                feeder.score2 = (feeder.score2 !== undefined && feeder.score2 !== '') ? feeder.score2 : 0;
+              } else if (feeder.p2?.id === advP.id) {
+                feeder.score2 = (feeder.score2 !== undefined && feeder.score2 !== '') ? feeder.score2 : 1;
+                feeder.score1 = (feeder.score1 !== undefined && feeder.score1 !== '') ? feeder.score1 : 0;
+              }
+              feederUpdated = true;
+              addTournamentLog(t, 'match', `Sinkronisasi Play-In: Peserta "${advP.name}" tercatat menang di pertandingan (${feeder.id.toUpperCase()}) dan lolos ke babak berikutnya.`);
+            }
+
+            if (feederUpdated) changed = true;
+          }
+        }
+
+        // 2. Feeder for slot p2
+        if (m.feederBotId && m.p2 && m.p2.id && !m.p2.isPlaceholder && !m.p2.isUnseeded) {
+          const feeder = findMatchById(t, m.feederBotId);
+          if (feeder) {
+            const advP = m.p2;
+            let feederUpdated = false;
+
+            if (feeder.p1?.id !== advP.id && feeder.p2?.id !== advP.id) {
+              if (!feeder.p1 || !feeder.p1.id || feeder.p1.isPlaceholder || feeder.p1.isUnseeded) {
+                feeder.p1 = { ...advP, isPlaceholder: false, isUnseeded: false };
+                feederUpdated = true;
+              } else if (!feeder.p2 || !feeder.p2.id || feeder.p2.isPlaceholder || feeder.p2.isUnseeded) {
+                feeder.p2 = { ...advP, isPlaceholder: false, isUnseeded: false };
+                feederUpdated = true;
+              }
+            }
+
+            if (feeder.winnerId !== advP.id) {
+              feeder.winnerId = advP.id;
+              feeder.status = 'completed';
+              if (feeder.p1?.id === advP.id) {
+                feeder.score1 = (feeder.score1 !== undefined && feeder.score1 !== '') ? feeder.score1 : 1;
+                feeder.score2 = (feeder.score2 !== undefined && feeder.score2 !== '') ? feeder.score2 : 0;
+              } else if (feeder.p2?.id === advP.id) {
+                feeder.score2 = (feeder.score2 !== undefined && feeder.score2 !== '') ? feeder.score2 : 1;
+                feeder.score1 = (feeder.score1 !== undefined && feeder.score1 !== '') ? feeder.score1 : 0;
+              }
+              feederUpdated = true;
+              addTournamentLog(t, 'match', `Sinkronisasi Play-In: Peserta "${advP.name}" tercatat menang di pertandingan (${feeder.id.toUpperCase()}) dan lolos ke babak berikutnya.`);
+            }
+
+            if (feederUpdated) changed = true;
+          }
+        }
+      });
+    });
+
+    return changed;
   }
 
   function handleSlotDrop(e) {
@@ -2295,6 +2498,54 @@
       if (!participant || !participant.name || !participant.name.trim()) {
         showToast('Slot masih kosong! Masukkan nama peserta terlebih dahulu.', 'warning');
         return;
+      }
+
+      const isTargetSlotFeeder = !!(targetSlot === 'p1' ? match.feederTopId : match.feederBotId);
+      const targetFeederId = targetSlot === 'p1' ? match.feederTopId : match.feederBotId;
+
+      if (isTargetSlotFeeder) {
+        const feeder = findMatchById(t, targetFeederId);
+        if (feeder) {
+          const isZh = state.lang === 'zh';
+          const confirmTitle = isZh ? '确认选手晋级（跳过入围赛）？' : 'Konfirmasi Loloskan Peserta Play-In?';
+          const confirmMsg = isZh
+            ? `您正在将选手 <b>${escapeHTML(participant.name.trim())}</b> 直接分配至晋级槽位。<br><br>• 选手将同时记录在原入围赛中。<br>• 原入围赛将判定该选手获胜晋级。<br><br>是否确认？`
+            : `Anda sedang menempatkan peserta <b>${escapeHTML(participant.name.trim())}</b> ke slot lanjutan play-in.<br><br>• Peserta akan tetap tercatat di babak play-in (${feeder.id.toUpperCase()}).<br>• Pertandingan play-in otomatis berstatus Selesai dengan peserta ini Menang.<br><br>Apakah Anda yakin?`;
+
+          openConfirmModal(confirmTitle, confirmMsg, () => {
+            if (!feeder.p1 || !feeder.p1.id || feeder.p1.isPlaceholder || feeder.p1.isUnseeded) {
+              feeder.p1 = { id: participant.id, name: participant.name.trim(), seed: state.draggedParticipant.index + 1, isPlaceholder: false, isUnseeded: false };
+            } else if (!feeder.p2 || !feeder.p2.id || feeder.p2.isPlaceholder || feeder.p2.isUnseeded) {
+              feeder.p2 = { id: participant.id, name: participant.name.trim(), seed: state.draggedParticipant.index + 1, isPlaceholder: false, isUnseeded: false };
+            } else {
+              feeder.p1 = { id: participant.id, name: participant.name.trim(), seed: state.draggedParticipant.index + 1, isPlaceholder: false, isUnseeded: false };
+            }
+            feeder.winnerId = participant.id;
+            feeder.status = 'completed';
+            if (feeder.p1?.id === participant.id) {
+              feeder.score1 = (feeder.score1 !== undefined && feeder.score1 !== '') ? feeder.score1 : 1;
+              feeder.score2 = (feeder.score2 !== undefined && feeder.score2 !== '') ? feeder.score2 : 0;
+            } else {
+              feeder.score2 = (feeder.score2 !== undefined && feeder.score2 !== '') ? feeder.score2 : 1;
+              feeder.score1 = (feeder.score1 !== undefined && feeder.score1 !== '') ? feeder.score1 : 0;
+            }
+
+            match[targetSlot] = {
+              id: participant.id,
+              name: participant.name.trim(),
+              seed: state.draggedParticipant.index + 1,
+              isPlaceholder: false,
+              isUnseeded: false
+            };
+
+            sanitizeBracketDuplicates(t);
+            addTournamentLog(t, 'match', `Peserta "${participant.name.trim()}" ditempatkan dan diloloskan dari play-in (${feeder.id.toUpperCase()}).`);
+            saveTournamentState(true);
+            renderParticipantsDrawer();
+            renderBracketStudio();
+          });
+          return;
+        }
       }
 
       // Prevent duplicate assignment: clear from any other match slot first
@@ -2321,15 +2572,42 @@
       renderParticipantsDrawer();
       renderBracketStudio();
     } else if (state.draggedSlot) {
+      const srcRound = state.draggedSlot.round;
+      const srcMatchIdx = state.draggedSlot.match;
+      const srcSlot = state.draggedSlot.slot;
+      const srcMatch = t.rounds[srcRound]?.matches?.[srcMatchIdx];
+      if (!srcMatch) return;
+      const draggedP = srcMatch[srcSlot];
+      if (!draggedP || !draggedP.id || draggedP.isPlaceholder || draggedP.isUnseeded) return;
+
+      const isTargetSlotFeeder = !!(targetSlot === 'p1' ? match.feederTopId : match.feederBotId);
+      const targetFeederId = targetSlot === 'p1' ? match.feederTopId : match.feederBotId;
+
+      // Check if target match or slot is fed by srcMatch
+      const isDirectFeeder = isTargetSlotFeeder && (targetFeederId === srcMatch.id);
+      const matchFedBySrc = match.feederTopId === srcMatch.id || match.feederBotId === srcMatch.id;
+
+      if (isDirectFeeder || matchFedBySrc) {
+        const correctSlot = match.feederTopId === srcMatch.id ? 'p1' : 'p2';
+        promptFeederAdvancement(t, srcMatch, srcRound, srcMatchIdx, srcSlot, match, targetRound, targetMatch, correctSlot, draggedP);
+        return;
+      }
+
+      // If user dropped into a feeder slot fed by another match
+      if (isTargetSlotFeeder && targetFeederId !== srcMatch.id) {
+        const isZh = state.lang === 'zh';
+        showToast(isZh ? '此位置是其他轮次比赛的胜者通道，无法直接放入！' : 'Slot ini merupakan jalur pemenang untuk pertandingan lain!', 'warning');
+        return;
+      }
+
       // Swap slots between two matches
-      const srcMatch = t.rounds[state.draggedSlot.round].matches[state.draggedSlot.match];
-      const temp = srcMatch[state.draggedSlot.slot];
-      srcMatch[state.draggedSlot.slot] = match[targetSlot];
+      const temp = srcMatch[srcSlot];
+      srcMatch[srcSlot] = match[targetSlot];
       match[targetSlot] = temp;
 
       sanitizeBracketDuplicates(t);
       const name1 = match[targetSlot]?.name || 'Slot';
-      const name2 = srcMatch[state.draggedSlot.slot]?.name || 'Slot';
+      const name2 = srcMatch[srcSlot]?.name || 'Slot';
       addTournamentLog(t, 'slot', `Tukar slot: "${name1}" (R${targetRound + 1} M${targetMatch + 1}) <-> "${name2}" (R${state.draggedSlot.round + 1} M${state.draggedSlot.match + 1}).`);
 
       showToast('Swapped participant bracket seeds!', 'success');
@@ -2365,11 +2643,13 @@
   // ==================== MATCH CONTROLLER (SCORE & DIRECT WIN) ====================
   function openMatchControlModal(match, rIdx, mIdx) {
     state.selectedMatchForEdit = { match, rIdx, mIdx };
+    const isZh = state.lang === 'zh';
+
     if (match.isBronzeMatch) {
-      el.modalMatchTitle.textContent = 'Perebutan Juara 3 (Bronze Match)';
+      el.modalMatchTitle.textContent = isZh ? '季军争夺战' : 'Perebutan Juara 3 (Bronze Match)';
       el.modalMatchRound.textContent = '🥉 3rd Place Match';
     } else {
-      el.modalMatchTitle.textContent = `Match ${mIdx + 1} Management`;
+      el.modalMatchTitle.textContent = isZh ? `第 ${mIdx + 1} 场管理` : `Match ${mIdx + 1} Management`;
       el.modalMatchRound.textContent = state.currentTournament.rounds[rIdx]?.title || `Round ${rIdx + 1}`;
     }
 
@@ -2382,21 +2662,93 @@
     const p1 = match.p1 || { name: 'TBD', seed: '' };
     const p2 = match.p2 || { name: 'TBD', seed: '' };
 
-    el.modalP1Seed.textContent = p1.seed ? `#${p1.seed}` : '-';
-    el.modalP1Name.textContent = p1.name;
-    el.modalP1Score.value = match.score1 !== undefined && match.score1 !== '' ? match.score1 : 0;
+    const isP1Waiting = !p1 || !p1.id || p1.isPlaceholder || p1.isUnseeded || (typeof p1.name === 'string' && p1.name.toLowerCase().startsWith('winner r'));
+    const isP2Waiting = !p2 || !p2.id || p2.isPlaceholder || p2.isUnseeded || (typeof p2.name === 'string' && p2.name.toLowerCase().startsWith('winner r'));
+    const isMatchWaitingOpponent = isP1Waiting || isP2Waiting;
 
-    el.modalP2Seed.textContent = p2.seed ? `#${p2.seed}` : '-';
-    el.modalP2Name.textContent = p2.name;
-    el.modalP2Score.value = match.score2 !== undefined && match.score2 !== '' ? match.score2 : 0;
+    // Configure P1 Card
+    if (isP1Waiting) {
+      el.cardMatchP1?.classList.add('card-waiting-feeder');
+      el.modalP1Seed.textContent = '-';
+      el.modalP1Name.textContent = isZh ? '待定 (等待胜者)' : 'TBD (Menunggu Pemenang)';
+      el.modalP1Name.title = isZh ? '等待上一轮获胜选手' : 'Menunggu pemenang pertandingan babak sebelumnya';
+      el.modalP1Score.value = 0;
+      el.modalP1Score.disabled = true;
+      el.btnDirectWinP1.style.display = 'none';
+      el.btnDirectWinP1.disabled = true;
+    } else {
+      el.cardMatchP1?.classList.remove('card-waiting-feeder');
+      el.modalP1Seed.textContent = p1.seed ? `#${p1.seed}` : '-';
+      el.modalP1Name.textContent = p1.name;
+      el.modalP1Name.title = p1.name;
+      el.modalP1Score.value = match.score1 !== undefined && match.score1 !== '' ? match.score1 : 0;
+      el.modalP1Score.disabled = isMatchWaitingOpponent;
+      // Cannot direct win against a placeholder / TBD opponent!
+      if (isMatchWaitingOpponent) {
+        el.btnDirectWinP1.style.display = 'none';
+        el.btnDirectWinP1.disabled = true;
+      } else {
+        el.btnDirectWinP1.style.display = '';
+        el.btnDirectWinP1.disabled = false;
+      }
+    }
+
+    // Configure P2 Card
+    if (isP2Waiting) {
+      el.cardMatchP2?.classList.add('card-waiting-feeder');
+      el.modalP2Seed.textContent = '-';
+      el.modalP2Name.textContent = isZh ? '待定 (等待胜者)' : 'TBD (Menunggu Pemenang)';
+      el.modalP2Name.title = isZh ? '等待上一轮获胜选手' : 'Menunggu pemenang pertandingan babak sebelumnya';
+      el.modalP2Score.value = 0;
+      el.modalP2Score.disabled = true;
+      el.btnDirectWinP2.style.display = 'none';
+      el.btnDirectWinP2.disabled = true;
+    } else {
+      el.cardMatchP2?.classList.remove('card-waiting-feeder');
+      el.modalP2Seed.textContent = p2.seed ? `#${p2.seed}` : '-';
+      el.modalP2Name.textContent = p2.name;
+      el.modalP2Name.title = p2.name;
+      el.modalP2Score.value = match.score2 !== undefined && match.score2 !== '' ? match.score2 : 0;
+      el.modalP2Score.disabled = isMatchWaitingOpponent;
+      // Cannot direct win against a placeholder / TBD opponent!
+      if (isMatchWaitingOpponent) {
+        el.btnDirectWinP2.style.display = 'none';
+        el.btnDirectWinP2.disabled = true;
+      } else {
+        el.btnDirectWinP2.style.display = '';
+        el.btnDirectWinP2.disabled = false;
+      }
+    }
+
+    // Notice banner & Save Scores Button State
+    if (el.modalMatchWaitingNotice) {
+      if (isMatchWaitingOpponent) {
+        el.modalMatchWaitingNotice.classList.remove('hidden');
+        if (el.modalMatchWaitingText) {
+          el.modalMatchWaitingText.textContent = isZh
+            ? '该比赛仍在等待上一轮决出胜者。双方选手就位后，方可录入比分或判定获胜。'
+            : 'Pertandingan ini masih menunggu pemenang dari babak sebelumnya. Skor dan pemenang baru dapat ditentukan setelah lawan lolos.';
+        }
+        if (el.btnSaveMatchScore) {
+          el.btnSaveMatchScore.disabled = true;
+          el.btnSaveMatchScore.style.opacity = '0.4';
+          el.btnSaveMatchScore.style.cursor = 'not-allowed';
+          el.btnSaveMatchScore.title = isZh ? '等待对手决出后方可保存比分' : 'Menunggu lawan lolos sebelum dapat menyimpan skor';
+        }
+      } else {
+        el.modalMatchWaitingNotice.classList.add('hidden');
+        if (el.btnSaveMatchScore) {
+          el.btnSaveMatchScore.disabled = false;
+          el.btnSaveMatchScore.style.opacity = '1';
+          el.btnSaveMatchScore.style.cursor = 'pointer';
+          el.btnSaveMatchScore.title = '';
+        }
+      }
+    }
 
     if (el.modalMatchNote) {
       el.modalMatchNote.value = match.note || '';
     }
-
-    // Disable win buttons if competitor is placeholder
-    el.btnDirectWinP1.disabled = !!p1.isPlaceholder || !p1.name;
-    el.btnDirectWinP2.disabled = !!p2.isPlaceholder || !p2.name;
 
     openModal(el.modalMatchControl);
   }
@@ -2405,6 +2757,15 @@
     if (!state.selectedMatchForEdit) return;
     const { match, rIdx, mIdx } = state.selectedMatchForEdit;
     const t = state.currentTournament;
+
+    const p1 = match.p1;
+    const p2 = match.p2;
+    const isP1Waiting = !p1 || !p1.id || p1.isPlaceholder || p1.isUnseeded || (typeof p1.name === 'string' && p1.name.toLowerCase().startsWith('winner r'));
+    const isP2Waiting = !p2 || !p2.id || p2.isPlaceholder || p2.isUnseeded || (typeof p2.name === 'string' && p2.name.toLowerCase().startsWith('winner r'));
+    if (isP1Waiting || isP2Waiting) {
+      showToast(state.lang === 'zh' ? '该比赛仍在等待上一轮对手，无法保存比分！' : 'Tidak dapat menyimpan skor karena pertandingan masih menunggu lawan (TBD)!', 'warning');
+      return;
+    }
 
     const s1 = parseInt(el.modalP1Score.value, 10) || 0;
     const s2 = parseInt(el.modalP2Score.value, 10) || 0;
@@ -2478,9 +2839,15 @@
     if (!state.selectedMatchForEdit) return;
     const { match, rIdx, mIdx } = state.selectedMatchForEdit;
     const winner = playerSlot === 'p1' ? match.p1 : match.p2;
+    const opponent = playerSlot === 'p1' ? match.p2 : match.p1;
 
-    if (!winner || winner.isPlaceholder) {
+    if (!winner || winner.isPlaceholder || !winner.id || winner.isUnseeded) {
       showToast('Cannot declare win for placeholder competitor!', 'error');
+      return;
+    }
+
+    if (!opponent || opponent.isPlaceholder || !opponent.id || opponent.isUnseeded || (typeof opponent.name === 'string' && opponent.name.toLowerCase().startsWith('winner r'))) {
+      showToast(state.lang === 'zh' ? '对手尚未决出（TBD），无法判定直接获胜！' : 'Tidak dapat menang langsung karena lawan belum ditentukan (masih menunggu hasil babak sebelumnya)!', 'warning');
       return;
     }
 
@@ -2651,6 +3018,7 @@
         'Lock Tournament Bracket?',
         'Locking the bracket will freeze participant seeding and enable match scoring and live winner advancement.',
         () => {
+          reconcileFeederAdvancements(t);
           t.isLocked = true;
           t.status = 'in_progress';
           addTournamentLog(t, 'lock', '🔒 Bagan dikunci (Lock Bracket). Pertandingan dan pencatatan skor diaktifkan.');
@@ -3947,6 +4315,7 @@
   async function saveTournamentState(notify = false) {
     const t = state.currentTournament;
     if (!t) return;
+    reconcileFeederAdvancements(t);
 
     try {
       const res = await fetch(`/api/tournaments/${t.id}/state`, {
@@ -3997,6 +4366,9 @@
       const needsHydration = !t.rounds || t.rounds.length === 0 || t.rounds.some(r => r.matches.some(m => !m.pairRange));
       if (needsHydration) {
         t.rounds = generateBracketTree(t.participants || [], t.rounds);
+      }
+      if (reconcileFeederAdvancements(t)) {
+        saveTournamentState(false);
       }
 
       el.liveTournamentName.textContent = t.name;
@@ -4232,7 +4604,12 @@
         };
       }
       if (el.btnClosedViewLive) {
-        el.btnClosedViewLive.onclick = () => navigateToLive(t.id);
+        el.btnClosedViewLive.href = `?view=live&id=${t.id}`;
+        el.btnClosedViewLive.onclick = (e) => {
+          if (e.ctrlKey || e.metaKey || e.shiftKey || e.button === 1) return;
+          e.preventDefault();
+          navigateToLive(t.id);
+        };
       }
 
       // Check if registration is closed
@@ -4284,9 +4661,14 @@
         }
       }
 
-      el.btnViewLiveBracket.onclick = () => {
-        navigateToLive(t.id);
-      };
+      if (el.btnViewLiveBracket) {
+        el.btnViewLiveBracket.href = `?view=live&id=${t.id}`;
+        el.btnViewLiveBracket.onclick = (e) => {
+          if (e.ctrlKey || e.metaKey || e.shiftKey || e.button === 1) return;
+          e.preventDefault();
+          navigateToLive(t.id);
+        };
+      }
     } catch (err) {
       showToast('Error loading registration: ' + err.message, 'error');
     }
@@ -4729,7 +5111,7 @@
 
     // Mouse Dragging
     containerEl.addEventListener('mousedown', (e) => {
-      if (e.target.closest('button, input, select, textarea, .canvas-controls, .corner-match-widget, .btn-slot-lock, .btn-slot-edit')) return;
+      if (e.target.closest('button, input, select, textarea, .canvas-controls, .corner-match-widget, .btn-slot-lock, .btn-slot-edit, .match-node, .match-team-row, [draggable="true"]')) return;
       state.isDraggingCanvas = true;
       state.dragStartX = e.clientX - state.panX;
       state.dragStartY = e.clientY - state.panY;
@@ -4744,6 +5126,7 @@
 
     window.addEventListener('mouseup', () => {
       state.isDraggingCanvas = false;
+      state.isDraggingSlot = false;
     });
 
     // Touch Dragging & Pinch-Zoom for Tablets & Smartphones (Fixes locked bracket on tablets)
@@ -4751,8 +5134,8 @@
     let initialZoom = 1;
 
     containerEl.addEventListener('touchstart', (e) => {
-      // Do not block dragging when touching card body; only block when touching interactive buttons/inputs
-      if (e.target.closest('button, input, select, textarea, .canvas-controls, .corner-match-widget, .btn-slot-lock, .btn-slot-edit')) return;
+      // Do not block dragging when touching card body; only block when touching interactive buttons/inputs or draggable slots
+      if (e.target.closest('button, input, select, textarea, .canvas-controls, .corner-match-widget, .btn-slot-lock, .btn-slot-edit, [draggable="true"]')) return;
 
       if (e.touches.length === 1) {
         // 1-finger panning
@@ -4788,6 +5171,7 @@
 
     const endTouchDrag = () => {
       state.isDraggingCanvas = false;
+      state.isDraggingSlot = false;
       touchStartDist = 0;
     };
 
@@ -4806,10 +5190,14 @@
 
   // ==================== MODAL HELPERS ====================
   function openModal(modalEl) {
+    state.isDraggingCanvas = false;
+    state.isDraggingSlot = false;
     modalEl.classList.remove('hidden');
   }
 
   function closeModal(modalEl) {
+    state.isDraggingCanvas = false;
+    state.isDraggingSlot = false;
     modalEl.classList.add('hidden');
   }
 
@@ -4835,7 +5223,13 @@
   // ==================== EVENT LISTENERS SETUP ====================
   function setupEventListeners() {
     // Navigation
-    if (el.btnBackDashboard) el.btnBackDashboard.addEventListener('click', loadDashboard);
+    if (el.btnBackDashboard) {
+      el.btnBackDashboard.addEventListener('click', (e) => {
+        if (e.ctrlKey || e.metaKey || e.shiftKey || e.button === 1) return;
+        e.preventDefault();
+        loadDashboard();
+      });
+    }
 
     // Language switchers across all views
     document.querySelectorAll('.btn-lang-toggle').forEach(btn => {
@@ -4947,7 +5341,13 @@
     el.btnToggleHighlight.addEventListener('click', handleToggleHighlight);
     el.btnLiveHighlight.addEventListener('click', handleToggleHighlight);
     el.btnOpenQrModal.addEventListener('click', () => openQrModalForTournament(state.currentTournament.id));
-    el.btnOpenLiveView.addEventListener('click', () => navigateToLive(state.currentTournament.id));
+    if (el.btnOpenLiveView) {
+      el.btnOpenLiveView.addEventListener('click', (e) => {
+        if (e.ctrlKey || e.metaKey || e.shiftKey || e.button === 1) return;
+        e.preventDefault();
+        if (state.currentTournament) navigateToLive(state.currentTournament.id);
+      });
+    }
 
     // Drawer Tabs (Teams, Format, Themes, Reports)
     document.querySelectorAll('.rail-tab-btn').forEach(btn => {
@@ -5406,14 +5806,9 @@
 
     // Public Viewer Portal Listeners
     if (el.btnLiveBackPortal) {
-      el.btnLiveBackPortal.addEventListener('click', () => {
-        window.history.pushState({}, '', '/');
-        loadViewerPortal();
-      });
-    }
-
-    if (el.btnLiveBackPortal) {
-      el.btnLiveBackPortal.addEventListener('click', () => {
+      el.btnLiveBackPortal.addEventListener('click', (e) => {
+        if (e.ctrlKey || e.metaKey || e.shiftKey || e.button === 1) return;
+        e.preventDefault();
         window.history.pushState({}, '', '/');
         loadViewerPortal();
       });
