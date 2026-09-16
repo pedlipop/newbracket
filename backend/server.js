@@ -115,7 +115,7 @@ app.delete('/api/tournaments/:id', async (req, res) => {
 // 6. Save entire bracket state (rounds, matches, participants, lock status)
 app.post('/api/tournaments/:id/state', async (req, res) => {
   try {
-    const { rounds, participants, isLocked, status, inProgressHighlight, lockedSeeds, settings, name, registrationDeadline, autoLockAt } = req.body;
+    const { rounds, participants, isLocked, status, inProgressHighlight, lockedSeeds, settings, name, registrationDeadline, autoLockAt, isRegistrationClosed } = req.body;
     const updates = {};
     if (rounds !== undefined) updates.rounds = rounds;
     if (participants !== undefined) updates.participants = participants;
@@ -127,6 +127,7 @@ app.post('/api/tournaments/:id/state', async (req, res) => {
     if (name !== undefined) updates.name = name;
     if (registrationDeadline !== undefined) updates.registrationDeadline = registrationDeadline;
     if (autoLockAt !== undefined) updates.autoLockAt = autoLockAt;
+    if (isRegistrationClosed !== undefined) updates.isRegistrationClosed = isRegistrationClosed;
 
     const updated = await db.updateTournament(req.params.id, updates);
     if (!updated) {
@@ -148,10 +149,15 @@ app.post('/api/tournaments/:id/register', async (req, res) => {
     if (tournament.isLocked) {
       return res.status(400).json({ success: false, error: 'Pendaftaran ditutup karena bracket pertandingan sudah dikunci.' });
     }
-    if (tournament.registrationDeadline) {
-      const deadline = new Date(tournament.registrationDeadline).getTime();
-      if (!isNaN(deadline) && Date.now() > deadline) {
-        return res.status(400).json({ success: false, error: 'Pendaftaran telah ditutup sesuai batas waktu yang ditentukan panitia.' });
+    if (!req.body.isAdmin) {
+      if (tournament.isRegistrationClosed) {
+        return res.status(400).json({ success: false, error: 'Pendaftaran telah ditutup oleh panitia.' });
+      }
+      if (tournament.registrationDeadline) {
+        const deadline = new Date(tournament.registrationDeadline).getTime();
+        if (!isNaN(deadline) && Date.now() > deadline) {
+          return res.status(400).json({ success: false, error: 'Pendaftaran telah ditutup sesuai batas waktu yang ditentukan panitia.' });
+        }
       }
     }
 

@@ -145,7 +145,10 @@
       modal_qr_title: 'Participant Registration QR',
       modal_qr_instructions: 'Scan this QR code with a phone to register participants directly into the tournament.',
       btn_copy_link: 'Copy Link',
-      label_qr_deadline: 'Batas Waktu QR / Pendaftaran Ditutup:',
+      label_qr_reg_status: 'Status Pendaftaran Form:',
+      btn_close_reg_now: 'Tutup Pendaftaran Sekarang',
+      btn_open_reg_now: 'Buka Pendaftaran Kembali',
+      label_qr_deadline: 'Batas Waktu Otomatis Ditutup:',
       opt_deadline_none: 'Tanpa Batas Waktu (Buka Terus)',
       opt_deadline_5m: '5 Menit Lagi',
       opt_deadline_15m: '15 Menit Lagi',
@@ -315,6 +318,9 @@
       modal_qr_title: '选手扫码报名二维码',
       modal_qr_instructions: '使用手机扫码即可直接录入选手信息并加入对阵图。',
       btn_copy_link: '复制链接',
+      label_qr_reg_status: '报名表单通道状态：',
+      btn_close_reg_now: '立即关闭报名通道',
+      btn_open_reg_now: '重新开启报名通道',
       label_qr_deadline: '报名截止时间设置：',
       opt_deadline_none: '不设截止时间（长期开启）',
       opt_deadline_5m: '5分钟后截止',
@@ -611,7 +617,10 @@
     el.liveActiveMatchNames = document.getElementById('live-active-match-names');
     el.liveActiveMatchRound = document.getElementById('live-active-match-round');
 
-    // QR Deadline Elements
+    // QR Deadline & Registration Toggle Elements
+    el.qrRegStatusBadge = document.getElementById('qr-reg-status-badge');
+    el.btnToggleRegStatus = document.getElementById('btn-toggle-reg-status');
+    el.btnToggleRegText = document.getElementById('btn-toggle-reg-text');
     el.qrDeadlinePreset = document.getElementById('qr-deadline-preset');
     el.qrDeadlineCustom = document.getElementById('qr-deadline-custom');
     el.btnSaveQrDeadline = document.getElementById('btn-save-qr-deadline');
@@ -877,10 +886,18 @@
       const studioLabel = isZh ? '工作台' : 'Studio';
       const liveLabel = isZh ? '观赛直播' : 'Live';
 
+      const isRegClosed = !!(t.isLocked || t.isRegistrationClosed || (t.registrationDeadline && Date.now() > new Date(t.registrationDeadline).getTime()));
+      const regBadge = isRegClosed
+        ? `<span class="badge" style="font-size:10px; padding:2px 6px; border-radius:4px; background:rgba(239,68,68,0.15); color:#f87171; border:1px solid rgba(239,68,68,0.3);"><i class="fa-solid fa-lock"></i> ${isZh ? '报名已关闭' : 'Reg Tutup'}</span>`
+        : `<span class="badge" style="font-size:10px; padding:2px 6px; border-radius:4px; background:rgba(34,197,94,0.15); color:#4ade80; border:1px solid rgba(34,197,94,0.3);"><i class="fa-solid fa-door-open"></i> ${isZh ? '报名开放' : 'Reg Buka'}</span>`;
+
       return `
         <div class="tournament-card" data-id="${t.id}">
           <div class="card-header">
-            <span class="badge ${statusClass}">${statusText}</span>
+            <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+              <span class="badge ${statusClass}">${statusText}</span>
+              ${regBadge}
+            </div>
             <div class="card-menu">
               <button class="btn-card-delete btn-icon-subtle" data-id="${t.id}" title="${isZh ? '删除比赛' : 'Delete tournament'}">
                 <i class="fa-solid fa-trash-can"></i>
@@ -1087,12 +1104,12 @@
     const indexedParticipants = participants.map((p, idx) => ({ p, idx }));
     const filtered = query
       ? indexedParticipants.filter(({ p, idx }) => {
-          const nameMatch = (p.name || '').toLowerCase().includes(query);
-          const playerMatch = (p.playerName || '').toLowerCase().includes(query);
-          const deptMatch = (p.dept || '').toLowerCase().includes(query);
-          const seedMatch = String(idx + 1) === query || `#${idx + 1}` === query;
-          return nameMatch || playerMatch || deptMatch || seedMatch;
-        })
+        const nameMatch = (p.name || '').toLowerCase().includes(query);
+        const playerMatch = (p.playerName || '').toLowerCase().includes(query);
+        const deptMatch = (p.dept || '').toLowerCase().includes(query);
+        const seedMatch = String(idx + 1) === query || `#${idx + 1}` === query;
+        return nameMatch || playerMatch || deptMatch || seedMatch;
+      })
       : indexedParticipants;
 
     // 2. Pagination calculation
@@ -2425,9 +2442,62 @@
 
   async function openQrModalForTournament(tournamentId) {
     activeQrTournamentId = tournamentId;
-    const t = (state.tournaments && state.tournaments.find(item => item.id === tournamentId)) || state.currentTournament;
-    refreshQrDeadlineUI(t);
+    let t = (state.tournaments && state.tournaments.find(item => item.id === tournamentId)) || (state.currentTournament?.id === tournamentId ? state.currentTournament : null);
+
+    const syncPresetInputs = (tourn) => {
+      if (!tourn) return;
+      if (tourn.registrationDeadline) {
+        const rem = new Date(tourn.registrationDeadline).getTime() - Date.now();
+        if (rem > 0) {
+          const mins = Math.round(rem / 60000);
+          if ([5, 15, 30, 60, 120].includes(mins)) {
+            if (el.qrDeadlinePreset) el.qrDeadlinePreset.value = String(mins);
+            if (el.qrDeadlineCustom) el.qrDeadlineCustom.classList.add('hidden');
+          } else {
+            if (el.qrDeadlinePreset) el.qrDeadlinePreset.value = 'custom';
+            if (el.qrDeadlineCustom) {
+              el.qrDeadlineCustom.classList.remove('hidden');
+              const d = new Date(tourn.registrationDeadline);
+              const pad = n => String(n).padStart(2, '0');
+              el.qrDeadlineCustom.value = `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+            }
+          }
+        } else {
+          if (el.qrDeadlinePreset) el.qrDeadlinePreset.value = 'none';
+          if (el.qrDeadlineCustom) el.qrDeadlineCustom.classList.add('hidden');
+        }
+      } else {
+        if (el.qrDeadlinePreset) el.qrDeadlinePreset.value = 'none';
+        if (el.qrDeadlineCustom) el.qrDeadlineCustom.classList.add('hidden');
+      }
+    };
+
+    if (t) {
+      syncPresetInputs(t);
+      refreshQrModalStatusUI(t);
+    }
     await refreshQrDisplay();
+
+    // Background sync to ensure real-time status across tournaments
+    try {
+      const res = await fetch(`/api/tournaments/${tournamentId}`);
+      const data = await res.json();
+      if (data.success && data.tournament) {
+        t = data.tournament;
+        if (state.tournaments) {
+          const idx = state.tournaments.findIndex(item => item.id === tournamentId);
+          if (idx !== -1) state.tournaments[idx] = t;
+        }
+        if (state.currentTournament && state.currentTournament.id === tournamentId) {
+          state.currentTournament = t;
+        }
+        syncPresetInputs(t);
+        refreshQrModalStatusUI(t);
+      }
+    } catch (e) {
+      console.warn('Could not sync latest tournament for QR modal:', e);
+    }
+
     openModal(el.modalQrCode);
   }
 
@@ -3361,7 +3431,8 @@
           name: t.name,
           settings: t.settings,
           registrationDeadline: t.registrationDeadline || null,
-          autoLockAt: t.autoLockAt || null
+          autoLockAt: t.autoLockAt || null,
+          isRegistrationClosed: !!t.isRegistrationClosed
         })
       });
       const data = await res.json();
@@ -3426,6 +3497,8 @@
             } else {
               el.notStartedTimer.textContent = 'Segera dimulai...';
             }
+          } else if (t.isRegistrationClosed) {
+            el.notStartedTimer.textContent = 'Pendaftaran ditutup';
           } else if (t.registrationDeadline) {
             const rem = Math.max(0, new Date(t.registrationDeadline).getTime() - Date.now());
             if (rem > 0) {
@@ -3633,7 +3706,7 @@
       }
 
       // Check if registration is closed
-      const isClosed = t.isLocked || (t.registrationDeadline && Date.now() > new Date(t.registrationDeadline).getTime());
+      const isClosed = !!(t.isLocked || t.isRegistrationClosed || (t.registrationDeadline && Date.now() > new Date(t.registrationDeadline).getTime()));
       if (isClosed) {
         if (el.publicRegisterForm) el.publicRegisterForm.classList.add('hidden');
         if (el.registerClosedBox) el.registerClosedBox.classList.remove('hidden');
@@ -3646,6 +3719,11 @@
       } else {
         if (el.publicRegisterForm) el.publicRegisterForm.classList.remove('hidden');
         if (el.registerClosedBox) el.registerClosedBox.classList.add('hidden');
+        if (el.regDeadlineBadge) {
+          el.regDeadlineBadge.style.background = 'rgba(245, 158, 11, 0.15)';
+          el.regDeadlineBadge.style.borderColor = 'rgba(245, 158, 11, 0.35)';
+          el.regDeadlineBadge.style.color = '#fbbf24';
+        }
         if (t.registrationDeadline) {
           const updateRegCountdown = () => {
             const rem = new Date(t.registrationDeadline).getTime() - Date.now();
@@ -3668,6 +3746,10 @@
           if (state.regCountdownTimer) clearInterval(state.regCountdownTimer);
           state.regCountdownTimer = setInterval(updateRegCountdown, 1000);
         } else {
+          if (state.regCountdownTimer) {
+            clearInterval(state.regCountdownTimer);
+            state.regCountdownTimer = null;
+          }
           if (el.regDeadlineText) el.regDeadlineText.textContent = isZh ? '报名正在进行' : 'Pendaftaran Dibuka';
         }
       }
@@ -3807,23 +3889,81 @@
     }
   }
 
-  function refreshQrDeadlineUI(t) {
-    if (!t || !el.qrDeadlineStatusBadge) return;
-    if (t.registrationDeadline) {
-      const rem = new Date(t.registrationDeadline).getTime() - Date.now();
-      if (rem <= 0) {
-        el.qrDeadlineStatusBadge.textContent = 'Ditutup';
-        el.qrDeadlineStatusBadge.style.color = '#ef4444';
+  function refreshQrModalStatusUI(t) {
+    if (!t) return;
+    const isZh = state.lang === 'zh';
+    const isLocked = !!t.isLocked;
+    const isManuallyClosed = !!t.isRegistrationClosed;
+    const hasDeadline = !!t.registrationDeadline;
+    const isDeadlinePassed = hasDeadline && (Date.now() > new Date(t.registrationDeadline).getTime());
+    const isClosed = isLocked || isManuallyClosed || isDeadlinePassed;
+
+    // 1. Update Registration Status Badge & Toggle Button in QR Modal
+    if (el.qrRegStatusBadge && el.btnToggleRegStatus && el.btnToggleRegText) {
+      const icon = el.btnToggleRegStatus.querySelector('i');
+      if (isLocked) {
+        el.qrRegStatusBadge.textContent = isZh ? '🔒 对阵已锁定' : '🔒 Bracket Terkunci';
+        el.qrRegStatusBadge.style.background = 'rgba(239, 68, 68, 0.15)';
+        el.qrRegStatusBadge.style.color = '#f87171';
+        el.qrRegStatusBadge.style.border = '1px solid rgba(239, 68, 68, 0.3)';
+
+        el.btnToggleRegStatus.disabled = true;
+        el.btnToggleRegStatus.style.background = 'rgba(100, 116, 139, 0.2)';
+        el.btnToggleRegStatus.style.color = 'var(--text-muted)';
+        el.btnToggleRegStatus.style.border = '1px solid rgba(100, 116, 139, 0.3)';
+        el.btnToggleRegStatus.style.cursor = 'not-allowed';
+        el.btnToggleRegText.textContent = isZh ? '对阵已锁定 (报名已关闭)' : 'Bracket Terkunci (Pendaftaran Tutup)';
+        if (icon) icon.className = 'fa-solid fa-lock';
+      } else if (isClosed) {
+        el.qrRegStatusBadge.textContent = isDeadlinePassed
+          ? (isZh ? '🔴 截止时间已过 (关闭)' : '🔴 Waktu Habis (Ditutup)')
+          : (isZh ? '🔴 报名已关闭' : '🔴 Ditutup (Manual)');
+        el.qrRegStatusBadge.style.background = 'rgba(239, 68, 68, 0.15)';
+        el.qrRegStatusBadge.style.color = '#f87171';
+        el.qrRegStatusBadge.style.border = '1px solid rgba(239, 68, 68, 0.3)';
+
+        el.btnToggleRegStatus.disabled = false;
+        el.btnToggleRegStatus.style.background = 'rgba(34, 197, 94, 0.15)';
+        el.btnToggleRegStatus.style.color = '#4ade80';
+        el.btnToggleRegStatus.style.border = '1px solid rgba(34, 197, 94, 0.4)';
+        el.btnToggleRegStatus.style.cursor = 'pointer';
+        el.btnToggleRegText.textContent = isZh ? '🔓 重新开启报名通道' : '🔓 Buka Pendaftaran Kembali';
+        if (icon) icon.className = 'fa-solid fa-lock-open';
       } else {
-        const mins = Math.round(rem / 60000);
-        el.qrDeadlineStatusBadge.textContent = `Tutup ~${mins} mnt lagi`;
-        el.qrDeadlineStatusBadge.style.color = '#fbbf24';
+        el.qrRegStatusBadge.textContent = isZh ? '🟢 报名开放中' : '🟢 Buka (Menerima Peserta)';
+        el.qrRegStatusBadge.style.background = 'rgba(34, 197, 94, 0.15)';
+        el.qrRegStatusBadge.style.color = '#4ade80';
+        el.qrRegStatusBadge.style.border = '1px solid rgba(34, 197, 94, 0.3)';
+
+        el.btnToggleRegStatus.disabled = false;
+        el.btnToggleRegStatus.style.background = 'rgba(239, 68, 68, 0.15)';
+        el.btnToggleRegStatus.style.color = '#f87171';
+        el.btnToggleRegStatus.style.border = '1px solid rgba(239, 68, 68, 0.4)';
+        el.btnToggleRegStatus.style.cursor = 'pointer';
+        el.btnToggleRegText.textContent = isZh ? '🔒 立即关闭报名通道' : '🔒 Tutup Pendaftaran Sekarang';
+        if (icon) icon.className = 'fa-solid fa-lock';
       }
-    } else {
-      el.qrDeadlineStatusBadge.textContent = 'Buka Terus';
-      el.qrDeadlineStatusBadge.style.color = 'var(--text-muted)';
+    }
+
+    // 2. Deadline Status Badge
+    if (el.qrDeadlineStatusBadge) {
+      if (t.registrationDeadline) {
+        const rem = new Date(t.registrationDeadline).getTime() - Date.now();
+        if (rem <= 0) {
+          el.qrDeadlineStatusBadge.textContent = isZh ? 'Ditutup (Waktu Habis)' : 'Waktu Habis (Ditutup)';
+          el.qrDeadlineStatusBadge.style.color = '#ef4444';
+        } else {
+          const mins = Math.round(rem / 60000);
+          el.qrDeadlineStatusBadge.textContent = isZh ? `约 ${mins} 分钟后` : `Tutup ~${mins} mnt lagi`;
+          el.qrDeadlineStatusBadge.style.color = '#fbbf24';
+        }
+      } else {
+        el.qrDeadlineStatusBadge.textContent = isZh ? '长期开启' : 'Buka Terus';
+        el.qrDeadlineStatusBadge.style.color = 'var(--text-muted)';
+      }
     }
   }
+  const refreshQrDeadlineUI = refreshQrModalStatusUI;
 
 
   // ==================== MATCH SEARCH & QUICK JUMP ====================
@@ -4434,6 +4574,86 @@
       });
     }
 
+    // QR Registration Status Toggle
+    if (el.btnToggleRegStatus) {
+      el.btnToggleRegStatus.addEventListener('click', async () => {
+        const targetId = activeQrTournamentId || state.currentTournament?.id;
+        if (!targetId) return;
+
+        let t = (state.tournaments && state.tournaments.find(item => item.id === targetId)) || (state.currentTournament?.id === targetId ? state.currentTournament : null);
+        if (!t) return;
+
+        const isCurrentlyClosed = !!(t.isLocked || t.isRegistrationClosed || (t.registrationDeadline && Date.now() > new Date(t.registrationDeadline).getTime()));
+        const isZh = state.lang === 'zh';
+
+        try {
+          if (isCurrentlyClosed) {
+            // Re-open registration
+            const updates = {
+              isRegistrationClosed: false,
+              registrationDeadline: null
+            };
+            const res = await fetch(`/api/tournaments/${targetId}`, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(updates)
+            });
+            const data = await res.json();
+            if (!data.success) throw new Error(data.error);
+
+            t.isRegistrationClosed = false;
+            t.registrationDeadline = null;
+            if (state.currentTournament && state.currentTournament.id === targetId) {
+              state.currentTournament.isRegistrationClosed = false;
+              state.currentTournament.registrationDeadline = null;
+            }
+            if (state.tournaments) {
+              const idx = state.tournaments.findIndex(item => item.id === targetId);
+              if (idx !== -1) {
+                state.tournaments[idx].isRegistrationClosed = false;
+                state.tournaments[idx].registrationDeadline = null;
+              }
+            }
+            if (el.qrDeadlinePreset) el.qrDeadlinePreset.value = 'none';
+            if (el.qrDeadlineCustom) el.qrDeadlineCustom.classList.add('hidden');
+
+            refreshQrModalStatusUI(t);
+            renderDashboardTournaments();
+            showToast(isZh ? '报名通道已重新开启！' : 'Pendaftaran berhasil dibuka kembali!', 'success');
+          } else {
+            // Close registration
+            const updates = {
+              isRegistrationClosed: true
+            };
+            const res = await fetch(`/api/tournaments/${targetId}`, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(updates)
+            });
+            const data = await res.json();
+            if (!data.success) throw new Error(data.error);
+
+            t.isRegistrationClosed = true;
+            if (state.currentTournament && state.currentTournament.id === targetId) {
+              state.currentTournament.isRegistrationClosed = true;
+            }
+            if (state.tournaments) {
+              const idx = state.tournaments.findIndex(item => item.id === targetId);
+              if (idx !== -1) {
+                state.tournaments[idx].isRegistrationClosed = true;
+              }
+            }
+
+            refreshQrModalStatusUI(t);
+            renderDashboardTournaments();
+            showToast(isZh ? '报名通道已立即关闭！' : 'Pendaftaran berhasil ditutup!', 'warning');
+          }
+        } catch (err) {
+          showToast('Error: ' + err.message, 'error');
+        }
+      });
+    }
+
     // QR Deadline Preset & Save
     if (el.qrDeadlinePreset) {
       el.qrDeadlinePreset.addEventListener('change', () => {
@@ -4444,25 +4664,64 @@
     }
 
     if (el.btnSaveQrDeadline) {
-      el.btnSaveQrDeadline.addEventListener('click', () => {
-        const t = state.currentTournament;
-        if (!t) return;
+      el.btnSaveQrDeadline.addEventListener('click', async () => {
+        const targetId = activeQrTournamentId || state.currentTournament?.id;
+        if (!targetId) {
+          showToast('Turnamen tidak ditemukan.', 'error');
+          return;
+        }
+
+        let t = (state.tournaments && state.tournaments.find(item => item.id === targetId)) || (state.currentTournament?.id === targetId ? state.currentTournament : null);
+
         const val = el.qrDeadlinePreset.value;
+        let newDeadline = null;
         if (val === 'none') {
-          t.registrationDeadline = null;
+          newDeadline = null;
         } else if (val === 'custom') {
           if (!el.qrDeadlineCustom.value) {
-            showToast('Pilih tanggal dan jam custom terlebih dahulu!', 'warning');
+            showToast(state.lang === 'zh' ? '请选择自定义截止时间！' : 'Pilih tanggal dan jam custom terlebih dahulu!', 'warning');
             return;
           }
-          t.registrationDeadline = new Date(el.qrDeadlineCustom.value).toISOString();
+          newDeadline = new Date(el.qrDeadlineCustom.value).toISOString();
         } else {
           const mins = parseInt(val, 10);
-          t.registrationDeadline = new Date(Date.now() + mins * 60000).toISOString();
+          newDeadline = new Date(Date.now() + mins * 60000).toISOString();
         }
-        saveTournamentState(false);
-        refreshQrDeadlineUI(t);
-        showToast('Batas waktu pendaftaran QR berhasil disimpan!', 'success');
+
+        try {
+          const res = await fetch(`/api/tournaments/${targetId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              registrationDeadline: newDeadline,
+              isRegistrationClosed: false
+            })
+          });
+          const data = await res.json();
+          if (!data.success) throw new Error(data.error);
+
+          if (t) {
+            t.registrationDeadline = newDeadline;
+            t.isRegistrationClosed = false;
+          }
+          if (state.currentTournament && state.currentTournament.id === targetId) {
+            state.currentTournament.registrationDeadline = newDeadline;
+            state.currentTournament.isRegistrationClosed = false;
+          }
+          if (state.tournaments) {
+            const idx = state.tournaments.findIndex(item => item.id === targetId);
+            if (idx !== -1) {
+              state.tournaments[idx].registrationDeadline = newDeadline;
+              state.tournaments[idx].isRegistrationClosed = false;
+            }
+          }
+
+          refreshQrModalStatusUI(t || data.tournament);
+          renderDashboardTournaments();
+          showToast(state.lang === 'zh' ? '扫码报名截止时间已保存！' : 'Batas waktu pendaftaran QR berhasil disimpan!', 'success');
+        } catch (err) {
+          showToast('Gagal menyimpan: ' + err.message, 'error');
+        }
       });
     }
 

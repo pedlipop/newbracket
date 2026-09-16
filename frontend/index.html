@@ -843,9 +843,21 @@
           </button>
         </div>
 
+        <!-- Registration Status & Quick Close/Open Action -->
+        <div class="qr-status-box" style="margin-top: 14px; width: 100%; text-align: left; background: var(--bg-surface-elevated); padding: 12px 14px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 8px;">
+            <label style="font-size: 12px; font-weight: 600; color: var(--text-secondary); display:flex; align-items:center; gap:6px;">
+              <i class="fa-solid fa-clipboard-check"></i> <span data-i18n="label_qr_reg_status">Status Pendaftaran Form:</span>
+            </label>
+            <span id="qr-reg-status-badge" class="badge" style="font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 6px;">Buka</span>
+          </div>
+          <button type="button" id="btn-toggle-reg-status" class="btn btn-sm btn-block" style="display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 600; padding: 8px 12px; transition: all 0.2s ease;">
+            <i class="fa-solid fa-lock"></i> <span id="btn-toggle-reg-text" data-i18n="btn_close_reg_now">Tutup Pendaftaran Sekarang</span>
+          </button>
+        </div>
 
         <!-- QR Registration Closing Deadline Setting -->
-        <div class="qr-deadline-box" style="margin-top: 12px; width: 100%; text-align: left; background: var(--bg-surface-elevated); padding: 12px 14px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
+        <div class="qr-deadline-box" style="margin-top: 10px; width: 100%; text-align: left; background: var(--bg-surface-elevated); padding: 12px 14px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 6px;">
             <label style="font-size: 12px; font-weight: 600; color: var(--text-secondary);"><i class="fa-regular fa-clock"></i> <span data-i18n="label_qr_deadline">Batas Waktu QR / Pendaftaran Ditutup:</span></label>
             <span id="qr-deadline-status-badge" style="font-size: 11px; font-weight: 700; color: var(--accent-gold);"></span>

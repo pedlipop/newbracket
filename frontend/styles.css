@@ -1647,6 +1647,25 @@ input:focus, select:focus, textarea:focus {
   font-size: 0.8rem;
 }
 
+.qr-status-box {
+  transition: all var(--transition-normal);
+}
+
+#btn-toggle-reg-status {
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+#btn-toggle-reg-status:hover:not(:disabled) {
+  transform: translateY(-1px);
+  filter: brightness(1.12);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+#btn-toggle-reg-status:active:not(:disabled) {
+  transform: translateY(0);
+}
+
 /* Match Score & Direct Win Controller */
 .match-status-bar {
   display: flex;

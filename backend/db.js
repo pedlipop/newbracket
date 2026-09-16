@@ -149,6 +149,7 @@ export const db = {
       inProgressHighlight: false,
       registrationDeadline: payload.registrationDeadline || null,
       autoLockAt: payload.autoLockAt || null,
+      isRegistrationClosed: payload.isRegistrationClosed || false,
       settings: {
         thirdPlaceMatch: payload.thirdPlaceMatch || false,
         theme: payload.theme || 'dark-modern',
