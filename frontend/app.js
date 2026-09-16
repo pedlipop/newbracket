@@ -1169,8 +1169,8 @@
           <span class="participant-seed">${idx + 1}</span>
           <span class="participant-name ${!t.isLocked ? 'editable' : ''}" title="${hasInfo ? escapeHTML(p.name) : 'Slot Kosong (Isi nama terlebih dahulu untuk dapat memindahkannya ke bagan)'}">
             ${hasInfo ? escapeHTML(p.name) : '<span style="opacity:0.4; font-style:italic;">(Slot Kosong)</span>'}
-            ${hasPartner ? `<span class="team-partner-tag" title="Mode Tim (${teamSize} Pemain)">${teamSize}P</span>` : ''}
           </span>
+          ${hasPartner ? `<span class="team-partner-tag" title="Mode Tim (${teamSize} Pemain)">${teamSize}P</span>` : ''}
           <span class="participant-status-dot ${isAssigned ? 'seeded' : 'unseeded'}" title="${isAssigned ? 'Masuk Bagan' : (hasInfo ? 'Belum Di-seed' : 'Wajib Diisi')}"></span>
           ${!t.isLocked ? `
             <button type="button" class="btn-edit-participant" data-id="${p.id}" title="Edit Nama"><i class="fa-solid fa-pen"></i></button>
@@ -1968,8 +1968,8 @@
           <span class="team-seed">${!isEmpty ? (p?.seed || '') : ''}</span>
           <span class="team-name-text ${isEmpty ? 'empty-slot' : ''} ${(!isLiveView && !t?.isLocked && !isFeeder) ? 'editable' : ''}" title="${escapeHTML(rawName || (isEmpty ? '' : emptyPlaceholder))}${(!isLiveView && !t?.isLocked && !isFeeder) ? (isZh ? ' (双击可编辑)' : ' (Dobel klik untuk edit)') : ''}">
             ${isUnnamed ? `<span style="opacity:0.4; font-style:italic;">${emptyPlaceholder}</span>` : escapeHTML(displayName)}
-            ${hasPartner ? `<span class="team-partner-tag" title="${partnerTagTitle}">${teamSize}P</span>` : ''}
           </span>
+          ${hasPartner ? `<span class="team-partner-tag" title="${partnerTagTitle}">${teamSize}P</span>` : ''}
           <div class="slot-actions-cell" style="display:flex; align-items:center; gap:4px; margin-left:auto;">
             ${editBtnHtml}
             ${lockBtnHtml}
