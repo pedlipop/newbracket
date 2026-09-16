@@ -611,11 +611,18 @@
     el.studioProgressPct = document.getElementById('studio-progress-pct');
     el.studioProgressFill = document.getElementById('studio-progress-fill');
     el.studioProgressCount = document.getElementById('studio-progress-count');
+    el.studioActiveTitle = document.getElementById('studio-active-title');
+    el.studioActiveNames = document.getElementById('studio-active-names');
+    el.studioUpNextTitle = document.getElementById('studio-up-next-title');
+    el.studioUpNextNames = document.getElementById('studio-up-next-names');
+
     el.liveProgressPct = document.getElementById('live-progress-pct');
     el.liveProgressFill = document.getElementById('live-progress-fill');
     el.liveProgressCount = document.getElementById('live-progress-count');
-    el.liveActiveMatchNames = document.getElementById('live-active-match-names');
-    el.liveActiveMatchRound = document.getElementById('live-active-match-round');
+    el.liveActiveTitle = document.getElementById('live-active-title');
+    el.liveActiveNames = document.getElementById('live-active-names');
+    el.liveUpNextTitle = document.getElementById('live-up-next-title');
+    el.liveUpNextNames = document.getElementById('live-up-next-names');
 
     // QR Deadline & Registration Toggle Elements
     el.qrRegStatusBadge = document.getElementById('qr-reg-status-badge');
@@ -3770,24 +3777,28 @@
     let completedMatches = 0;
     const inProgressList = [];
 
-    rounds.forEach(r => {
+    rounds.forEach((r, rIdx) => {
       if (!r.matches) return;
-      r.matches.forEach(m => {
+      r.matches.forEach((m, mIdx) => {
         totalMatches++;
         if (m.status === 'completed' || (m.winnerId && (m.score1 !== '' || m.score2 !== ''))) {
           completedMatches++;
         } else if (m.status === 'in_progress') {
-          inProgressList.push({ match: m, roundTitle: r.title, roundNum: r.roundNumber });
+          inProgressList.push({ match: m, roundTitle: r.title, roundNum: r.roundNumber, rIdx, mIdx });
         }
       });
     });
+
+    const nextUpList = findNextUpMatches(rounds);
 
     const pct = totalMatches > 0 ? Math.round((completedMatches / totalMatches) * 100) : 0;
 
     const pctEl = isLive ? el.liveProgressPct : el.studioProgressPct;
     const fillEl = isLive ? el.liveProgressFill : el.studioProgressFill;
     const countEl = isLive ? el.liveProgressCount : el.studioProgressCount;
+    const activeTitleEl = isLive ? el.liveActiveTitle : el.studioActiveTitle;
     const namesEl = isLive ? el.liveActiveNames : el.studioActiveNames;
+    const upNextTitleEl = isLive ? el.liveUpNextTitle : el.studioUpNextTitle;
     const upNextEl = isLive ? el.liveUpNextNames : el.studioUpNextNames;
 
     if (pctEl) pctEl.textContent = `${pct}%`;
@@ -3798,60 +3809,120 @@
         : `${completedMatches} / ${totalMatches} Match Selesai (${pct}%)`;
     }
 
+    const formatRoundTitle = (rTitle) => {
+      if (!isZh || !rTitle) return rTitle || '';
+      if (rTitle === 'Championship Final') return '总决赛';
+      if (rTitle === 'Semifinals') return '半决赛';
+      if (rTitle === 'Quarterfinals') return '四分之一决赛';
+      if (rTitle === 'Round of 16') return '16强赛';
+      if (rTitle === 'Round of 32') return '32强赛';
+      if (rTitle === 'Round of 64') return '64强赛';
+      if (/^Round\s+(\d+)$/i.test(rTitle)) return rTitle.replace(/^Round\s+(\d+)$/i, '第 $1 轮');
+      return rTitle;
+    };
+
+    if (activeTitleEl) {
+      const countPill = inProgressList.length > 0
+        ? `<span class="hud-count-badge">${inProgressList.length}</span>`
+        : '';
+      activeTitleEl.innerHTML = `<span class="pulse-indicator"></span> <span>${isZh ? '正在进行的比赛' : 'Match Berlangsung'}:</span> ${countPill}`;
+    }
+
     if (namesEl) {
       if (inProgressList.length > 0) {
-        const active = inProgressList[0];
-        const p1Name = active.match.p1?.name || (isZh ? '待定' : 'TBD');
-        const p2Name = active.match.p2?.name || (isZh ? '待定' : 'TBD');
-        const moreText = inProgressList.length > 1
-          ? ` <span style="font-size:10px; color:var(--text-muted);">(${isZh ? `+${inProgressList.length - 1} 场进行中` : `+${inProgressList.length - 1} match lain`})</span>`
-          : '';
-        let rTitle = active.roundTitle;
-        if (isZh) {
-          if (rTitle === 'Championship Final') rTitle = '总决赛';
-          else if (rTitle === 'Semifinals') rTitle = '半决赛';
-          else if (rTitle === 'Quarterfinals') rTitle = '四分之一决赛';
-          else if (rTitle === 'Round of 16') rTitle = '16强赛';
-          else if (rTitle === 'Round of 32') rTitle = '32强赛';
-          else if (rTitle === 'Round of 64') rTitle = '64强赛';
-          else if (/^Round\s+(\d+)$/i.test(rTitle)) rTitle = rTitle.replace(/^Round\s+(\d+)$/i, '第 $1 轮');
-        }
-        namesEl.innerHTML = `<strong>${escapeHTML(p1Name)}</strong> <span style="color:var(--accent-primary); font-weight:700;">VS</span> <strong>${escapeHTML(p2Name)}</strong>${moreText}<small style="color:var(--text-muted); display:block; font-size:10px; margin-top:2px;">${escapeHTML(rTitle)}</small>`;
+        namesEl.innerHTML = inProgressList.map(item => {
+          const p1 = item.match.p1?.name || (isZh ? '待定' : 'TBD');
+          const p2 = item.match.p2?.name || (isZh ? '待定' : 'TBD');
+          const rTitle = formatRoundTitle(item.roundTitle);
+          const mLabel = item.match.isBronzeMatch
+            ? (isZh ? '季军赛' : 'Bronze Match')
+            : (isZh ? `第 ${item.mIdx + 1} 场` : `Match #${item.mIdx + 1}`);
+
+          const s1 = (item.match.score1 !== '' && item.match.score1 !== null && item.match.score1 !== undefined) ? item.match.score1 : null;
+          const s2 = (item.match.score2 !== '' && item.match.score2 !== null && item.match.score2 !== undefined) ? item.match.score2 : null;
+          const scoreBadge = (s1 !== null || s2 !== null)
+            ? `<span class="hud-score-pill">${s1 ?? 0} - ${s2 ?? 0}</span>`
+            : '';
+
+          return `
+            <div class="hud-match-item in-progress-item" data-ridx="${item.rIdx}" data-midx="${item.mIdx}" title="${isLive ? '' : (isZh ? '点击定位此比赛并录入比分' : 'Klik untuk buka & input skor')}">
+              <div class="hud-item-header">
+                <span class="hud-match-meta">${escapeHTML(rTitle)} • ${mLabel}</span>
+                <span class="hud-live-tag"><span class="pulse-dot-live"></span> LIVE</span>
+              </div>
+              <div class="hud-item-body">
+                <span class="hud-player-name" title="${escapeHTML(p1)}">${escapeHTML(p1)}</span>
+                <span class="hud-vs-badge">VS</span>
+                <span class="hud-player-name" title="${escapeHTML(p2)}">${escapeHTML(p2)}</span>
+                ${scoreBadge}
+              </div>
+            </div>
+          `;
+        }).join('');
       } else if (completedMatches === totalMatches && totalMatches > 0) {
-        namesEl.innerHTML = `<span style="color:var(--accent-gold); font-weight:600;"><i class="fa-solid fa-trophy"></i> ${isZh ? '所有比赛均已结束！' : 'Semua Match Selesai!'}</span>`;
+        namesEl.innerHTML = `<div class="hud-empty-state completed"><i class="fa-solid fa-trophy"></i> ${isZh ? '所有比赛均已结束！' : 'Semua Match Selesai!'}</div>`;
       } else {
-        namesEl.textContent = isZh ? '暂无进行中的比赛' : 'Belum ada match berjalan';
+        namesEl.innerHTML = `<div class="hud-empty-state"><i class="fa-regular fa-clock"></i> ${isZh ? '暂无进行中的比赛' : 'Belum ada match aktif'}</div>`;
       }
     }
 
+    if (upNextTitleEl) {
+      const countPill = nextUpList.length > 0
+        ? `<span class="hud-count-badge amber">${nextUpList.length}</span>`
+        : '';
+      upNextTitleEl.innerHTML = `<span class="pulse-indicator-amber"></span> <span>${isZh ? '接下来进行' : 'Akan Main Selanjutnya'}:</span> ${countPill}`;
+    }
+
     if (upNextEl) {
-      const nextUpList = findNextUpMatches(rounds);
       if (nextUpList.length > 0) {
         upNextEl.innerHTML = nextUpList.map(item => {
           const p1 = item.match.p1?.name || (isZh ? '待定' : 'TBD');
           const p2 = item.match.p2?.name || (isZh ? '待定' : 'TBD');
-          let rTitle = item.roundTitle;
-          if (isZh) {
-            if (rTitle === 'Championship Final') rTitle = '总决赛';
-            else if (rTitle === 'Semifinals') rTitle = '半决赛';
-            else if (rTitle === 'Quarterfinals') rTitle = '四分之一决赛';
-            else if (rTitle === 'Round of 16') rTitle = '16强赛';
-            else if (rTitle === 'Round of 32') rTitle = '32强赛';
-            else if (rTitle === 'Round of 64') rTitle = '64强赛';
-            else if (/^Round\s+(\d+)$/i.test(rTitle)) rTitle = rTitle.replace(/^Round\s+(\d+)$/i, '第 $1 轮');
-          }
+          const rTitle = formatRoundTitle(item.roundTitle);
           const mLabel = item.match.isBronzeMatch
             ? (isZh ? '季军赛' : 'Bronze Match')
             : (isZh ? `第 ${item.mIdx + 1} 场` : `Match #${item.mIdx + 1}`);
-          return `<div style="margin-bottom: 4px; padding-bottom: 4px; border-bottom: 1px dashed rgba(255,255,255,0.08);">
-            <strong>${escapeHTML(p1)}</strong> <span style="color:var(--accent-gold); font-weight:700;">VS</span> <strong>${escapeHTML(p2)}</strong>
-            <small style="color:var(--text-muted); font-size:10px; display:block;">${escapeHTML(rTitle)} • ${mLabel}</small>
-          </div>`;
+
+          return `
+            <div class="hud-match-item next-up-item" data-ridx="${item.rIdx}" data-midx="${item.mIdx}" title="${isLive ? '' : (isZh ? '点击定位此比赛' : 'Klik untuk lihat match')}">
+              <div class="hud-item-header">
+                <span class="hud-match-meta">${escapeHTML(rTitle)} • ${mLabel}</span>
+                <span class="hud-next-tag">NEXT</span>
+              </div>
+              <div class="hud-item-body">
+                <span class="hud-player-name" title="${escapeHTML(p1)}">${escapeHTML(p1)}</span>
+                <span class="hud-vs-badge amber">VS</span>
+                <span class="hud-player-name" title="${escapeHTML(p2)}">${escapeHTML(p2)}</span>
+              </div>
+            </div>
+          `;
         }).join('');
       } else if (completedMatches === totalMatches && totalMatches > 0) {
-        upNextEl.textContent = isZh ? '所有比赛均已结束 🏆' : 'Semua Match Selesai 🏆';
+        upNextEl.innerHTML = `<div class="hud-empty-state completed"><i class="fa-solid fa-medal"></i> ${isZh ? '所有比赛均已结束 🏆' : 'Semua Match Selesai 🏆'}</div>`;
       } else {
-        upNextEl.textContent = isZh ? '暂无设置即将开赛' : 'Belum ada match diset akan main';
+        upNextEl.innerHTML = `<div class="hud-empty-state"><i class="fa-solid fa-list-check"></i> ${isZh ? '暂无设置即将开赛' : 'Menunggu giliran match'}</div>`;
+      }
+    }
+
+    // Attach click-to-focus listeners in Studio
+    if (!isLive) {
+      if (namesEl) {
+        namesEl.querySelectorAll('.hud-match-item').forEach(card => {
+          card.addEventListener('click', () => {
+            const rIdx = parseInt(card.dataset.ridx, 10);
+            const mIdx = parseInt(card.dataset.midx, 10);
+            focusAndOpenMatch(rIdx, mIdx);
+          });
+        });
+      }
+      if (upNextEl) {
+        upNextEl.querySelectorAll('.hud-match-item').forEach(card => {
+          card.addEventListener('click', () => {
+            const rIdx = parseInt(card.dataset.ridx, 10);
+            const mIdx = parseInt(card.dataset.midx, 10);
+            focusAndOpenMatch(rIdx, mIdx);
+          });
+        });
       }
     }
   }
