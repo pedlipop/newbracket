@@ -210,6 +210,17 @@
       th_members: 'Anggota Tim',
       th_reg_time: 'Waktu Mendaftar',
       th_bracket_status: 'Status Bagan',
+      th_action: 'Aksi',
+      modal_edit_participant_title: 'Edit Data Pendaftar',
+      modal_edit_participant_sub: 'Perbarui informasi peserta agar tampil jelas dan akurat di bagan pertandingan.',
+      label_team_or_display: 'Nama Tampilan di Bagan / Nama Tim:',
+      label_captain_player: 'Nama Pemain Utama / Ketua:',
+      label_department: 'Departemen / Divisi:',
+      label_wecom_contact: 'No. WeCom / Kontak:',
+      label_teammates_list: 'Rekan / Anggota Tim:',
+      btn_add_partner: 'Tambah Rekan',
+      btn_save_changes: 'Simpan Perubahan',
+      btn_edit: 'Edit',
       report_empty_title: 'Tidak Ada Data Pendaftar',
       report_empty_desc: 'Belum ada peserta yang mendaftar melalui link atau form.'
     },
@@ -383,6 +394,17 @@
       th_members: '队伍成员',
       th_reg_time: '报名时间',
       th_bracket_status: '对阵状态',
+      th_action: '操作',
+      modal_edit_participant_title: '编辑选手信息',
+      modal_edit_participant_sub: '更新报名选手资料，以便在对阵图及选手中清晰显示。',
+      label_team_or_display: '对阵图显示名称 / 战队名称:',
+      label_captain_player: '主力选手 / 队长姓名:',
+      label_department: '所属部门 / 车间:',
+      label_wecom_contact: '企业微信 / 联系方式:',
+      label_teammates_list: '队友名单 (双人/团队):',
+      btn_add_partner: '添加队友',
+      btn_save_changes: '保存更改',
+      btn_edit: '编辑',
       report_empty_title: '暂无报名数据',
       report_empty_desc: '暂无选手通过报名链接或表单提交报名。',
       label_match_note: '比赛备注（选填）',
@@ -531,6 +553,17 @@
     el.reportPageIndicator = document.getElementById('report-page-indicator');
     el.reportPageSizeSelect = document.getElementById('report-page-size-select');
     el.btnQuickStatusSave = document.getElementById('btn-quick-status-save');
+
+    // Modal Edit Participant from Reports
+    el.modalEditReportParticipant = document.getElementById('modal-edit-report-participant');
+    el.formEditReportParticipant = document.getElementById('form-edit-report-participant');
+    el.editReportParticipantId = document.getElementById('edit-report-participant-id');
+    el.editReportName = document.getElementById('edit-report-name');
+    el.editReportPlayer = document.getElementById('edit-report-player');
+    el.editReportDept = document.getElementById('edit-report-dept');
+    el.editReportWecom = document.getElementById('edit-report-wecom');
+    el.btnAddEditPartner = document.getElementById('btn-add-edit-partner');
+    el.editReportPartnersContainer = document.getElementById('edit-report-partners-container');
 
     // Canvas
     el.canvasContainer = document.getElementById('canvas-container');
@@ -3362,9 +3395,186 @@
           <td>${membersHtml}</td>
           <td style="font-size:0.78rem; color:var(--text-secondary); white-space:nowrap;">${dateFormatted}</td>
           <td>${statusBadge}</td>
+          <td style="text-align:center;">
+            <button type="button" class="btn btn-report-edit" data-id="${p.id}" title="${isZh ? '编辑选手资料' : 'Edit Data Peserta'}">
+              <i class="fa-solid fa-pen-to-square"></i> ${isZh ? '编辑' : 'Edit'}
+            </button>
+          </td>
         </tr>
       `;
     }).join('');
+
+    // Attach click listener for edit report participant
+    el.reportTableBody.querySelectorAll('.btn-report-edit').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        openEditParticipantModal(btn.dataset.id);
+      });
+    });
+  }
+
+  // ==================== EDIT PARTICIPANT FROM REPORTS MODAL ====================
+  let activeEditPartners = [];
+
+  function openEditParticipantModal(participantId) {
+    const t = state.currentTournament;
+    if (!t) return;
+    const p = (t.participants || []).find(part => part.id === participantId);
+    if (!p) {
+      showToast('Peserta tidak ditemukan.', 'error');
+      return;
+    }
+
+    if (el.editReportParticipantId) el.editReportParticipantId.value = p.id;
+    if (el.editReportName) el.editReportName.value = p.teamName || p.name || '';
+    if (el.editReportPlayer) el.editReportPlayer.value = p.playerName || p.name || '';
+    if (el.editReportDept) el.editReportDept.value = p.dept || '';
+    if (el.editReportWecom) el.editReportWecom.value = p.wecom || '';
+
+    // Clone partners
+    const existingPartners = Array.isArray(p.partners) && p.partners.length > 0
+      ? p.partners.map(m => ({ name: m.name || '', dept: m.dept || '', wecom: m.wecom || '' }))
+      : (p.partner && p.partner.name ? [{ name: p.partner.name || '', dept: p.partner.dept || '', wecom: p.partner.wecom || '' }] : []);
+
+    activeEditPartners = existingPartners;
+    renderEditPartnersList();
+
+    openModal(el.modalEditReportParticipant);
+  }
+
+  function renderEditPartnersList() {
+    if (!el.editReportPartnersContainer) return;
+    const isZh = state.lang === 'zh';
+    if (activeEditPartners.length === 0) {
+      el.editReportPartnersContainer.innerHTML = `
+        <div style="font-size:0.78rem; color:var(--text-muted); font-style:italic; padding:6px 0;">
+          ${isZh ? '暂无其他队友（单人比赛）。点击“+ 添加队友”添加成员。' : 'Tidak ada rekan tambahan (peserta tunggal/single). Klik "+ Tambah Rekan" untuk menambahkan.'}
+        </div>
+      `;
+      return;
+    }
+
+    el.editReportPartnersContainer.innerHTML = activeEditPartners.map((partner, idx) => `
+      <div class="edit-partner-card" data-idx="${idx}">
+        <span style="font-weight:700; font-size:0.78rem; color:var(--text-muted); min-width:20px;">#${idx + 1}</span>
+        <input type="text" class="edit-partner-name" value="${escapeHTML(partner.name || '')}" placeholder="${isZh ? '队友姓名...' : 'Nama Rekan...'}" style="flex:2;" required>
+        <input type="text" class="edit-partner-dept" value="${escapeHTML(partner.dept || '')}" placeholder="${isZh ? '部门...' : 'Dept...'}" style="flex:1.5;">
+        <input type="text" class="edit-partner-wecom" value="${escapeHTML(partner.wecom || '')}" placeholder="${isZh ? '微信号/联系...' : 'WeCom...'}" style="flex:1.5;">
+        <button type="button" class="btn-remove-edit-partner" data-idx="${idx}" title="${isZh ? '删除队友' : 'Hapus Rekan'}">
+          <i class="fa-solid fa-trash-can"></i>
+        </button>
+      </div>
+    `).join('');
+
+    // Attach remove listeners
+    el.editReportPartnersContainer.querySelectorAll('.btn-remove-edit-partner').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const idx = parseInt(btn.dataset.idx, 10);
+        activeEditPartners.splice(idx, 1);
+        renderEditPartnersList();
+      });
+    });
+
+    // Sync input changes live into memory array
+    el.editReportPartnersContainer.querySelectorAll('.edit-partner-card').forEach(card => {
+      const idx = parseInt(card.dataset.idx, 10);
+      const nameInp = card.querySelector('.edit-partner-name');
+      const deptInp = card.querySelector('.edit-partner-dept');
+      const wecomInp = card.querySelector('.edit-partner-wecom');
+
+      if (nameInp) nameInp.addEventListener('input', () => { if (activeEditPartners[idx]) activeEditPartners[idx].name = nameInp.value; });
+      if (deptInp) deptInp.addEventListener('input', () => { if (activeEditPartners[idx]) activeEditPartners[idx].dept = deptInp.value; });
+      if (wecomInp) wecomInp.addEventListener('input', () => { if (activeEditPartners[idx]) activeEditPartners[idx].wecom = wecomInp.value; });
+    });
+  }
+
+  function handleSaveEditedParticipant(e) {
+    e.preventDefault();
+    const t = state.currentTournament;
+    if (!t) return;
+
+    const participantId = el.editReportParticipantId.value;
+    const p = (t.participants || []).find(part => part.id === participantId);
+    if (!p) return;
+
+    const newDisplayName = el.editReportName.value.trim();
+    const newPlayerName = el.editReportPlayer.value.trim();
+    const newDept = el.editReportDept.value.trim();
+    const newWecom = el.editReportWecom.value.trim();
+
+    // Collect latest partner values from DOM
+    const updatedPartners = [];
+    if (el.editReportPartnersContainer) {
+      el.editReportPartnersContainer.querySelectorAll('.edit-partner-card').forEach(card => {
+        const pName = (card.querySelector('.edit-partner-name')?.value || '').trim();
+        const pDept = (card.querySelector('.edit-partner-dept')?.value || '').trim();
+        const pWecom = (card.querySelector('.edit-partner-wecom')?.value || '').trim();
+        if (pName) {
+          updatedPartners.push({ name: pName, dept: pDept, wecom: pWecom });
+        }
+      });
+    }
+
+    const hasPartners = updatedPartners.length > 0;
+
+    // Update participant object
+    p.name = newDisplayName || newPlayerName || 'Peserta';
+    p.teamName = newDisplayName || '';
+    p.playerName = newPlayerName || newDisplayName || '';
+    p.dept = newDept;
+    p.wecom = newWecom;
+    p.isTeam = hasPartners;
+    p.partners = updatedPartners;
+    p.partner = updatedPartners[0] || null;
+
+    // Synchronize across all matches in bracket tree
+    const updateMatchParticipant = (slotP) => {
+      if (!slotP || slotP.id !== p.id) return;
+      slotP.name = p.name;
+      slotP.teamName = p.teamName;
+      slotP.playerName = p.playerName;
+      slotP.dept = p.dept;
+      slotP.wecom = p.wecom;
+      slotP.isTeam = p.isTeam;
+      slotP.partners = p.partners;
+      slotP.partner = p.partner;
+      if (p.name) {
+        slotP.isPlaceholder = false;
+        slotP.isUnseeded = false;
+      }
+    };
+
+    (t.rounds || []).forEach(r => {
+      (r.matches || []).forEach(m => {
+        updateMatchParticipant(m.p1);
+        updateMatchParticipant(m.p2);
+      });
+    });
+
+    if (t.thirdPlaceMatch) {
+      updateMatchParticipant(t.thirdPlaceMatch.p1);
+      updateMatchParticipant(t.thirdPlaceMatch.p2);
+    }
+
+    // Add activity log
+    const isZh = state.lang === 'zh';
+    addTournamentLog(
+      t,
+      'info',
+      isZh
+        ? `更新了选手资料 "${p.name}" (部门: ${p.dept || '-'}, 主力: ${p.playerName})。`
+        : `Data pendaftar "${p.name}" diperbarui (Dept: ${p.dept || '-'}, Pemain: ${p.playerName || '-'}).`,
+      { participantId: p.id, name: p.name, dept: p.dept }
+    );
+
+    saveTournamentState(true);
+    closeModal(el.modalEditReportParticipant);
+    renderParticipantReports();
+    renderParticipantsDrawer();
+    renderBracketStudio();
+
+    showToast(isZh ? '选手资料已保存并同步至对阵图！' : 'Data pendaftar berhasil disimpan dan disinkronkan ke bagan!', 'success');
   }
 
   function exportParticipantsCSV() {
@@ -5584,6 +5794,20 @@
         state.reportFilter.page = 1;
         renderParticipantReports();
       });
+    }
+
+    // Edit Report Participant Modal Listeners
+    if (el.btnAddEditPartner) {
+      el.btnAddEditPartner.addEventListener('click', () => {
+        activeEditPartners.push({ name: '', dept: '', wecom: '' });
+        renderEditPartnersList();
+        const inputs = el.editReportPartnersContainer.querySelectorAll('.edit-partner-name');
+        if (inputs.length > 0) inputs[inputs.length - 1].focus();
+      });
+    }
+
+    if (el.formEditReportParticipant) {
+      el.formEditReportParticipant.addEventListener('submit', handleSaveEditedParticipant);
     }
 
     // Logs Panel Export & Filter Listeners

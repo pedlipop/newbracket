@@ -556,6 +556,7 @@
                   <th data-i18n="th_members">Anggota Tim</th>
                   <th data-i18n="th_reg_time">Waktu Mendaftar</th>
                   <th data-i18n="th_bracket_status">Status Bagan</th>
+                  <th style="width:75px; text-align:center;" data-i18n="th_action">Aksi</th>
                 </tr>
               </thead>
               <tbody id="report-table-body">
@@ -1115,6 +1116,61 @@
           <!-- Dynamically populated matches -->
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- Modal 8: Edit Participant Data from Reports Modal -->
+  <div id="modal-edit-report-participant" class="modal-overlay hidden">
+    <div class="modal-content modal-md">
+      <div class="modal-header">
+        <div>
+          <h3><i class="fa-solid fa-user-pen" style="color:var(--primary); margin-right:6px;"></i> <span data-i18n="modal_edit_participant_title">Edit Data Pendaftar</span></h3>
+          <span class="text-subtle" data-i18n="modal_edit_participant_sub">Perbarui informasi peserta agar tampil jelas dan akurat di bagan pertandingan.</span>
+        </div>
+        <button class="btn-close-modal" data-close="modal-edit-report-participant">&times;</button>
+      </div>
+      <form id="form-edit-report-participant" class="modal-body">
+        <input type="hidden" id="edit-report-participant-id">
+        
+        <div class="form-group">
+          <label for="edit-report-name" data-i18n="label_team_or_display">Nama Tampilan di Bagan / Nama Tim:</label>
+          <input type="text" id="edit-report-name" required placeholder="Contoh: Tim Elang atau Samsudin">
+        </div>
+
+        <div class="form-row" style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+          <div class="form-group">
+            <label for="edit-report-player" data-i18n="label_captain_player">Nama Pemain Utama / Ketua:</label>
+            <input type="text" id="edit-report-player" placeholder="Nama lengkap pemain">
+          </div>
+          <div class="form-group">
+            <label for="edit-report-dept" data-i18n="label_department">Departemen / Divisi:</label>
+            <input type="text" id="edit-report-dept" placeholder="Contoh: Produksi, IT, HR">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="edit-report-wecom" data-i18n="label_wecom_contact">No. WeCom / Kontak:</label>
+          <input type="text" id="edit-report-wecom" placeholder="Contoh: 0812345678 / WeCom ID">
+        </div>
+
+        <!-- Dynamic Teammates / Partners Section -->
+        <div class="form-group" style="margin-top:12px;">
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+            <label style="margin:0;"><i class="fa-solid fa-users" style="color:var(--primary);"></i> <span data-i18n="label_teammates_list">Rekan / Anggota Tim:</span></label>
+            <button type="button" id="btn-add-edit-partner" class="btn btn-sm btn-outline" style="font-size:0.75rem; padding:3px 8px;">
+              <i class="fa-solid fa-plus"></i> <span data-i18n="btn_add_partner">Tambah Rekan</span>
+            </button>
+          </div>
+          <div id="edit-report-partners-container" style="display:flex; flex-direction:column; gap:8px;">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+
+        <div class="modal-footer" style="margin-top:20px;">
+          <button type="button" class="btn btn-ghost" data-close="modal-edit-report-participant" data-i18n="btn_cancel">Batal</button>
+          <button type="submit" class="btn btn-primary"><i class="fa-solid fa-floppy-disk"></i> <span data-i18n="btn_save_changes">Simpan Perubahan</span></button>
+        </div>
+      </form>
     </div>
   </div>
 
