@@ -3834,6 +3834,10 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
   border: 1px solid rgba(239, 68, 68, 0.3);
   padding: 3px 8px;
   border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
 /* ==================== TABLET & SMARTPHONE RESPONSIVE OPTIMIZATION ==================== */
 @media (max-width: 1024px) {
   .studio-drawer {
