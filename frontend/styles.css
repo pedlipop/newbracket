@@ -3992,6 +3992,229 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
   }
 }
 
+/* ==================== MATCH NOTES STYLING ==================== */
+.match-notes-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 0.75rem 1rem;
+  margin-top: 0.5rem;
+}
+
+.match-notes-label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.match-notes-label i {
+  color: #f59e0b;
+}
+
+.match-notes-input {
+  width: 100%;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: 4px;
+  color: var(--text-main);
+  padding: 0.5rem 0.75rem;
+  font-size: 0.85rem;
+  font-family: inherit;
+  resize: vertical;
+  min-height: 52px;
+  box-sizing: border-box;
+}
+
+.match-notes-input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px rgba(0, 210, 255, 0.2);
+}
+
+.match-meta-note {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #f59e0b;
+  font-size: 0.75rem;
+  margin-left: 5px;
+  cursor: help;
+  vertical-align: middle;
+}
+
+/* ==================== LOG DRAWER STYLING ==================== */
+.logs-panel-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.logs-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.log-entry {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+  padding: 0.6rem 0.75rem;
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  font-size: 0.8rem;
+  transition: background 0.15s ease;
+}
+
+.log-entry:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.log-icon-col {
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  margin-top: 2px;
+}
+
+.log-entry.score .log-icon-col {
+  background: rgba(16, 185, 129, 0.15);
+  color: #10b981;
+}
+
+.log-entry.winner .log-icon-col {
+  background: rgba(245, 158, 11, 0.15);
+  color: #f59e0b;
+}
+
+.log-entry.status .log-icon-col {
+  background: rgba(0, 210, 255, 0.15);
+  color: #00d2ff;
+}
+
+.log-entry.slot .log-icon-col {
+  background: rgba(168, 85, 247, 0.15);
+  color: #a855f7;
+}
+
+.log-entry.lock .log-icon-col,
+.log-entry.unlock .log-icon-col {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+}
+
+.log-entry.init .log-icon-col {
+  background: rgba(148, 163, 184, 0.15);
+  color: #94a3b8;
+}
+
+.log-content-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  overflow: hidden;
+}
+
+.log-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.log-badge {
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+
+.log-badge.score { background: rgba(16, 185, 129, 0.2); color: #34d399; }
+.log-badge.winner { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
+.log-badge.status { background: rgba(0, 210, 255, 0.2); color: #38bdf8; }
+.log-badge.slot { background: rgba(168, 85, 247, 0.2); color: #c084fc; }
+.log-badge.lock { background: rgba(239, 68, 68, 0.2); color: #f87171; }
+.log-badge.unlock { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
+.log-badge.init { background: rgba(148, 163, 184, 0.2); color: #cbd5e1; }
+
+.log-time {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.log-desc {
+  color: var(--text-main);
+  line-height: 1.35;
+  word-break: break-word;
+}
+
+/* ==================== CAMERA FOCUS & SEARCH ACTION ==================== */
+.match-camera-focus-pulse {
+  animation: cameraFocusPulse 2.2s ease-out !important;
+  box-shadow: 0 0 0 4px var(--primary), 0 0 28px rgba(0, 210, 255, 0.7) !important;
+  z-index: 50 !important;
+}
+
+@keyframes cameraFocusPulse {
+  0% {
+    box-shadow: 0 0 0 8px #ffffff, 0 0 35px rgba(0, 210, 255, 0.9);
+    transform: scale(1.04);
+  }
+  50% {
+    box-shadow: 0 0 0 4px var(--primary), 0 0 24px rgba(0, 210, 255, 0.6);
+    transform: scale(1.01);
+  }
+  100% {
+    box-shadow: none;
+    transform: scale(1);
+  }
+}
+
+.match-search-item {
+  cursor: pointer;
+  position: relative;
+  transition: all 0.15s ease;
+}
+
+.match-search-item:hover {
+  border-color: var(--primary);
+  transform: translateY(-1px);
+}
+
+.match-search-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.btn-search-manage-match {
+  font-size: 0.78rem !important;
+  padding: 4px 10px !important;
+  gap: 4px !important;
+  font-weight: 700 !important;
+  border-radius: var(--radius-sm) !important;
+}
+
 @media print {
   body {
     background: #ffffff !important;

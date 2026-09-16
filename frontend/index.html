@@ -221,6 +221,10 @@
             <i class="fa-solid fa-palette"></i>
             <span data-i18n="nav_themes">Themes</span>
           </button>
+          <button class="rail-tab-btn" data-panel="logs" id="rail-btn-logs" title="Riwayat Log & Perubahan Bagan">
+            <i class="fa-solid fa-clock-rotate-left"></i>
+            <span data-i18n="nav_logs">Log Bagan</span>
+          </button>
           <button class="rail-tab-btn" data-panel="reports" id="rail-btn-reports" title="Laporan Pendaftar Link (Full)">
             <i class="fa-solid fa-clipboard-list"></i>
             <span data-i18n="nav_reports">Laporan</span>
@@ -375,6 +379,30 @@
             <div class="theme-card" data-theme="light">
               <div class="theme-preview theme-light-preview"></div>
               <span data-i18n="theme_light">Clean Minimal (Light)</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Panel 4: Change Logs & History -->
+        <div id="panel-logs" class="drawer-panel">
+          <div class="panel-header">
+            <div class="panel-title">
+              <h3 data-i18n="drawer_logs">Riwayat / Log Bagan</h3>
+              <span id="logs-count-badge" class="count-pill">0</span>
+            </div>
+            <button type="button" id="btn-export-logs" class="btn btn-sm btn-secondary" style="gap:4px;" title="Unduh Catatan Log (CSV)">
+              <i class="fa-solid fa-file-arrow-down"></i> Export
+            </button>
+          </div>
+          <div class="logs-filter-row" style="display:flex; gap:4px; margin-bottom:8px; padding:0 2px; flex-wrap:wrap;">
+            <button type="button" class="filter-chip log-filter-btn active" data-filter="all" style="padding:2px 8px; font-size:0.75rem; border-radius:12px;">Semua</button>
+            <button type="button" class="filter-chip log-filter-btn" data-filter="score" style="padding:2px 8px; font-size:0.75rem; border-radius:12px;">Skor & Menang</button>
+            <button type="button" class="filter-chip log-filter-btn" data-filter="status" style="padding:2px 8px; font-size:0.75rem; border-radius:12px;">Status</button>
+            <button type="button" class="filter-chip log-filter-btn" data-filter="slot" style="padding:2px 8px; font-size:0.75rem; border-radius:12px;">Susunan</button>
+          </div>
+          <div class="panel-body logs-panel-body" style="overflow-y:auto; max-height:calc(100vh - 240px); padding-right:2px;">
+            <div id="logs-container" class="logs-container">
+              <!-- Dynamically rendered logs -->
             </div>
           </div>
         </div>
@@ -957,6 +985,14 @@
               <i class="fa-solid fa-crown"></i> <span data-i18n="btn_direct_win">Direct Win</span>
             </button>
           </div>
+        </div>
+
+        <!-- Match Notes (Catatan Pertandingan) -->
+        <div class="match-notes-section">
+          <label for="modal-match-note" class="match-notes-label">
+            <i class="fa-solid fa-note-sticky"></i> <span data-i18n="label_match_note">Catatan Pertandingan</span>
+          </label>
+          <textarea id="modal-match-note" class="match-notes-input" placeholder="Tulis catatan (misal: Lapangan 2, WO karena cedera, ditunda 15 menit, dll.)..." rows="2"></textarea>
         </div>
 
         <!-- Reset match result button -->
