@@ -1242,20 +1242,20 @@
           <!-- Divider Between In Progress and Next Up / Queue -->
           <div class="queue-section-divider">
             <div class="divider-line"></div>
-            <div class="divider-pill">
-              <i class="fa-solid fa-forward-step"></i>
-              <span data-i18n="queue_next_up_divider">AKAN MAIN SELANJUTNYA (ANTRIAN TANDING)</span>
-            </div>
-            <div class="divider-line"></div>
           </div>
 
           <!-- Section 2: Next Up & Upcoming Queue with Reordering -->
           <div class="queue-section-header">
             <div class="queue-section-title next-up">
-              <span class="pulse-indicator-amber"></span>
-              <span data-i18n="queue_next_up_title">Antrian & Urutan Pertandingan (Sequence)</span>
+              <i class="fa-solid fa-list-ol" style="font-size:0.75rem; color:var(--text-muted); opacity:0.6;"></i>
+              <span data-i18n="queue_next_up_title">Antrian & Urutan Pertandingan</span>
             </div>
-            <span class="queue-section-badge amber" id="next-up-badge-count">0 Match</span>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <button type="button" class="btn-compact-mode-toggle" id="btn-toggle-compact-all" title="Beralih antara mode ringkas dan detail">
+                <i class="fa-solid fa-compress"></i> <span id="btn-toggle-compact-all-text" data-i18n="btn_toggle_compact">Mode Ringkas</span>
+              </button>
+              <span class="queue-section-badge amber" id="next-up-badge-count">0 Match</span>
+            </div>
           </div>
           <div class="queue-helper-text" data-i18n="queue_helper_text">
             <i class="fa-solid fa-circle-info"></i> Gunakan tombol panah atau ganti nomor urut untuk mengubah giliran tanding jika ada match yang tertunda (delay).

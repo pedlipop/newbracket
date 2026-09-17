@@ -32,7 +32,9 @@
     regTeammateCount: 1,
     lang: localStorage.getItem('cngr_lang') || 'id',
     drawerParticipants: { search: '', page: 1, pageSize: 30 },
-    reportFilter: { search: '', filter: 'all', page: 1, pageSize: 30 }
+    reportFilter: { search: '', filter: 'all', page: 1, pageSize: 30 },
+    queueCardsCollapsed: new Set(),
+    queueCompactAll: false
   };
 
   // ==================== I18N TRANSLATION DICTIONARY ====================
@@ -229,12 +231,15 @@
       tab_queue_finished: 'Pertandingan Selesai',
       queue_in_progress_title: 'Sedang Berlangsung (In Progress)',
       queue_next_up_divider: 'AKAN MAIN SELANJUTNYA (ANTRIAN TANDING)',
-      queue_next_up_title: 'Antrian & Urutan Pertandingan (Sequence)',
+      queue_next_up_title: 'Antrian & Urutan Pertandingan',
       queue_helper_text: 'Gunakan tombol panah atau ganti nomor urut untuk mengubah giliran tanding jika ada match yang tertunda (delay).',
       queue_finished_title: 'Daftar Pertandingan Selesai',
       hud_order_btn: 'Antrian',
       btn_delay_match: 'Tunda',
-      btn_start_match: 'Mulai Tanding'
+      btn_start_match: 'Mulai Tanding',
+      btn_toggle_compact: 'Mode Ringkas',
+      btn_expand_all: 'Mode Detail',
+      hint_compact_hover: 'Klik untuk buka detail / Hover untuk info pendaftar'
     },
     zh: {
       portal_title: 'CNGR 赛事中心',
@@ -428,12 +433,15 @@
       tab_queue_finished: '已完赛记录',
       queue_in_progress_title: '正在进行的比赛 (In Progress)',
       queue_next_up_divider: '接下来出场（比赛队列）',
-      queue_next_up_title: '出场顺序与比赛队列 (Sequence)',
+      queue_next_up_title: '出场顺序与比赛队列',
       queue_helper_text: '如有比赛延迟，可使用上下箭头或更改序号调整出场顺序。',
       queue_finished_title: '已完成比赛列表',
       hud_order_btn: '队列',
       btn_delay_match: '延后',
-      btn_start_match: '开始比赛'
+      btn_start_match: '开始比赛',
+      btn_toggle_compact: '精简模式',
+      btn_expand_all: '详细模式',
+      hint_compact_hover: '点击展开详情 / 悬停查看选手资料'
     }
   };
 
@@ -749,6 +757,8 @@
     el.queueInProgressList = document.getElementById('queue-in-progress-list');
     el.queueNextUpList = document.getElementById('queue-next-up-list');
     el.queueFinishedList = document.getElementById('queue-finished-list');
+    el.btnToggleCompactAll = document.getElementById('btn-toggle-compact-all');
+    el.btnToggleCompactAllText = document.getElementById('btn-toggle-compact-all-text');
 
     el.toastContainer = document.getElementById('toast-container');
   }
@@ -5175,12 +5185,23 @@
     const finishedList = all.filter(item => item.match.status === 'completed');
     const upcomingList = getUpcomingQueueMatches(t);
 
-    // Update Counts
+    // Update Counts & Compact All Button
     if (el.queueActiveCount) el.queueActiveCount.textContent = inProgressList.length + upcomingList.length;
     if (el.queueFinishedCount) el.queueFinishedCount.textContent = finishedList.length;
     if (el.inProgressBadgeCount) el.inProgressBadgeCount.textContent = `${inProgressList.length} Match`;
     if (el.nextUpBadgeCount) el.nextUpBadgeCount.textContent = `${upcomingList.length} Match`;
     if (el.finishedBadgeCount) el.finishedBadgeCount.textContent = `${finishedList.length} Match`;
+
+    if (el.btnToggleCompactAll) {
+      el.btnToggleCompactAll.classList.toggle('active', state.queueCompactAll);
+      if (el.btnToggleCompactAllText) {
+        el.btnToggleCompactAllText.textContent = state.queueCompactAll ? (isZh ? '详细模式' : 'Mode Detail') : (isZh ? '精简模式' : 'Mode Ringkas');
+      }
+      const icon = el.btnToggleCompactAll.querySelector('i');
+      if (icon) {
+        icon.className = state.queueCompactAll ? 'fa-solid fa-expand' : 'fa-solid fa-compress';
+      }
+    }
 
     // Helper for formatting round titles
     const formatRound = (rTitle, mIdx, isBronze) => {
@@ -5196,6 +5217,22 @@
         else if (/^Round\s+(\d+)$/i.test(clean)) clean = clean.replace(/^Round\s+(\d+)$/i, '第 $1 轮');
       }
       return `${clean} • ${isZh ? `第 ${mIdx + 1} 场` : `Match #${mIdx + 1}`}`;
+    };
+
+    // Helper for generating hover tooltips
+    const getParticipantTooltip = (p) => {
+      if (!p || !p.name || p.isPlaceholder || p.isUnseeded) {
+        return isZh ? '待定 (等待前序胜者)' : 'TBD (Menunggu Pemenang)';
+      }
+      const parts = [
+        p.seed ? `Seed #${p.seed}` : null,
+        p.name,
+        p.teamName && p.teamName !== p.name ? `Tim: ${p.teamName}` : null,
+        p.playerName && p.playerName !== p.name ? `Pemain: ${p.playerName}` : null,
+        p.dept ? `Dept: ${p.dept}` : null,
+        p.wecom ? `WeCom: ${p.wecom}` : null
+      ].filter(Boolean);
+      return parts.join(' • ');
     };
 
     // Helper for rendering participant details inside queue cards
@@ -5252,17 +5289,43 @@
           const label = formatRound(item.roundTitle, item.mIdx, m.isBronzeMatch);
           const s1 = (m.score1 !== '' && m.score1 !== null && m.score1 !== undefined) ? m.score1 : 0;
           const s2 = (m.score2 !== '' && m.score2 !== null && m.score2 !== undefined) ? m.score2 : 0;
+          const isCompact = state.queueCompactAll ? !state.queueCardsCollapsed.has(m.id) : state.queueCardsCollapsed.has(m.id);
+
+          const p1Tip = getParticipantTooltip(m.p1);
+          const p2Tip = getParticipantTooltip(m.p2);
+          const matchupTip = `${p1Tip} \nVS\n ${p2Tip}\n(${isZh ? '点击展开/折叠详情' : 'Klik untuk buka/tutup detail'})`;
 
           return `
-            <div class="queue-match-card is-in-progress" data-matchid="${m.id}">
+            <div class="queue-match-card is-in-progress ${isCompact ? 'is-compact' : ''}" data-matchid="${m.id}">
               <div class="queue-card-topbar">
-                <span class="queue-match-meta"><i class="fa-solid fa-gamepad" style="color:#10b981;"></i> ${escapeHTML(label)}</span>
+                <div style="display:flex; align-items:center; gap:6px; min-width:0;">
+                  <button type="button" class="btn-card-collapse-toggle btn-toggle-card-compact" data-matchid="${m.id}" title="${isCompact ? (isZh ? '展开详情' : 'Buka Detail') : (isZh ? '收起为精简卡片' : 'Tutup Detail / Mode Ringkas')}">
+                    <i class="fa-solid ${isCompact ? 'fa-chevron-down' : 'fa-chevron-up'}"></i>
+                  </button>
+                  <span class="queue-match-meta"><i class="fa-solid fa-gamepad" style="color:#10b981;"></i> ${escapeHTML(label)}</span>
+                </div>
                 <span class="queue-status-tag live"><span class="pulse-dot-live"></span> LIVE</span>
               </div>
+
+              <!-- Compact Single-Line Matchup -->
+              <div class="queue-compact-row btn-toggle-card-compact" data-matchid="${m.id}" title="${escapeHTML(matchupTip)}">
+                <div class="queue-compact-team" title="${escapeHTML(p1Tip)}">
+                  <span class="queue-seed-pill sm">${m.p1?.seed ? `#${m.p1.seed}` : '-'}</span>
+                  <span class="queue-compact-name">${escapeHTML(m.p1?.name || (isZh ? '待定' : 'TBD'))}</span>
+                </div>
+                <span class="queue-compact-vs">${s1} - ${s2}</span>
+                <div class="queue-compact-team right" title="${escapeHTML(p2Tip)}">
+                  <span class="queue-compact-name">${escapeHTML(m.p2?.name || (isZh ? '待定' : 'TBD'))}</span>
+                  <span class="queue-seed-pill sm">${m.p2?.seed ? `#${m.p2.seed}` : '-'}</span>
+                </div>
+              </div>
+
+              <!-- Full Detailed Participants Block -->
               <div class="queue-participants-container">
                 ${renderParticipantItem(m.p1, s1, false, false)}
                 ${renderParticipantItem(m.p2, s2, false, false)}
               </div>
+
               <div class="queue-card-actions">
                 <span style="font-size:0.75rem; color:#10b981; font-weight:700;"><i class="fa-solid fa-tower-broadcast"></i> ${isZh ? '比赛进行中' : 'Pertandingan Aktif'}</span>
                 <button type="button" class="btn-queue-action control btn-open-match-ctrl" data-ridx="${item.rIdx}" data-midx="${item.mIdx}">
@@ -5293,17 +5356,43 @@
           const canStart = !isP1Waiting && !isP2Waiting;
           const isFirst = seqIdx === 0;
           const isLast = seqIdx === upcomingList.length - 1;
+          const isCompact = state.queueCompactAll ? !state.queueCardsCollapsed.has(m.id) : state.queueCardsCollapsed.has(m.id);
+
+          const p1Tip = getParticipantTooltip(m.p1);
+          const p2Tip = getParticipantTooltip(m.p2);
+          const matchupTip = `${p1Tip} \nVS\n ${p2Tip}\n(${isZh ? '点击展开/折叠详情' : 'Klik untuk buka/tutup detail'})`;
 
           return `
-            <div class="queue-match-card is-next-up" data-matchid="${m.id}">
+            <div class="queue-match-card is-next-up ${isCompact ? 'is-compact' : ''}" data-matchid="${m.id}">
               <div class="queue-card-topbar">
-                <span class="queue-match-meta"><i class="fa-solid fa-clock" style="color:#f59e0b;"></i> ${escapeHTML(label)}</span>
+                <div style="display:flex; align-items:center; gap:6px; min-width:0;">
+                  <button type="button" class="btn-card-collapse-toggle btn-toggle-card-compact" data-matchid="${m.id}" title="${isCompact ? (isZh ? '展开详情' : 'Buka Detail') : (isZh ? '收起为精简卡片' : 'Tutup Detail / Mode Ringkas')}">
+                    <i class="fa-solid ${isCompact ? 'fa-chevron-down' : 'fa-chevron-up'}"></i>
+                  </button>
+                  <span class="queue-match-meta"><i class="fa-solid fa-clock" style="color:#f59e0b;"></i> ${escapeHTML(label)}</span>
+                </div>
                 <span class="queue-status-tag next">${m.status === 'next_up' ? 'NEXT UP' : `QUEUE #${seqIdx + 1}`}</span>
               </div>
+
+              <!-- Compact Single-Line Matchup -->
+              <div class="queue-compact-row btn-toggle-card-compact" data-matchid="${m.id}" title="${escapeHTML(matchupTip)}">
+                <div class="queue-compact-team" title="${escapeHTML(p1Tip)}">
+                  <span class="queue-seed-pill sm">${m.p1?.seed ? `#${m.p1.seed}` : '-'}</span>
+                  <span class="queue-compact-name">${escapeHTML(m.p1?.name || (isZh ? '待定' : 'TBD'))}</span>
+                </div>
+                <span class="queue-compact-vs">VS</span>
+                <div class="queue-compact-team right" title="${escapeHTML(p2Tip)}">
+                  <span class="queue-compact-name">${escapeHTML(m.p2?.name || (isZh ? '待定' : 'TBD'))}</span>
+                  <span class="queue-seed-pill sm">${m.p2?.seed ? `#${m.p2.seed}` : '-'}</span>
+                </div>
+              </div>
+
+              <!-- Full Detailed Participants Block -->
               <div class="queue-participants-container">
                 ${renderParticipantItem(m.p1, null, false, isP1Waiting)}
                 ${renderParticipantItem(m.p2, null, false, isP2Waiting)}
               </div>
+
               <div class="queue-card-actions">
                 <div class="queue-sequence-controls">
                   <span class="queue-seq-label">${isZh ? '出场序号:' : 'Urutan:'}</span>
@@ -5354,17 +5443,43 @@
           const label = formatRound(item.roundTitle, item.mIdx, m.isBronzeMatch);
           const isP1Winner = m.winnerId && m.winnerId === m.p1?.id;
           const isP2Winner = m.winnerId && m.winnerId === m.p2?.id;
+          const isCompact = state.queueCompactAll ? !state.queueCardsCollapsed.has(m.id) : state.queueCardsCollapsed.has(m.id);
+
+          const p1Tip = getParticipantTooltip(m.p1);
+          const p2Tip = getParticipantTooltip(m.p2);
+          const matchupTip = `${p1Tip} \nVS\n ${p2Tip}\n(${isZh ? '点击展开/折叠详情' : 'Klik untuk buka/tutup detail'})`;
 
           return `
-            <div class="queue-match-card is-finished" data-matchid="${m.id}">
+            <div class="queue-match-card is-finished ${isCompact ? 'is-compact' : ''}" data-matchid="${m.id}">
               <div class="queue-card-topbar">
-                <span class="queue-match-meta"><i class="fa-solid fa-circle-check" style="color:#3b82f6;"></i> ${escapeHTML(label)}</span>
+                <div style="display:flex; align-items:center; gap:6px; min-width:0;">
+                  <button type="button" class="btn-card-collapse-toggle btn-toggle-card-compact" data-matchid="${m.id}" title="${isCompact ? (isZh ? '展开详情' : 'Buka Detail') : (isZh ? '收起为精简卡片' : 'Tutup Detail / Mode Ringkas')}">
+                    <i class="fa-solid ${isCompact ? 'fa-chevron-down' : 'fa-chevron-up'}"></i>
+                  </button>
+                  <span class="queue-match-meta"><i class="fa-solid fa-circle-check" style="color:#3b82f6;"></i> ${escapeHTML(label)}</span>
+                </div>
                 <span class="queue-status-tag done"><i class="fa-solid fa-check"></i> FINISHED</span>
               </div>
+
+              <!-- Compact Single-Line Matchup -->
+              <div class="queue-compact-row btn-toggle-card-compact" data-matchid="${m.id}" title="${escapeHTML(matchupTip)}">
+                <div class="queue-compact-team ${isP1Winner ? 'winner' : ''}" title="${escapeHTML(p1Tip)}">
+                  <span class="queue-seed-pill sm">${m.p1?.seed ? `#${m.p1.seed}` : '-'}</span>
+                  <span class="queue-compact-name">${escapeHTML(m.p1?.name || (isZh ? '待定' : 'TBD'))} ${isP1Winner ? '🏆' : ''}</span>
+                </div>
+                <span class="queue-compact-vs">${m.score1 ?? 0} - ${m.score2 ?? 0}</span>
+                <div class="queue-compact-team right ${isP2Winner ? 'winner' : ''}" title="${escapeHTML(p2Tip)}">
+                  <span class="queue-compact-name">${escapeHTML(m.p2?.name || (isZh ? '待定' : 'TBD'))} ${isP2Winner ? '🏆' : ''}</span>
+                  <span class="queue-seed-pill sm">${m.p2?.seed ? `#${m.p2.seed}` : '-'}</span>
+                </div>
+              </div>
+
+              <!-- Full Detailed Participants Block -->
               <div class="queue-participants-container">
                 ${renderParticipantItem(m.p1, m.score1 ?? 0, isP1Winner, false)}
                 ${renderParticipantItem(m.p2, m.score2 ?? 0, isP2Winner, false)}
               </div>
+
               <div class="queue-card-actions">
                 <span style="font-size:0.75rem; color:var(--text-muted);">
                   <i class="fa-solid fa-award" style="color:#10b981;"></i> ${isZh ? '胜者:' : 'Pemenang:'} <strong style="color:var(--text-main);">${escapeHTML(isP1Winner ? (m.p1?.name || '') : (isP2Winner ? (m.p2?.name || '') : '-'))}</strong>
@@ -5386,22 +5501,19 @@
   function attachQueueDrawerEvents() {
     if (!el.matchQueueDrawer) return;
 
-    // Up button
-    el.matchQueueDrawer.querySelectorAll('.btn-move-seq-up').forEach(btn => {
-      btn.addEventListener('click', (e) => {
+    // Toggle card collapse / compact
+    el.matchQueueDrawer.querySelectorAll('.btn-toggle-card-compact').forEach(btn => {
+      btn.onclick = (e) => {
         e.stopPropagation();
         const matchId = btn.dataset.matchid;
-        moveMatchSequence(matchId, -1);
-      });
-    });
-
-    // Down button
-    el.matchQueueDrawer.querySelectorAll('.btn-move-seq-down').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const matchId = btn.dataset.matchid;
-        moveMatchSequence(1, matchId, -1); // see below
-      });
+        if (!matchId) return;
+        if (state.queueCardsCollapsed.has(matchId)) {
+          state.queueCardsCollapsed.delete(matchId);
+        } else {
+          state.queueCardsCollapsed.add(matchId);
+        }
+        renderQueueDrawer();
+      };
     });
 
     // Up/Down buttons direct handler
@@ -5984,6 +6096,14 @@
 
     if (el.btnQueueTabFinished) {
       el.btnQueueTabFinished.addEventListener('click', () => switchQueueTab('finished'));
+    }
+
+    if (el.btnToggleCompactAll) {
+      el.btnToggleCompactAll.addEventListener('click', () => {
+        state.queueCompactAll = !state.queueCompactAll;
+        state.queueCardsCollapsed.clear();
+        renderQueueDrawer();
+      });
     }
 
     // Dashboard Search & Filters

@@ -4695,53 +4695,58 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-top: 4px;
+  margin-top: 2px;
 }
 
 .queue-section-title {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 0.88rem;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
+  gap: 6px;
+  font-size: 0.74rem;
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: 0.01em;
+  color: var(--text-muted);
 }
 
 .queue-section-title.in-progress {
-  color: #10b981;
+  color: rgba(16, 185, 129, 0.85);
 }
 
 .queue-section-title.next-up {
-  color: #f59e0b;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.queue-section-title.next-up .pulse-indicator-amber {
+  display: none !important;
 }
 
 .queue-section-title.finished {
-  color: var(--text-main);
+  color: var(--text-muted);
 }
 
 .queue-section-badge {
-  font-size: 0.72rem;
-  font-weight: 700;
-  padding: 2px 8px;
+  font-size: 0.65rem;
+  font-weight: 500;
+  padding: 1px 7px;
   border-radius: 999px;
 }
 
 .queue-section-badge.green {
-  background: rgba(16, 185, 129, 0.15);
-  color: #10b981;
-  border: 1px solid rgba(16, 185, 129, 0.3);
+  background: rgba(16, 185, 129, 0.1);
+  color: rgba(16, 185, 129, 0.85);
+  border: 1px solid rgba(16, 185, 129, 0.2);
 }
 
 .queue-section-badge.amber {
-  background: rgba(245, 158, 11, 0.15);
-  color: #f59e0b;
-  border: 1px solid rgba(245, 158, 11, 0.3);
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(255, 255, 255, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .queue-section-badge.gray {
-  background: rgba(255, 255, 255, 0.08);
-  color: var(--text-muted);
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(255, 255, 255, 0.45);
   border: 1px solid var(--border-subtle);
 }
 
@@ -4749,42 +4754,31 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
 .queue-section-divider {
   display: flex;
   align-items: center;
-  margin: 10px 0 6px 0;
-  gap: 10px;
+  margin: 6px 0 2px 0;
+  gap: 8px;
 }
 
 .queue-section-divider .divider-line {
   flex: 1;
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(245, 158, 11, 0.4), transparent);
+  background: rgba(255, 255, 255, 0.06);
 }
 
 .queue-section-divider .divider-pill {
-  font-size: 0.68rem;
-  font-weight: 800;
-  letter-spacing: 0.05em;
-  color: #f59e0b;
-  background: rgba(245, 158, 11, 0.12);
-  border: 1px solid rgba(245, 158, 11, 0.3);
-  padding: 4px 12px;
-  border-radius: 999px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  white-space: nowrap;
+  display: none !important;
 }
 
 .queue-helper-text {
-  font-size: 0.75rem;
-  color: var(--text-muted);
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px dashed var(--border-subtle);
+  font-size: 0.68rem;
+  color: rgba(255, 255, 255, 0.35);
+  background: rgba(255, 255, 255, 0.015);
+  border: 1px solid rgba(255, 255, 255, 0.04);
   border-radius: var(--radius-sm);
-  padding: 8px 12px;
+  padding: 5px 9px;
   display: flex;
   align-items: center;
-  gap: 8px;
-  line-height: 1.4;
+  gap: 6px;
+  line-height: 1.35;
 }
 
 .queue-cards-list {
@@ -5083,4 +5077,138 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
   font-size: 1.6rem;
   opacity: 0.5;
 }
+
+/* ==================== COMPACT MATCH CARD IN DRAWER ==================== */
+.btn-card-collapse-toggle {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-muted);
+  width: 22px;
+  height: 22px;
+  border-radius: 4px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.65rem;
+  transition: all 0.15s ease;
+}
+
+.btn-card-collapse-toggle:hover {
+  background: var(--primary);
+  color: #000;
+  border-color: var(--primary);
+}
+
+.btn-compact-mode-toggle {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--text-muted);
+  font-size: 0.68rem;
+  font-weight: 500;
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  transition: all 0.15s ease;
+}
+
+.btn-compact-mode-toggle:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: var(--text-main);
+  border-color: var(--text-muted);
+}
+
+.btn-compact-mode-toggle.active {
+  background: rgba(0, 210, 255, 0.15);
+  color: var(--primary);
+  border-color: rgba(0, 210, 255, 0.4);
+}
+
+/* Compact Card State */
+.queue-match-card:not(.is-compact) .queue-compact-row {
+  display: none !important;
+}
+
+.queue-match-card.is-compact {
+  padding: 9px 12px;
+  gap: 7px;
+}
+
+.queue-match-card.is-compact .queue-participants-container {
+  display: none !important;
+}
+
+.queue-compact-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  background: rgba(0, 0, 0, 0.28);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 6px 10px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  position: relative;
+}
+
+.queue-compact-row:hover {
+  background: rgba(0, 210, 255, 0.08);
+  border-color: rgba(0, 210, 255, 0.4);
+  box-shadow: 0 0 10px rgba(0, 210, 255, 0.15);
+}
+
+.queue-compact-team {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  flex: 1;
+}
+
+.queue-compact-team.right {
+  justify-content: flex-end;
+  text-align: right;
+}
+
+.queue-compact-name {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text-main);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  letter-spacing: -0.01em;
+}
+
+.queue-compact-vs {
+  font-size: 0.65rem;
+  font-weight: 900;
+  color: var(--primary);
+  background: rgba(0, 210, 255, 0.15);
+  padding: 2px 7px;
+  border-radius: 4px;
+  flex-shrink: 0;
+  letter-spacing: 0.06em;
+}
+
+.queue-seed-pill.sm {
+  width: 18px;
+  height: 18px;
+  font-size: 0.62rem;
+}
+
+.queue-compact-hover-tip {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  display: none;
+}
+
+.queue-match-card.is-compact .queue-card-actions {
+  padding-top: 3px;
+}
+
 
