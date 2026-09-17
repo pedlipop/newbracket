@@ -157,18 +157,6 @@
       </div>
 
       <div class="studio-header-right">
-        <!-- Match Search Button -->
-        <button id="btn-open-match-search" class="btn btn-tool" title="Cari match dan pemain di bracket">
-          <i class="fa-solid fa-magnifying-glass"></i>
-          <span data-i18n="studio_search_btn">Cari Match</span>
-        </button>
-
-        <!-- In-Progress Highlight Button -->
-        <button id="btn-toggle-highlight" class="btn btn-tool" title="Highlight all active live matches with glowing indicator">
-          <i class="fa-solid fa-bolt"></i>
-          <span data-i18n="studio_focus_btn">Live Focus</span>
-        </button>
-
         <!-- Lock / Unlock Bracket -->
         <button id="btn-toggle-lock" class="btn btn-lock" title="Lock bracket to start matches and report scores">
           <i class="fa-solid fa-lock"></i>
@@ -185,6 +173,12 @@
         <button type="button" id="btn-studio-open-report" class="btn btn-secondary btn-sm" title="Laporan Pendaftar Link (Full)" style="gap: 5px;">
           <i class="fa-solid fa-clipboard-user"></i>
           <span data-i18n="btn_participant_report">Laporan</span>
+        </button>
+
+        <!-- Qualifiers Drawer Button -->
+        <button type="button" id="btn-studio-open-qualifiers" class="btn btn-secondary btn-sm" title="Daftar Tim/Peserta Lolos per Babak" style="gap: 5px;">
+          <i class="fa-solid fa-ranking-star" style="color: #10b981;"></i>
+          <span data-i18n="btn_qualifiers_drawer">Lolos Babak</span>
         </button>
 
         <div class="divider-vertical"></div>
@@ -417,6 +411,13 @@
           <i class="fa-solid fa-bars"></i>
         </button>
 
+        <!-- Floating Match Search Button (Floating above bracket view, following side panel) -->
+        <button type="button" id="btn-open-match-search" class="btn-floating-match-search" title="Cari match dan pemain di bracket">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <span data-i18n="studio_search_btn">Cari Match</span>
+          <span class="floating-search-hint"><kbd>Ctrl+F</kbd></span>
+        </button>
+
         <!-- Floating Canvas Floating Toolbar (Zoom & Navigation) -->
         <div class="canvas-controls">
           <button id="btn-zoom-in" class="canvas-control-btn" title="Zoom In">
@@ -642,11 +643,6 @@
           <span data-i18n="live_search_btn">Cari</span>
         </button>
 
-        <!-- Highlight In-Progress Matches for spectators -->
-        <button id="btn-live-highlight" class="btn btn-tool btn-sm" title="Highlight matches currently in progress">
-          <i class="fa-solid fa-bolt"></i>
-          <span data-i18n="live_focus_btn">Live Focus</span>
-        </button>
       </div>
     </header>
 
@@ -1278,6 +1274,52 @@
             <!-- Rendered dynamically -->
           </div>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== DRAWER: QUALIFIED TEAMS PER ROUND (LOLOS BABAK) ==================== -->
+  <div id="qualifiers-drawer-overlay" class="queue-drawer-overlay hidden">
+    <div id="qualifiers-drawer" class="queue-drawer-panel qualifiers-panel">
+      <!-- Drawer Header -->
+      <div class="queue-drawer-header">
+        <div class="queue-drawer-header-info">
+          <div class="queue-drawer-icon" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(0, 210, 255, 0.2)); border-color: rgba(16, 185, 129, 0.4); color: #10b981;">
+            <i class="fa-solid fa-ranking-star"></i>
+          </div>
+          <div>
+            <h3 class="queue-drawer-title" data-i18n="qualifiers_drawer_title">Daftar Lolos Babak</h3>
+            <span class="queue-drawer-subtitle" data-i18n="qualifiers_drawer_sub">Tim/Peserta yang melaju ke setiap babak (Ronde 1 s/d Final)</span>
+          </div>
+        </div>
+        <button type="button" class="btn-close-queue-drawer" id="btn-close-qualifiers-drawer" title="Tutup Drawer">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <!-- Filter & Action Toolbar -->
+      <div class="qualifiers-toolbar">
+        <div class="qualifiers-filter-group">
+          <label for="qualifiers-round-select" class="qualifiers-filter-label" data-i18n="label_filter_babak">
+            <i class="fa-solid fa-filter"></i> Pilih Babak:
+          </label>
+          <select id="qualifiers-round-select" class="qualifiers-select">
+            <option value="all" data-i18n="opt_all_rounds">Semua Babak</option>
+          </select>
+        </div>
+        <div class="qualifiers-export-group">
+          <button type="button" id="btn-export-qualifiers-csv" class="btn btn-sm btn-secondary" title="Unduh CSV untuk Spreadsheet / Excel">
+            <i class="fa-solid fa-file-csv" style="color: #10b981;"></i> <span data-i18n="btn_export_csv">Export CSV</span>
+          </button>
+          <button type="button" id="btn-export-qualifiers-txt" class="btn btn-sm btn-secondary" title="Unduh daftar nama bersih TXT untuk generate bagan baru">
+            <i class="fa-solid fa-file-lines" style="color: var(--primary);"></i> <span data-i18n="btn_export_txt">Export TXT</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Drawer Content Body -->
+      <div class="queue-drawer-body qualifiers-body" id="qualifiers-drawer-body">
+        <!-- Rendered dynamically -->
       </div>
     </div>
   </div>

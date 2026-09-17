@@ -675,6 +675,71 @@ button {
   box-shadow: 0 0 12px var(--primary-glow);
 }
 
+/* Floating Match Search Button on Canvas (Floating above bracket view, follows side panel) */
+.btn-floating-match-search {
+  position: absolute;
+  top: 16px;
+  left: 20px;
+  z-index: 35;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  background: rgba(17, 24, 39, 0.88);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.45);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: auto;
+  user-select: none;
+}
+
+.btn-floating-match-search i {
+  color: var(--primary);
+  font-size: 14px;
+  transition: transform 0.2s ease;
+}
+
+.btn-floating-match-search:hover {
+  background: rgba(26, 34, 52, 0.95);
+  border-color: rgba(0, 210, 255, 0.45);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.55), 0 0 16px rgba(0, 210, 255, 0.2);
+  transform: translateY(-1px);
+}
+
+.btn-floating-match-search:hover i {
+  transform: scale(1.1);
+}
+
+.btn-floating-match-search .floating-search-hint {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 4px;
+  opacity: 0.7;
+}
+
+.btn-floating-match-search .floating-search-hint kbd {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+  padding: 1px 5px;
+  font-family: inherit;
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+/* When side drawer is collapsed, shift search button smoothly so it does not collide with the toggle button */
+.studio-drawer.collapsed ~ #canvas-container .btn-floating-match-search {
+  left: 64px;
+}
+
 .drawer-panel {
   display: none;
   flex-direction: column;
@@ -5209,6 +5274,220 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
 
 .queue-match-card.is-compact .queue-card-actions {
   padding-top: 3px;
+}
+
+/* ==================== QUALIFIERS DRAWER (LOLOS BABAK) ==================== */
+.qualifiers-panel {
+  max-width: 520px;
+}
+
+.qualifiers-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 10px 18px;
+  background: rgba(0, 0, 0, 0.28);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.qualifiers-filter-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.qualifiers-filter-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.qualifiers-select {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-main);
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  outline: none;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.qualifiers-select:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 8px rgba(0, 210, 255, 0.2);
+}
+
+.qualifiers-export-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.qualifiers-body {
+  padding: 14px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.qualifiers-round-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.qualifiers-round-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 4px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.qualifiers-round-title {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-main);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.qualifiers-round-count {
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-subtle);
+  padding: 2px 7px;
+  border-radius: 999px;
+}
+
+.qualifiers-list-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.qualifier-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
+  transition: all 0.15s ease;
+}
+
+.qualifier-item:hover {
+  border-color: rgba(0, 210, 255, 0.35);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.qualifier-item.is-champion {
+  border-left: 3px solid #10b981;
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.08), var(--bg-surface-elevated));
+}
+
+.qualifier-item.is-pending {
+  border-style: dashed;
+  opacity: 0.55;
+  background: rgba(255, 255, 255, 0.015);
+}
+
+.qualifier-item-info {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+  flex: 1;
+}
+
+.qualifier-names-block {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  gap: 2px;
+}
+
+.qualifier-team-title {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text-main);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.qualifier-player-sub {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.qualifier-source-badge {
+  font-size: 0.65rem;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 4px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-muted);
+  border: 1px solid var(--border-subtle);
+}
+
+.qualifier-source-badge.winner {
+  background: rgba(16, 185, 129, 0.12);
+  color: #10b981;
+  border-color: rgba(16, 185, 129, 0.3);
+}
+
+.qualifier-source-badge.bye {
+  background: rgba(0, 210, 255, 0.12);
+  color: var(--primary);
+  border-color: rgba(0, 210, 255, 0.3);
+}
+
+.qualifier-source-badge.champion {
+  background: rgba(245, 158, 11, 0.15);
+  color: #f59e0b;
+  border-color: rgba(245, 158, 11, 0.35);
+}
+
+/* ==================== LIVE VIEW OVERRIDES (CLEAN SPECTATOR) ==================== */
+#live-view .slot-locked-tag,
+#live-view .btn-slot-lock,
+#live-view .btn-slot-edit {
+  display: none !important;
+}
+
+#live-view .match-team-row.slot-locked {
+  background: transparent !important;
+  border-left: none !important;
+}
+
+/* Live Spectator Drawer Restrictions: View Only */
+.queue-drawer-panel.is-live-mode .btn-open-match-ctrl,
+.queue-drawer-panel.is-live-mode .btn-start-queue-match,
+.queue-drawer-panel.is-live-mode .btn-delay-queue-match,
+.queue-drawer-panel.is-live-mode .queue-seq-stepper,
+.queue-drawer-panel.is-live-mode .queue-helper-text {
+  display: none !important;
 }
 
 

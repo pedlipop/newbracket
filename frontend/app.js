@@ -34,7 +34,9 @@
     drawerParticipants: { search: '', page: 1, pageSize: 30 },
     reportFilter: { search: '', filter: 'all', page: 1, pageSize: 30 },
     queueCardsCollapsed: new Set(),
-    queueCompactAll: false
+    queueCompactAll: false,
+    qualifiersRoundFilter: 'all',
+    lastLockedLiveTournament: null
   };
 
   // ==================== I18N TRANSLATION DICTIONARY ====================
@@ -239,7 +241,18 @@
       btn_start_match: 'Mulai Tanding',
       btn_toggle_compact: 'Mode Ringkas',
       btn_expand_all: 'Mode Detail',
-      hint_compact_hover: 'Klik untuk buka detail / Hover untuk info pendaftar'
+      hint_compact_hover: 'Klik untuk buka detail / Hover untuk info pendaftar',
+      btn_qualifiers_drawer: 'Lolos Babak',
+      qualifiers_drawer_title: 'Daftar Lolos Babak',
+      qualifiers_drawer_sub: 'Tim/Peserta yang melaju ke setiap babak (Ronde 1 s/d Final)',
+      label_filter_babak: 'Pilih Babak:',
+      opt_all_rounds: 'Semua Babak',
+      opt_champion: 'Juara (Champion)',
+      btn_export_csv: 'Export CSV',
+      btn_export_txt: 'Export TXT',
+      qualifiers_empty: 'Belum ada data peserta yang lolos.',
+      qualifier_via_bye: 'Bye (Lolos Otomatis)',
+      qualifier_via_winner: 'Pemenang'
     },
     zh: {
       portal_title: 'CNGR 赛事中心',
@@ -441,7 +454,18 @@
       btn_start_match: '开始比赛',
       btn_toggle_compact: '精简模式',
       btn_expand_all: '详细模式',
-      hint_compact_hover: '点击展开详情 / 悬停查看选手资料'
+      hint_compact_hover: '点击展开详情 / 悬停查看选手资料',
+      btn_qualifiers_drawer: '晋级名单',
+      qualifiers_drawer_title: '各轮次晋级名单',
+      qualifiers_drawer_sub: '晋级至各轮次的队伍与选手名单 (第1轮至决赛)',
+      label_filter_babak: '选择轮次:',
+      opt_all_rounds: '全部轮次',
+      opt_champion: '最终冠军',
+      btn_export_csv: '导出 CSV',
+      btn_export_txt: '导出 TXT',
+      qualifiers_empty: '暂无选手晋级数据。',
+      qualifier_via_bye: '轮空直接晋级',
+      qualifier_via_winner: '获胜晋级'
     }
   };
 
@@ -759,6 +783,16 @@
     el.queueFinishedList = document.getElementById('queue-finished-list');
     el.btnToggleCompactAll = document.getElementById('btn-toggle-compact-all');
     el.btnToggleCompactAllText = document.getElementById('btn-toggle-compact-all-text');
+
+    // Qualifiers Drawer Elements
+    el.btnStudioOpenQualifiers = document.getElementById('btn-studio-open-qualifiers');
+    el.qualifiersDrawerOverlay = document.getElementById('qualifiers-drawer-overlay');
+    el.qualifiersDrawer = document.getElementById('qualifiers-drawer');
+    el.btnCloseQualifiersDrawer = document.getElementById('btn-close-qualifiers-drawer');
+    el.qualifiersRoundSelect = document.getElementById('qualifiers-round-select');
+    el.btnExportQualifiersCsv = document.getElementById('btn-export-qualifiers-csv');
+    el.btnExportQualifiersTxt = document.getElementById('btn-export-qualifiers-txt');
+    el.qualifiersDrawerBody = document.getElementById('qualifiers-drawer-body');
 
     el.toastContainer = document.getElementById('toast-container');
   }
@@ -1143,12 +1177,10 @@
       el.btnRandomSeed.title = isSeedingLocked ? 'Random seed dinonaktifkan saat turnamen berjalan' : 'Acak penempatan tim secara random';
     }
 
-    // Highlight In-progress button
-    state.highlightInProgress = !!t.inProgressHighlight;
-    if (state.highlightInProgress) {
-      el.btnToggleHighlight.classList.add('active');
-    } else {
-      el.btnToggleHighlight.classList.remove('active');
+    // Live Focus functionality is always active by default
+    state.highlightInProgress = true;
+    if (el.btnToggleHighlight) {
+      el.btnToggleHighlight.classList.toggle('active', state.highlightInProgress);
     }
 
     // Settings
@@ -2097,8 +2129,8 @@
     node.dataset.match = mIdx;
     node.dataset.id = match.id;
 
-    // Highlight in-progress match if enabled
-    if (state.highlightInProgress && match.status === 'in_progress') {
+    // Live Focus: Highlight in-progress match (always active with glowing pulsing indicator)
+    if (match.status === 'in_progress') {
       node.classList.add('match-in-progress-highlight');
     }
 
@@ -2166,12 +2198,12 @@
         ? `<button type="button" class="btn-slot-lock ${isSlotLocked ? 'locked' : ''}" data-slot="${slot}" data-round="${rIdx}" data-match="${mIdx}" title="${lockBtnTitle}">
             <i class="fa-solid ${isSlotLocked ? 'fa-lock' : 'fa-lock-open'}"></i>
           </button>`
-        : (isSlotLocked ? `<span class="slot-locked-tag" title="${isZh ? '槽位已锁定' : 'Slot Terkunci'}"><i class="fa-solid fa-lock"></i></span>` : '');
+        : (!isLiveView && isSlotLocked ? `<span class="slot-locked-tag" title="${isZh ? '槽位已锁定' : 'Slot Terkunci'}"><i class="fa-solid fa-lock"></i></span>` : '');
 
       const partnerTagTitle = isZh ? `团队模式 (${teamSize}名选手)` : `Mode Tim (${teamSize} Pemain)`;
 
       return `
-        <div class="match-team-row ${pClass} ${isEmpty ? 'is-empty' : ''} ${isSlotLocked ? 'slot-locked' : ''}" data-slot="${slot}" data-round="${rIdx}" data-match="${mIdx}">
+        <div class="match-team-row ${pClass} ${isEmpty ? 'is-empty' : ''} ${(!isLiveView && isSlotLocked) ? 'slot-locked' : ''}" data-slot="${slot}" data-round="${rIdx}" data-match="${mIdx}">
           <span class="team-seed">${!isEmpty ? (p?.seed || '') : ''}</span>
           <span class="team-name-text ${isFeeder ? 'is-feeder-text' : ''} ${isEmpty ? 'empty-slot' : ''} ${(!isLiveView && !t?.isLocked && !isFeeder) ? 'editable' : ''}" title="${escapeHTML(rawName || (isEmpty ? '' : emptyPlaceholder))}${(!isLiveView && !t?.isLocked && !isFeeder) ? (isZh ? ' (双击可编辑)' : ' (Dobel klik untuk edit)') : ''}">
             ${isUnnamed ? `<span style="opacity:0.4; font-style:italic;">${emptyPlaceholder}</span>` : escapeHTML(displayName)}
@@ -3134,7 +3166,8 @@
 
   function handleToggleHighlight() {
     state.highlightInProgress = !state.highlightInProgress;
-    el.btnToggleHighlight.classList.toggle('active', state.highlightInProgress);
+    if (el.btnToggleHighlight) el.btnToggleHighlight.classList.toggle('active', state.highlightInProgress);
+    if (el.btnLiveHighlight) el.btnLiveHighlight.classList.toggle('active', state.highlightInProgress);
     const t = state.currentTournament;
     if (t) {
       t.inProgressHighlight = state.highlightInProgress;
@@ -4621,23 +4654,39 @@
       const res = await fetch(`/api/tournaments/${tournamentId}`);
       if (!res.ok) throw new Error('Live tournament not found');
       const data = await res.json();
-      const t = data.tournament;
+      const incomingT = data.tournament;
+
+      const hasRounds = (incomingT.rounds || []).length > 0 && incomingT.rounds.some(r => (r.matches || []).length > 0);
+
+      // Manage locked live snapshot:
+      // If tournament is locked, update our stable published snapshot
+      if (incomingT.isLocked) {
+        state.lastLockedLiveTournament = JSON.parse(JSON.stringify(incomingT));
+      } else if (!state.lastLockedLiveTournament && hasRounds) {
+        state.lastLockedLiveTournament = JSON.parse(JSON.stringify(incomingT));
+      }
+
+      // If unlocked, freeze display on the last locked snapshot to avoid syncing draft edits until re-locked
+      const t = (!incomingT.isLocked && state.lastLockedLiveTournament)
+        ? state.lastLockedLiveTournament
+        : incomingT;
+
       state.currentTournament = t;
 
       const needsHydration = !t.rounds || t.rounds.length === 0 || t.rounds.some(r => r.matches.some(m => !m.pairRange));
       if (needsHydration) {
         t.rounds = generateBracketTree(t.participants || [], t.rounds);
       }
-      if (reconcileFeederAdvancements(t)) {
+      if (reconcileFeederAdvancements(t) && incomingT.isLocked) {
         saveTournamentState(false);
       }
 
       el.liveTournamentName.textContent = t.name;
       el.liveGameBadge.textContent = `${t.game || 'Esports'} • Live Spectator View`;
 
-      // Check if tournament has officially started
+      // Check if tournament has officially started or has rounds generated
       const hasMatchAction = (t.rounds || []).some(r => (r.matches || []).some(m => m.status === 'in_progress' || m.status === 'completed'));
-      const isStarted = t.isLocked || t.status === 'in_progress' || hasMatchAction;
+      const isStarted = t.isLocked || t.status === 'in_progress' || hasMatchAction || hasRounds;
 
       if (el.liveNotStartedOverlay) {
         el.liveNotStartedOverlay.classList.toggle('hidden', isStarted);
@@ -5179,6 +5228,11 @@
     const t = state.currentTournament;
     if (!t || !t.rounds) return;
     const isZh = state.lang === 'zh';
+    const isLive = state.currentView === 'live';
+
+    if (el.matchQueueDrawer) {
+      el.matchQueueDrawer.classList.toggle('is-live-mode', isLive);
+    }
 
     const all = getAllTournamentMatches(t);
     const inProgressList = all.filter(item => item.match.status === 'in_progress');
@@ -5327,10 +5381,12 @@
               </div>
 
               <div class="queue-card-actions">
-                <span style="font-size:0.75rem; color:#10b981; font-weight:700;"><i class="fa-solid fa-tower-broadcast"></i> ${isZh ? '比赛进行中' : 'Pertandingan Aktif'}</span>
-                <button type="button" class="btn-queue-action control btn-open-match-ctrl" data-ridx="${item.rIdx}" data-midx="${item.mIdx}">
-                  <i class="fa-solid fa-pen-to-square"></i> ${isZh ? '录入比分 / 管理' : 'Input Skor / Kelola'}
-                </button>
+                <span style="font-size:0.75rem; color:#10b981; font-weight:700;"><i class="fa-solid fa-circle-play"></i> ${isZh ? '比赛进行中' : 'Pertandingan Sedang Berlangsung'}</span>
+                ${!isLive ? `
+                  <button type="button" class="btn-queue-action control btn-open-match-ctrl" data-ridx="${item.rIdx}" data-midx="${item.mIdx}">
+                    <i class="fa-solid fa-pen-to-square"></i> ${isZh ? '录入比分 / 管理' : 'Input Skor / Kelola'}
+                  </button>
+                ` : ''}
               </div>
             </div>
           `;
@@ -5395,30 +5451,38 @@
 
               <div class="queue-card-actions">
                 <div class="queue-sequence-controls">
-                  <span class="queue-seq-label">${isZh ? '出场序号:' : 'Urutan:'}</span>
+                  <span class="queue-seq-label">${isZh ? '出场序号:' : (isLive ? 'Giliran Main:' : 'Urutan:')}</span>
                   <span class="queue-seq-badge">#${seqIdx + 1}</span>
-                  <div class="queue-seq-stepper">
-                    <button type="button" class="btn-seq-nav btn-move-seq-up" data-matchid="${m.id}" ${isFirst ? 'disabled' : ''} title="${isZh ? '出场顺序前移' : 'Naikkan urutan'}">
-                      <i class="fa-solid fa-chevron-up"></i>
+                  ${!isLive ? `
+                    <div class="queue-seq-stepper">
+                      <button type="button" class="btn-seq-nav btn-move-seq-up" data-matchid="${m.id}" ${isFirst ? 'disabled' : ''} title="${isZh ? '出场顺序前移' : 'Naikkan urutan'}">
+                        <i class="fa-solid fa-chevron-up"></i>
+                      </button>
+                      <button type="button" class="btn-seq-nav btn-move-seq-down" data-matchid="${m.id}" ${isLast ? 'disabled' : ''} title="${isZh ? '出场顺序后移' : 'Turunkan urutan'}">
+                        <i class="fa-solid fa-chevron-down"></i>
+                      </button>
+                    </div>
+                  ` : ''}
+                </div>
+                ${!isLive ? `
+                  <div style="display:flex; align-items:center; gap:6px;">
+                    <button type="button" class="btn-queue-action delay btn-delay-queue-match" data-matchid="${m.id}" title="${isZh ? '此比赛延后进行' : 'Tunda pertandingan ini'}">
+                      <i class="fa-solid fa-clock-rotate-left"></i> ${isZh ? '延后' : 'Tunda'}
                     </button>
-                    <button type="button" class="btn-seq-nav btn-move-seq-down" data-matchid="${m.id}" ${isLast ? 'disabled' : ''} title="${isZh ? '出场顺序后移' : 'Turunkan urutan'}">
-                      <i class="fa-solid fa-chevron-down"></i>
+                    ${canStart ? `
+                      <button type="button" class="btn-queue-action start btn-start-queue-match" data-matchid="${m.id}" title="${isZh ? '立即开赛' : 'Mulai Tanding Sekarang'}">
+                        <i class="fa-solid fa-play"></i> ${isZh ? '开始' : 'Mulai'}
+                      </button>
+                    ` : ''}
+                    <button type="button" class="btn-queue-action control btn-open-match-ctrl" data-ridx="${item.rIdx}" data-midx="${item.mIdx}" title="${isZh ? '详情' : 'Detail'}">
+                      <i class="fa-solid fa-gear"></i>
                     </button>
                   </div>
-                </div>
-                <div style="display:flex; align-items:center; gap:6px;">
-                  <button type="button" class="btn-queue-action delay btn-delay-queue-match" data-matchid="${m.id}" title="${isZh ? '此比赛延后进行' : 'Tunda pertandingan ini'}">
-                    <i class="fa-solid fa-clock-rotate-left"></i> ${isZh ? '延后' : 'Tunda'}
-                  </button>
-                  ${canStart ? `
-                    <button type="button" class="btn-queue-action start btn-start-queue-match" data-matchid="${m.id}" title="${isZh ? '立即开赛' : 'Mulai Tanding Sekarang'}">
-                      <i class="fa-solid fa-play"></i> ${isZh ? '开始' : 'Mulai'}
-                    </button>
-                  ` : ''}
-                  <button type="button" class="btn-queue-action control btn-open-match-ctrl" data-ridx="${item.rIdx}" data-midx="${item.mIdx}" title="${isZh ? '详情' : 'Detail'}">
-                    <i class="fa-solid fa-gear"></i>
-                  </button>
-                </div>
+                ` : `
+                  <span style="font-size:0.72rem; color:var(--text-muted);">
+                    <i class="fa-solid fa-clock"></i> ${canStart ? (isZh ? '候场准备' : 'Siap Tanding') : (isZh ? '等待前序胜者' : 'Menunggu Pemenang')}
+                  </span>
+                `}
               </div>
             </div>
           `;
@@ -5484,9 +5548,11 @@
                 <span style="font-size:0.75rem; color:var(--text-muted);">
                   <i class="fa-solid fa-award" style="color:#10b981;"></i> ${isZh ? '胜者:' : 'Pemenang:'} <strong style="color:var(--text-main);">${escapeHTML(isP1Winner ? (m.p1?.name || '') : (isP2Winner ? (m.p2?.name || '') : '-'))}</strong>
                 </span>
-                <button type="button" class="btn-queue-action control btn-open-match-ctrl" data-ridx="${item.rIdx}" data-midx="${item.mIdx}">
-                  <i class="fa-solid fa-pen"></i> ${isZh ? '修改比分' : 'Review / Edit Skor'}
-                </button>
+                ${!isLive ? `
+                  <button type="button" class="btn-queue-action control btn-open-match-ctrl" data-ridx="${item.rIdx}" data-midx="${item.mIdx}">
+                    <i class="fa-solid fa-pen"></i> ${isZh ? '修改比分' : 'Review / Edit Skor'}
+                  </button>
+                ` : ''}
               </div>
             </div>
           `;
@@ -5632,6 +5698,425 @@
     renderBracketStudio();
     renderQueueDrawer();
     showToast(state.lang === 'zh' ? '比赛开始！已移至进行中' : 'Pertandingan dimulai! Masuk ke status In Progress', 'success');
+  }
+
+  // ==================== QUALIFIERS DRAWER (DAFTAR LOLOS BABAK) ====================
+  function getTournamentQualifiersByRound(t) {
+    if (!t || !t.rounds || t.rounds.length === 0) return { rounds: [], champion: null };
+
+    const isZh = state.lang === 'zh';
+    const resultRounds = [];
+
+    const formatRoundTitle = (rTitle, rIdx) => {
+      let clean = rTitle || `Round ${rIdx + 1}`;
+      if (isZh) {
+        if (clean === 'Championship Final') clean = '总决赛';
+        else if (clean === 'Semifinals') clean = '半决赛';
+        else if (clean === 'Quarterfinals') clean = '四分之一决赛';
+        else if (clean === 'Round of 16') clean = '16强赛';
+        else if (clean === 'Round of 32') clean = '32强赛';
+        else if (clean === 'Round of 64') clean = '64强赛';
+        else if (clean === 'Round of 128') clean = '128强赛';
+      }
+      return clean;
+    };
+
+    t.rounds.forEach((round, rIdx) => {
+      const title = formatRoundTitle(round.title, rIdx);
+      const qualifiersMap = new Map();
+
+      round.matches.forEach((m, mIdx) => {
+        processSlot(m.p1, m.feederTopId, m, 'p1');
+        processSlot(m.p2, m.feederBotId, m, 'p2');
+
+        function processSlot(p, feederId, match, slotKey) {
+          const matchLabel = `Match #${mIdx + 1}`;
+          if (p && p.id && !p.isPlaceholder && !p.isUnseeded) {
+            if (!qualifiersMap.has(p.id)) {
+              let via = '';
+              let viaType = 'normal';
+              if (rIdx === 0) {
+                via = isZh ? '第1轮出场选手' : 'Peserta Babak 1';
+              } else if (feederId) {
+                const prevRound = t.rounds[rIdx - 1];
+                const prevMIdx = prevRound ? prevRound.matches.findIndex(pm => pm.id === feederId) : -1;
+                const prevRoundTitle = prevRound ? formatRoundTitle(prevRound.title, rIdx - 1) : `Ronde ${rIdx}`;
+                const prevMatchText = prevMIdx >= 0 ? `${prevRoundTitle} Match #${prevMIdx + 1}` : feederId;
+                via = isZh ? `获胜自 ${prevMatchText}` : `Pemenang ${prevMatchText}`;
+                viaType = 'winner';
+              } else {
+                via = isZh ? '轮空直接晋级 (Bye)' : 'Lolos Otomatis (Bye)';
+                viaType = 'bye';
+              }
+
+              qualifiersMap.set(p.id, {
+                id: p.id,
+                name: (p.name || p.teamName || 'Team').trim(),
+                teamName: (p.teamName || p.name || '').trim(),
+                playerName: (p.playerName || '').trim(),
+                dept: (p.dept || '').trim(),
+                wecom: (p.wecom || '').trim(),
+                seed: p.seed || null,
+                isConfirmed: true,
+                via,
+                viaType,
+                matchId: match.id,
+                matchLabel
+              });
+            }
+          } else {
+            const pendingKey = `pending_${match.id}_${slotKey}`;
+            let via = '';
+            if (feederId) {
+              const prevRound = t.rounds[rIdx - 1];
+              const prevMIdx = prevRound ? prevRound.matches.findIndex(pm => pm.id === feederId) : -1;
+              const prevRoundTitle = prevRound ? formatRoundTitle(prevRound.title, rIdx - 1) : `Ronde ${rIdx}`;
+              via = prevMIdx >= 0 ? `${isZh ? '等待胜者' : 'Menunggu Pemenang'} ${prevRoundTitle} Match #${prevMIdx + 1}` : feederId;
+            } else {
+              via = isZh ? '待定槽位' : 'Slot Menunggu';
+            }
+
+            qualifiersMap.set(pendingKey, {
+              id: pendingKey,
+              name: isZh ? '待定 (等待前序比赛)' : 'TBD (Menunggu Pemenang)',
+              teamName: '',
+              playerName: '',
+              dept: '',
+              wecom: '',
+              seed: null,
+              isConfirmed: false,
+              via,
+              viaType: 'pending',
+              matchId: match.id,
+              matchLabel
+            });
+          }
+        }
+      });
+
+      resultRounds.push({
+        roundIndex: rIdx,
+        roundNumber: round.roundNumber || (rIdx + 1),
+        title,
+        qualifiers: Array.from(qualifiersMap.values())
+      });
+    });
+
+    // Check Champion
+    let champion = null;
+    const finalRound = t.rounds[t.rounds.length - 1];
+    if (finalRound && finalRound.matches.length > 0) {
+      const finalMatch = finalRound.matches.find(m => !m.isBronzeMatch) || finalRound.matches[0];
+      if (finalMatch && finalMatch.status === 'completed' && finalMatch.winnerId) {
+        const champP = finalMatch.winnerId === finalMatch.p1?.id ? finalMatch.p1 : finalMatch.p2;
+        if (champP && champP.id) {
+          champion = {
+            id: champP.id,
+            name: (champP.name || champP.teamName).trim(),
+            teamName: (champP.teamName || champP.name).trim(),
+            playerName: (champP.playerName || '').trim(),
+            dept: (champP.dept || '').trim(),
+            wecom: (champP.wecom || '').trim(),
+            seed: champP.seed || null,
+            via: isZh ? '总决赛获胜 — 最终冠军 🏆' : 'Juara 1 Turnamen (Champion) 🏆',
+            viaType: 'champion',
+            isConfirmed: true
+          };
+        }
+      }
+    }
+
+    return { rounds: resultRounds, champion };
+  }
+
+  function openQualifiersDrawer() {
+    if (!el.qualifiersDrawerOverlay) return;
+    renderQualifiersDrawer();
+    el.qualifiersDrawerOverlay.classList.remove('hidden');
+    requestAnimationFrame(() => {
+      if (el.qualifiersDrawer) el.qualifiersDrawer.classList.add('open');
+    });
+  }
+
+  function closeQualifiersDrawer() {
+    if (!el.qualifiersDrawerOverlay) return;
+    if (el.qualifiersDrawer) el.qualifiersDrawer.classList.remove('open');
+    setTimeout(() => {
+      if (el.qualifiersDrawerOverlay) el.qualifiersDrawerOverlay.classList.add('hidden');
+    }, 280);
+  }
+
+  function renderQualifiersDrawer() {
+    const t = state.currentTournament;
+    if (!t || !el.qualifiersDrawerBody) return;
+    const isZh = state.lang === 'zh';
+    const data = getTournamentQualifiersByRound(t);
+
+    // Update Round Select options
+    if (el.qualifiersRoundSelect) {
+      const currentVal = state.qualifiersRoundFilter || 'all';
+      let optionsHtml = `<option value="all" ${currentVal === 'all' ? 'selected' : ''}>${isZh ? '全部轮次 (All Rounds)' : 'Semua Babak'}</option>`;
+
+      data.rounds.forEach((r) => {
+        const confirmedInRound = r.qualifiers.filter(q => q.isConfirmed).length;
+        const sel = currentVal === String(r.roundIndex) ? 'selected' : '';
+        optionsHtml += `<option value="${r.roundIndex}" ${sel}>${r.title} (${confirmedInRound} Tim)</option>`;
+      });
+
+      if (data.champion) {
+        const sel = currentVal === 'champion' ? 'selected' : '';
+        optionsHtml += `<option value="champion" ${sel}>🏆 ${isZh ? '最终冠军 (Champion)' : 'Juara 1 (Champion)'}</option>`;
+      }
+
+      el.qualifiersRoundSelect.innerHTML = optionsHtml;
+    }
+
+    // Filter rounds to display
+    const filter = state.qualifiersRoundFilter;
+    let roundsToDisplay = data.rounds;
+    if (filter === 'champion') {
+      roundsToDisplay = [];
+    } else if (filter !== 'all') {
+      const rIdx = parseInt(filter, 10);
+      roundsToDisplay = data.rounds.filter(r => r.roundIndex === rIdx);
+    }
+
+    if (roundsToDisplay.length === 0 && (!data.champion || filter !== 'champion')) {
+      el.qualifiersDrawerBody.innerHTML = `
+        <div class="queue-empty-state">
+          <i class="fa-solid fa-ranking-star"></i>
+          <span>${isZh ? '当前选中的轮次暂无晋级数据' : 'Belum ada data tim yang lolos pada babak ini'}</span>
+        </div>
+      `;
+      return;
+    }
+
+    let html = '';
+
+    // If champion exists and (filter === 'all' or filter === 'champion')
+    if (data.champion && (filter === 'all' || filter === 'champion')) {
+      const champ = data.champion;
+      const sub = [champ.playerName, champ.dept].filter(Boolean).join(' • ');
+      html += `
+        <div class="qualifiers-round-section">
+          <div class="qualifiers-round-header">
+            <div class="qualifiers-round-title" style="color:#10b981;">
+              <i class="fa-solid fa-trophy" style="color:#f59e0b;"></i>
+              <span>${isZh ? '最终冠军 (Champion)' : 'Juara 1 Turnamen (Champion)'}</span>
+            </div>
+            <span class="qualifiers-round-count" style="border-color:rgba(16,185,129,0.4); color:#10b981;">1 Tim Juara</span>
+          </div>
+          <div class="qualifiers-list-grid">
+            <div class="qualifier-item is-champion">
+              <div class="qualifier-item-info">
+                <span class="queue-seed-pill sm" style="background:#10b981; color:#000;">${champ.seed ? `#${champ.seed}` : '🏆'}</span>
+                <div class="qualifier-names-block">
+                  <span class="qualifier-team-title">${escapeHTML(champ.name)}</span>
+                  ${sub ? `<span class="qualifier-player-sub">${escapeHTML(sub)}</span>` : ''}
+                </div>
+              </div>
+              <span class="qualifier-source-badge champion"><i class="fa-solid fa-award"></i> ${escapeHTML(champ.via)}</span>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // Render each round
+    roundsToDisplay.forEach(round => {
+      const confirmedCount = round.qualifiers.filter(q => q.isConfirmed).length;
+      const totalCount = round.qualifiers.length;
+
+      html += `
+        <div class="qualifiers-round-section">
+          <div class="qualifiers-round-header">
+            <div class="qualifiers-round-title">
+              <i class="fa-solid fa-layer-group" style="color:var(--primary); font-size:0.75rem;"></i>
+              <span>${escapeHTML(round.title)}</span>
+            </div>
+            <span class="qualifiers-round-count">${confirmedCount} / ${totalCount} ${isZh ? '队已确定' : 'Tim Lolos'}</span>
+          </div>
+          <div class="qualifiers-list-grid">
+            ${round.qualifiers.map(q => {
+              if (q.isConfirmed) {
+                const sub = [q.playerName, q.dept].filter(Boolean).join(' • ');
+                let badgeClass = 'winner';
+                let badgeIcon = 'fa-trophy';
+                if (q.viaType === 'bye') {
+                  badgeClass = 'bye';
+                  badgeIcon = 'fa-star';
+                }
+                return `
+                  <div class="qualifier-item">
+                    <div class="qualifier-item-info">
+                      <span class="queue-seed-pill sm">${q.seed ? `#${q.seed}` : '-'}</span>
+                      <div class="qualifier-names-block">
+                        <span class="qualifier-team-title" title="${escapeHTML(q.name)}">${escapeHTML(q.name)}</span>
+                        ${sub ? `<span class="qualifier-player-sub" title="${escapeHTML(sub)}">${escapeHTML(sub)}</span>` : ''}
+                      </div>
+                    </div>
+                    <span class="qualifier-source-badge ${badgeClass}" title="${escapeHTML(q.via)}">
+                      <i class="fa-solid ${badgeIcon}"></i> ${escapeHTML(q.via)}
+                    </span>
+                  </div>
+                `;
+              } else {
+                return `
+                  <div class="qualifier-item is-pending">
+                    <div class="qualifier-item-info">
+                      <span class="queue-seed-pill sm" style="opacity:0.4;">-</span>
+                      <div class="qualifier-names-block">
+                        <span class="qualifier-team-title" style="color:var(--text-muted); font-style:italic;">${escapeHTML(q.name)}</span>
+                      </div>
+                    </div>
+                    <span class="qualifier-source-badge" style="opacity:0.6;">
+                      <i class="fa-solid fa-clock"></i> ${escapeHTML(q.via)}
+                    </span>
+                  </div>
+                `;
+              }
+            }).join('')}
+          </div>
+        </div>
+      `;
+    });
+
+    el.qualifiersDrawerBody.innerHTML = html;
+  }
+
+  function exportQualifiersCSV() {
+    const tData = state.currentTournament;
+    if (!tData) {
+      showToast('Tidak ada turnamen yang aktif.', 'warning');
+      return;
+    }
+    const data = getTournamentQualifiersByRound(tData);
+    const filter = state.qualifiersRoundFilter;
+    const isZh = state.lang === 'zh';
+
+    let roundsToExport = data.rounds;
+    if (filter === 'champion') {
+      roundsToExport = [];
+    } else if (filter !== 'all') {
+      const rIdx = parseInt(filter, 10);
+      roundsToExport = data.rounds.filter(r => r.roundIndex === rIdx);
+    }
+
+    const rows = [
+      ['Ronde / Babak', 'Seed', 'Nama Tim', 'Nama Pemain / Anggota', 'Departemen', 'WeCom', 'Status Lolos', 'Asal Kemenangan']
+    ];
+
+    if (filter === 'all' || filter === 'champion') {
+      if (data.champion) {
+        rows.push([
+          isZh ? '总决赛' : 'Final',
+          data.champion.seed ? `#${data.champion.seed}` : '-',
+          data.champion.name,
+          data.champion.playerName,
+          data.champion.dept,
+          data.champion.wecom,
+          isZh ? '冠军' : 'Juara 1',
+          data.champion.via
+        ]);
+      }
+    }
+
+    roundsToExport.forEach(r => {
+      r.qualifiers.forEach(q => {
+        if (!q.isConfirmed) return;
+        rows.push([
+          r.title,
+          q.seed ? `#${q.seed}` : '-',
+          q.name,
+          q.playerName,
+          q.dept,
+          q.wecom,
+          isZh ? '已晋级' : 'Lolos',
+          q.via
+        ]);
+      });
+    });
+
+    if (rows.length <= 1) {
+      showToast(isZh ? '当前选中的轮次暂无已确定的晋级队伍' : 'Belum ada tim yang dipastikan lolos pada babak ini.', 'warning');
+      return;
+    }
+
+    const csvContent = '\uFEFF' + rows.map(row =>
+      row.map(val => {
+        const str = String(val ?? '');
+        if (str.includes(',') || str.includes('"') || str.includes('\n')) {
+          return `"${str.replace(/"/g, '""')}"`;
+        }
+        return str;
+      }).join(',')
+    ).join('\r\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const safeTitle = (tData.name || 'Tournament').replace(/[^a-zA-Z0-9_\u4e00-\u9fa5]/g, '_');
+    const filterLabel = filter === 'all' ? 'All_Rounds' : (filter === 'champion' ? 'Champion' : `Round_${parseInt(filter, 10) + 1}`);
+    a.href = url;
+    a.download = `${safeTitle}_Qualifiers_${filterLabel}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    showToast(isZh ? '已成功导出晋级名单 CSV！' : 'Berhasil mengekspor daftar lolos babak ke CSV!', 'success');
+  }
+
+  function exportQualifiersTXT() {
+    const tData = state.currentTournament;
+    if (!tData) {
+      showToast('Tidak ada turnamen yang aktif.', 'warning');
+      return;
+    }
+    const data = getTournamentQualifiersByRound(tData);
+    const filter = state.qualifiersRoundFilter;
+    const isZh = state.lang === 'zh';
+
+    let roundsToExport = data.rounds;
+    if (filter === 'champion') {
+      roundsToExport = [];
+    } else if (filter !== 'all') {
+      const rIdx = parseInt(filter, 10);
+      roundsToExport = data.rounds.filter(r => r.roundIndex === rIdx);
+    }
+
+    const names = [];
+    if (filter === 'champion' && data.champion) {
+      if (data.champion.name) names.push(data.champion.name);
+    } else {
+      roundsToExport.forEach(r => {
+        r.qualifiers.forEach(q => {
+          if (q.isConfirmed && q.name && !names.includes(q.name)) {
+            names.push(q.name);
+          }
+        });
+      });
+    }
+
+    if (names.length === 0) {
+      showToast(isZh ? '当前选中的轮次暂无已确定的晋级队伍' : 'Belum ada tim yang dipastikan lolos pada babak ini.', 'warning');
+      return;
+    }
+
+    const txtContent = names.join('\r\n');
+    const blob = new Blob([txtContent], { type: 'text/plain;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const safeTitle = (tData.name || 'Tournament').replace(/[^a-zA-Z0-9_\u4e00-\u9fa5]/g, '_');
+    const filterLabel = filter === 'all' ? 'All_Rounds' : (filter === 'champion' ? 'Champion' : `Round_${parseInt(filter, 10) + 1}`);
+    a.href = url;
+    a.download = `${safeTitle}_Qualifiers_${filterLabel}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    showToast(isZh ? `已导出 ${names.length} 支队伍名单 TXT (可直接用于生成新对阵图)` : `Berhasil mengekspor ${names.length} nama tim ke berkas TXT (siap untuk generate bagan baru)!`, 'success');
   }
 
   // ==================== AUTO-LOCK TIMER & DEADLINE ENGINE ====================
@@ -6106,6 +6591,43 @@
       });
     }
 
+    // Qualifiers Drawer Event Listeners
+    if (el.btnStudioOpenQualifiers) {
+      el.btnStudioOpenQualifiers.addEventListener('click', openQualifiersDrawer);
+    }
+    if (el.btnCloseQualifiersDrawer) {
+      el.btnCloseQualifiersDrawer.addEventListener('click', closeQualifiersDrawer);
+    }
+    if (el.qualifiersDrawerOverlay) {
+      el.qualifiersDrawerOverlay.addEventListener('click', (e) => {
+        if (e.target === el.qualifiersDrawerOverlay) closeQualifiersDrawer();
+      });
+    }
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && el.qualifiersDrawerOverlay && !el.qualifiersDrawerOverlay.classList.contains('hidden')) {
+        closeQualifiersDrawer();
+      }
+      if ((e.ctrlKey || e.metaKey) && (e.key === 'f' || e.key === 'k' || e.key === 'F' || e.key === 'K')) {
+        const activeTag = document.activeElement ? document.activeElement.tagName.toLowerCase() : '';
+        if (activeTag !== 'input' && activeTag !== 'textarea' && activeTag !== 'select') {
+          e.preventDefault();
+          openMatchSearchModal();
+        }
+      }
+    });
+    if (el.qualifiersRoundSelect) {
+      el.qualifiersRoundSelect.addEventListener('change', (e) => {
+        state.qualifiersRoundFilter = e.target.value;
+        renderQualifiersDrawer();
+      });
+    }
+    if (el.btnExportQualifiersCsv) {
+      el.btnExportQualifiersCsv.addEventListener('click', exportQualifiersCSV);
+    }
+    if (el.btnExportQualifiersTxt) {
+      el.btnExportQualifiersTxt.addEventListener('click', exportQualifiersTXT);
+    }
+
     // Dashboard Search & Filters
     if (el.dashboardSearchInput) el.dashboardSearchInput.addEventListener('input', renderDashboardTournaments);
     document.querySelectorAll('.filter-chip').forEach(chip => {
@@ -6183,8 +6705,8 @@
 
     // Studio Header Action Buttons
     el.btnToggleLock.addEventListener('click', handleToggleLock);
-    el.btnToggleHighlight.addEventListener('click', handleToggleHighlight);
-    el.btnLiveHighlight.addEventListener('click', handleToggleHighlight);
+    if (el.btnToggleHighlight) el.btnToggleHighlight.addEventListener('click', handleToggleHighlight);
+    if (el.btnLiveHighlight) el.btnLiveHighlight.addEventListener('click', handleToggleHighlight);
     el.btnOpenQrModal.addEventListener('click', () => openQrModalForTournament(state.currentTournament.id));
     if (el.btnOpenLiveView) {
       el.btnOpenLiveView.addEventListener('click', (e) => {
