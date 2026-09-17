@@ -440,6 +440,9 @@
           <div class="widget-header">
             <div class="widget-title"><i class="fa-solid fa-chart-pie"></i> <span data-i18n="hud_title">Progres Match</span></div>
             <div class="widget-header-actions">
+              <button type="button" class="btn-widget-action btn-open-queue-drawer" id="btn-open-queue-drawer-header" title="Buka Detail Antrian (Order of Play)">
+                <i class="fa-solid fa-list-ol"></i>
+              </button>
               <span class="widget-pct" id="studio-progress-pct">0%</span>
               <button type="button" class="btn-widget-toggle" id="btn-studio-hud-toggle" title="Kecilkan / Buka Panel Progres">
                 <i class="fa-solid fa-chevron-down"></i>
@@ -458,7 +461,12 @@
               <div class="widget-active-names" id="studio-active-names">Belum ada match aktif</div>
             </div>
             <div class="widget-up-next-box" id="studio-up-next-box">
-              <div class="widget-up-next-title" id="studio-up-next-title"><span class="pulse-indicator-amber"></span> <span data-i18n="hud_next">Akan Main Selanjutnya:</span></div>
+              <div class="widget-up-next-title-row" style="display:flex; align-items:center; justify-content:space-between; margin-bottom:4px;">
+                <div class="widget-up-next-title" id="studio-up-next-title" style="margin-bottom:0;"><span class="pulse-indicator-amber"></span> <span data-i18n="hud_next">Akan Main Selanjutnya:</span></div>
+                <button type="button" class="btn-hud-expand-queue btn-open-queue-drawer" id="btn-open-queue-drawer" title="Buka Detail Antrian & Urutan Tanding">
+                  <i class="fa-solid fa-table-list"></i> <span data-i18n="hud_order_btn">Antrian</span>
+                </button>
+              </div>
               <div class="widget-up-next-names" id="studio-up-next-names">Menunggu giliran</div>
             </div>
           </div>
@@ -673,6 +681,9 @@
         <div class="widget-header">
           <div class="widget-title"><i class="fa-solid fa-chart-pie"></i> <span data-i18n="hud_title">Progres Match</span></div>
           <div class="widget-header-actions">
+            <button type="button" class="btn-widget-action btn-open-queue-drawer" id="btn-live-open-queue-header" title="Buka Detail Antrian (Order of Play)">
+              <i class="fa-solid fa-list-ol"></i>
+            </button>
             <span class="widget-pct" id="live-progress-pct">0%</span>
             <button type="button" class="btn-widget-toggle" id="btn-live-hud-toggle" title="Kecilkan / Buka Panel Progres">
               <i class="fa-solid fa-chevron-down"></i>
@@ -691,7 +702,12 @@
             <div class="widget-active-names" id="live-active-names">Belum ada match aktif</div>
           </div>
           <div class="widget-up-next-box" id="live-up-next-box">
-            <div class="widget-up-next-title" id="live-up-next-title"><span class="pulse-indicator-amber"></span> <span data-i18n="hud_next">Akan Main Selanjutnya:</span></div>
+            <div class="widget-up-next-title-row" style="display:flex; align-items:center; justify-content:space-between; margin-bottom:4px;">
+              <div class="widget-up-next-title" id="live-up-next-title" style="margin-bottom:0;"><span class="pulse-indicator-amber"></span> <span data-i18n="hud_next">Akan Main Selanjutnya:</span></div>
+              <button type="button" class="btn-hud-expand-queue btn-open-queue-drawer" id="btn-live-open-queue" title="Buka Detail Antrian & Urutan Tanding">
+                <i class="fa-solid fa-table-list"></i> <span data-i18n="hud_order_btn">Antrian</span>
+              </button>
+            </div>
             <div class="widget-up-next-names" id="live-up-next-names">Menunggu giliran</div>
           </div>
         </div>
@@ -1171,6 +1187,98 @@
           <button type="submit" class="btn btn-primary"><i class="fa-solid fa-floppy-disk"></i> <span data-i18n="btn_save_changes">Simpan Perubahan</span></button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- ==================== DRAWER: MATCH QUEUE, ORDER OF PLAY & FINISHED MATCHES ==================== -->
+  <div id="match-queue-drawer-overlay" class="queue-drawer-overlay hidden">
+    <div id="match-queue-drawer" class="queue-drawer-panel">
+      <!-- Drawer Header -->
+      <div class="queue-drawer-header">
+        <div class="queue-drawer-header-info">
+          <div class="queue-drawer-icon">
+            <i class="fa-solid fa-list-ol"></i>
+          </div>
+          <div>
+            <h3 class="queue-drawer-title" data-i18n="queue_drawer_title">Urutan & Antrian Pertandingan</h3>
+            <span class="queue-drawer-subtitle" data-i18n="queue_drawer_sub">Order of Play, Pengaturan Antrian & Riwayat Match</span>
+          </div>
+        </div>
+        <button type="button" class="btn-close-queue-drawer" id="btn-close-queue-drawer" title="Tutup Drawer">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <!-- Drawer Tabs Navigation -->
+      <div class="queue-drawer-tabs">
+        <button type="button" class="queue-tab-btn active" id="btn-queue-tab-active" data-tab="active">
+          <i class="fa-solid fa-play"></i>
+          <span data-i18n="tab_queue_active">Antrian & Sedang Main</span>
+          <span class="queue-badge-count" id="queue-active-count">0</span>
+        </button>
+        <button type="button" class="queue-tab-btn" id="btn-queue-tab-finished" data-tab="finished">
+          <i class="fa-solid fa-flag-checkered"></i>
+          <span data-i18n="tab_queue_finished">Pertandingan Selesai</span>
+          <span class="queue-badge-count gray" id="queue-finished-count">0</span>
+        </button>
+      </div>
+
+      <!-- Drawer Content Panels -->
+      <div class="queue-drawer-body">
+        <!-- Panel 1: Active & Upcoming Queue -->
+        <div id="queue-panel-active" class="queue-tab-panel active">
+          <!-- Section 1: In Progress Matches -->
+          <div class="queue-section-header">
+            <div class="queue-section-title in-progress">
+              <span class="pulse-indicator"></span>
+              <span data-i18n="queue_in_progress_title">Sedang Berlangsung (In Progress)</span>
+            </div>
+            <span class="queue-section-badge green" id="in-progress-badge-count">0 Match</span>
+          </div>
+          <div id="queue-in-progress-list" class="queue-cards-list">
+            <!-- Rendered dynamically -->
+          </div>
+
+          <!-- Divider Between In Progress and Next Up / Queue -->
+          <div class="queue-section-divider">
+            <div class="divider-line"></div>
+            <div class="divider-pill">
+              <i class="fa-solid fa-forward-step"></i>
+              <span data-i18n="queue_next_up_divider">AKAN MAIN SELANJUTNYA (ANTRIAN TANDING)</span>
+            </div>
+            <div class="divider-line"></div>
+          </div>
+
+          <!-- Section 2: Next Up & Upcoming Queue with Reordering -->
+          <div class="queue-section-header">
+            <div class="queue-section-title next-up">
+              <span class="pulse-indicator-amber"></span>
+              <span data-i18n="queue_next_up_title">Antrian & Urutan Pertandingan (Sequence)</span>
+            </div>
+            <span class="queue-section-badge amber" id="next-up-badge-count">0 Match</span>
+          </div>
+          <div class="queue-helper-text" data-i18n="queue_helper_text">
+            <i class="fa-solid fa-circle-info"></i> Gunakan tombol panah atau ganti nomor urut untuk mengubah giliran tanding jika ada match yang tertunda (delay).
+          </div>
+          <div id="queue-next-up-list" class="queue-cards-list">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+
+        <!-- Panel 2: Finished Matches -->
+        <div id="queue-panel-finished" class="queue-tab-panel hidden">
+          <div class="queue-section-header">
+            <div class="queue-section-title finished">
+              <i class="fa-solid fa-trophy" style="color:var(--primary);"></i>
+              <span data-i18n="queue_finished_title">Daftar Pertandingan Selesai</span>
+            </div>
+            <span class="queue-section-badge gray" id="finished-badge-count">0 Match</span>
+          </div>
+          <div id="queue-finished-list" class="queue-cards-list">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 

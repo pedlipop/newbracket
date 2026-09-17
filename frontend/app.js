@@ -222,7 +222,19 @@
       btn_save_changes: 'Simpan Perubahan',
       btn_edit: 'Edit',
       report_empty_title: 'Tidak Ada Data Pendaftar',
-      report_empty_desc: 'Belum ada peserta yang mendaftar melalui link atau form.'
+      report_empty_desc: 'Belum ada peserta yang mendaftar melalui link atau form.',
+      queue_drawer_title: 'Urutan & Antrian Pertandingan',
+      queue_drawer_sub: 'Order of Play, Pengaturan Antrian & Riwayat Match',
+      tab_queue_active: 'Antrian & Sedang Main',
+      tab_queue_finished: 'Pertandingan Selesai',
+      queue_in_progress_title: 'Sedang Berlangsung (In Progress)',
+      queue_next_up_divider: 'AKAN MAIN SELANJUTNYA (ANTRIAN TANDING)',
+      queue_next_up_title: 'Antrian & Urutan Pertandingan (Sequence)',
+      queue_helper_text: 'Gunakan tombol panah atau ganti nomor urut untuk mengubah giliran tanding jika ada match yang tertunda (delay).',
+      queue_finished_title: 'Daftar Pertandingan Selesai',
+      hud_order_btn: 'Antrian',
+      btn_delay_match: 'Tunda',
+      btn_start_match: 'Mulai Tanding'
     },
     zh: {
       portal_title: 'CNGR 赛事中心',
@@ -409,7 +421,19 @@
       report_empty_desc: '暂无选手通过报名链接或表单提交报名。',
       label_match_note: '比赛备注（选填）',
       nav_logs: '对阵日志',
-      drawer_logs: '对阵变更日志'
+      drawer_logs: '对阵变更日志',
+      queue_drawer_title: '比赛出场顺序与队列',
+      queue_drawer_sub: '出场顺序 (Order of Play)、队列调整与已完赛记录',
+      tab_queue_active: '待开赛与进行中',
+      tab_queue_finished: '已完赛记录',
+      queue_in_progress_title: '正在进行的比赛 (In Progress)',
+      queue_next_up_divider: '接下来出场（比赛队列）',
+      queue_next_up_title: '出场顺序与比赛队列 (Sequence)',
+      queue_helper_text: '如有比赛延迟，可使用上下箭头或更改序号调整出场顺序。',
+      queue_finished_title: '已完成比赛列表',
+      hud_order_btn: '队列',
+      btn_delay_match: '延后',
+      btn_start_match: '开始比赛'
     }
   };
 
@@ -708,6 +732,23 @@
     el.btnClosedViewLive = document.getElementById('btn-closed-view-live');
     el.successLiveUrl = document.getElementById('success-live-url');
     el.btnCopySuccessLive = document.getElementById('btn-copy-success-live');
+
+    // Match Queue Drawer Elements
+    el.matchQueueDrawerOverlay = document.getElementById('match-queue-drawer-overlay');
+    el.matchQueueDrawer = document.getElementById('match-queue-drawer');
+    el.btnCloseQueueDrawer = document.getElementById('btn-close-queue-drawer');
+    el.btnQueueTabActive = document.getElementById('btn-queue-tab-active');
+    el.btnQueueTabFinished = document.getElementById('btn-queue-tab-finished');
+    el.queuePanelActive = document.getElementById('queue-panel-active');
+    el.queuePanelFinished = document.getElementById('queue-panel-finished');
+    el.queueActiveCount = document.getElementById('queue-active-count');
+    el.queueFinishedCount = document.getElementById('queue-finished-count');
+    el.inProgressBadgeCount = document.getElementById('in-progress-badge-count');
+    el.nextUpBadgeCount = document.getElementById('next-up-badge-count');
+    el.finishedBadgeCount = document.getElementById('finished-badge-count');
+    el.queueInProgressList = document.getElementById('queue-in-progress-list');
+    el.queueNextUpList = document.getElementById('queue-next-up-list');
+    el.queueFinishedList = document.getElementById('queue-finished-list');
 
     el.toastContainer = document.getElementById('toast-container');
   }
@@ -5040,6 +5081,445 @@
         });
       }
     }
+
+    // Automatically refresh Queue Drawer if currently open
+    if (el.matchQueueDrawerOverlay && !el.matchQueueDrawerOverlay.classList.contains('hidden')) {
+      renderQueueDrawer();
+    }
+  }
+
+  // ==================== MATCH QUEUE & ORDER OF PLAY DRAWER ====================
+  function openMatchQueueDrawer() {
+    if (!el.matchQueueDrawerOverlay) return;
+    el.matchQueueDrawerOverlay.classList.remove('hidden');
+    renderQueueDrawer();
+  }
+
+  function closeMatchQueueDrawer() {
+    if (!el.matchQueueDrawerOverlay) return;
+    el.matchQueueDrawerOverlay.classList.add('hidden');
+  }
+
+  function switchQueueTab(tabName) {
+    if (tabName === 'active') {
+      if (el.btnQueueTabActive) el.btnQueueTabActive.classList.add('active');
+      if (el.btnQueueTabFinished) el.btnQueueTabFinished.classList.remove('active');
+      if (el.queuePanelActive) el.queuePanelActive.classList.remove('hidden');
+      if (el.queuePanelFinished) el.queuePanelFinished.classList.add('hidden');
+    } else {
+      if (el.btnQueueTabActive) el.btnQueueTabActive.classList.remove('active');
+      if (el.btnQueueTabFinished) el.btnQueueTabFinished.classList.add('active');
+      if (el.queuePanelActive) el.queuePanelActive.classList.add('hidden');
+      if (el.queuePanelFinished) el.queuePanelFinished.classList.remove('hidden');
+    }
+    renderQueueDrawer();
+  }
+
+  function getAllTournamentMatches(tournament) {
+    if (!tournament || !tournament.rounds) return [];
+    const all = [];
+    (tournament.rounds || []).forEach((r, rIdx) => {
+      (r.matches || []).forEach((m, mIdx) => {
+        all.push({
+          match: m,
+          roundTitle: r.title,
+          roundNum: r.roundNumber,
+          rIdx,
+          mIdx
+        });
+      });
+    });
+    if (tournament.thirdPlaceMatch) {
+      all.push({
+        match: tournament.thirdPlaceMatch,
+        roundTitle: state.lang === 'zh' ? '季军赛' : 'Bronze Match',
+        roundNum: 99,
+        rIdx: -1,
+        mIdx: -1
+      });
+    }
+    return all;
+  }
+
+  function getUpcomingQueueMatches(tournament) {
+    const all = getAllTournamentMatches(tournament);
+    // Filter matches that are neither in_progress nor completed
+    const upcoming = all.filter(item => item.match.status !== 'in_progress' && item.match.status !== 'completed');
+
+    // Sort by sequenceOrder if set, else by default bracket order
+    upcoming.sort((a, b) => {
+      const seqA = (a.match.sequenceOrder !== undefined && a.match.sequenceOrder !== null)
+        ? a.match.sequenceOrder
+        : ((a.rIdx + 1) * 100 + (a.mIdx + 1));
+      const seqB = (b.match.sequenceOrder !== undefined && b.match.sequenceOrder !== null)
+        ? b.match.sequenceOrder
+        : ((b.rIdx + 1) * 100 + (b.mIdx + 1));
+      return seqA - seqB;
+    });
+
+    // Ensure consecutive sequenceOrder
+    upcoming.forEach((item, idx) => {
+      item.match.sequenceOrder = idx + 1;
+    });
+
+    return upcoming;
+  }
+
+  function renderQueueDrawer() {
+    const t = state.currentTournament;
+    if (!t || !t.rounds) return;
+    const isZh = state.lang === 'zh';
+
+    const all = getAllTournamentMatches(t);
+    const inProgressList = all.filter(item => item.match.status === 'in_progress');
+    const finishedList = all.filter(item => item.match.status === 'completed');
+    const upcomingList = getUpcomingQueueMatches(t);
+
+    // Update Counts
+    if (el.queueActiveCount) el.queueActiveCount.textContent = inProgressList.length + upcomingList.length;
+    if (el.queueFinishedCount) el.queueFinishedCount.textContent = finishedList.length;
+    if (el.inProgressBadgeCount) el.inProgressBadgeCount.textContent = `${inProgressList.length} Match`;
+    if (el.nextUpBadgeCount) el.nextUpBadgeCount.textContent = `${upcomingList.length} Match`;
+    if (el.finishedBadgeCount) el.finishedBadgeCount.textContent = `${finishedList.length} Match`;
+
+    // Helper for formatting round titles
+    const formatRound = (rTitle, mIdx, isBronze) => {
+      if (isBronze) return isZh ? '季军争夺战' : 'Perebutan Juara 3 (Bronze)';
+      let clean = rTitle || 'Match';
+      if (isZh) {
+        if (clean === 'Championship Final') clean = '总决赛';
+        else if (clean === 'Semifinals') clean = '半决赛';
+        else if (clean === 'Quarterfinals') clean = '四分之一决赛';
+        else if (clean === 'Round of 16') clean = '16强赛';
+        else if (clean === 'Round of 32') clean = '32强赛';
+        else if (clean === 'Round of 64') clean = '64强赛';
+        else if (/^Round\s+(\d+)$/i.test(clean)) clean = clean.replace(/^Round\s+(\d+)$/i, '第 $1 轮');
+      }
+      return `${clean} • ${isZh ? `第 ${mIdx + 1} 场` : `Match #${mIdx + 1}`}`;
+    };
+
+    // Helper for rendering participant details inside queue cards
+    const renderParticipantItem = (p, score, isWinner, isWaiting) => {
+      if (!p || !p.name || isWaiting) {
+        return `
+          <div class="queue-participant-row waiting">
+            <div class="queue-participant-info">
+              <span class="queue-seed-pill">-</span>
+              <div class="queue-p-names">
+                <span class="queue-p-main-name text-muted" style="font-style:italic;">${isZh ? '待定 (等待前序胜者)' : 'TBD (Menunggu Pemenang)'}</span>
+                <span class="queue-p-sub-details">${isZh ? '上一轮胜者进入' : 'Lolos dari babak sebelumnya'}</span>
+              </div>
+            </div>
+            ${score !== null ? `<span class="queue-score-pill">${score}</span>` : ''}
+          </div>
+        `;
+      }
+
+      const seedBadge = p.seed ? `<span class="queue-seed-pill">#${p.seed}</span>` : `<span class="queue-seed-pill">-</span>`;
+      const deptPart = p.dept ? p.dept : '';
+      const playerPart = p.playerName && p.playerName !== p.name ? p.playerName : '';
+      const subInfo = [deptPart, playerPart].filter(Boolean).join(' • ');
+
+      return `
+        <div class="queue-participant-row ${isWinner ? 'winner' : ''}">
+          <div class="queue-participant-info">
+            ${seedBadge}
+            <div class="queue-p-names">
+              <span class="queue-p-main-name" title="${escapeHTML(p.name)}">
+                ${escapeHTML(p.name)}
+                ${isWinner ? `<i class="fa-solid fa-trophy" style="color:#10b981; margin-left:4px; font-size:0.75rem;"></i>` : ''}
+              </span>
+              ${subInfo ? `<span class="queue-p-sub-details" title="${escapeHTML(subInfo)}">${escapeHTML(subInfo)}</span>` : ''}
+            </div>
+          </div>
+          ${score !== null ? `<span class="queue-score-pill ${isWinner ? 'winner' : ''}">${score}</span>` : ''}
+        </div>
+      `;
+    };
+
+    // 1. Render In Progress List
+    if (el.queueInProgressList) {
+      if (inProgressList.length === 0) {
+        el.queueInProgressList.innerHTML = `
+          <div class="queue-empty-state">
+            <i class="fa-regular fa-circle-play"></i>
+            <span>${isZh ? '暂无正在进行中的比赛' : 'Belum ada match yang sedang bertanding di lapangan'}</span>
+          </div>
+        `;
+      } else {
+        el.queueInProgressList.innerHTML = inProgressList.map(item => {
+          const m = item.match;
+          const label = formatRound(item.roundTitle, item.mIdx, m.isBronzeMatch);
+          const s1 = (m.score1 !== '' && m.score1 !== null && m.score1 !== undefined) ? m.score1 : 0;
+          const s2 = (m.score2 !== '' && m.score2 !== null && m.score2 !== undefined) ? m.score2 : 0;
+
+          return `
+            <div class="queue-match-card is-in-progress" data-matchid="${m.id}">
+              <div class="queue-card-topbar">
+                <span class="queue-match-meta"><i class="fa-solid fa-gamepad" style="color:#10b981;"></i> ${escapeHTML(label)}</span>
+                <span class="queue-status-tag live"><span class="pulse-dot-live"></span> LIVE</span>
+              </div>
+              <div class="queue-participants-container">
+                ${renderParticipantItem(m.p1, s1, false, false)}
+                ${renderParticipantItem(m.p2, s2, false, false)}
+              </div>
+              <div class="queue-card-actions">
+                <span style="font-size:0.75rem; color:#10b981; font-weight:700;"><i class="fa-solid fa-tower-broadcast"></i> ${isZh ? '比赛进行中' : 'Pertandingan Aktif'}</span>
+                <button type="button" class="btn-queue-action control btn-open-match-ctrl" data-ridx="${item.rIdx}" data-midx="${item.mIdx}">
+                  <i class="fa-solid fa-pen-to-square"></i> ${isZh ? '录入比分 / 管理' : 'Input Skor / Kelola'}
+                </button>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+    }
+
+    // 2. Render Upcoming & Next Up List
+    if (el.queueNextUpList) {
+      if (upcomingList.length === 0) {
+        el.queueNextUpList.innerHTML = `
+          <div class="queue-empty-state">
+            <i class="fa-solid fa-calendar-check"></i>
+            <span>${isZh ? '队列中暂无待开赛比赛' : 'Semua pertandingan sudah berjalan atau selesai'}</span>
+          </div>
+        `;
+      } else {
+        el.queueNextUpList.innerHTML = upcomingList.map((item, seqIdx) => {
+          const m = item.match;
+          const label = formatRound(item.roundTitle, item.mIdx, m.isBronzeMatch);
+          const isP1Waiting = !m.p1 || !m.p1.id || m.p1.isPlaceholder || m.p1.isUnseeded;
+          const isP2Waiting = !m.p2 || !m.p2.id || m.p2.isPlaceholder || m.p2.isUnseeded;
+          const canStart = !isP1Waiting && !isP2Waiting;
+          const isFirst = seqIdx === 0;
+          const isLast = seqIdx === upcomingList.length - 1;
+
+          return `
+            <div class="queue-match-card is-next-up" data-matchid="${m.id}">
+              <div class="queue-card-topbar">
+                <span class="queue-match-meta"><i class="fa-solid fa-clock" style="color:#f59e0b;"></i> ${escapeHTML(label)}</span>
+                <span class="queue-status-tag next">${m.status === 'next_up' ? 'NEXT UP' : `QUEUE #${seqIdx + 1}`}</span>
+              </div>
+              <div class="queue-participants-container">
+                ${renderParticipantItem(m.p1, null, false, isP1Waiting)}
+                ${renderParticipantItem(m.p2, null, false, isP2Waiting)}
+              </div>
+              <div class="queue-card-actions">
+                <div class="queue-sequence-controls">
+                  <span class="queue-seq-label">${isZh ? '出场序号:' : 'Urutan:'}</span>
+                  <span class="queue-seq-badge">#${seqIdx + 1}</span>
+                  <div class="queue-seq-stepper">
+                    <button type="button" class="btn-seq-nav btn-move-seq-up" data-matchid="${m.id}" ${isFirst ? 'disabled' : ''} title="${isZh ? '出场顺序前移' : 'Naikkan urutan'}">
+                      <i class="fa-solid fa-chevron-up"></i>
+                    </button>
+                    <button type="button" class="btn-seq-nav btn-move-seq-down" data-matchid="${m.id}" ${isLast ? 'disabled' : ''} title="${isZh ? '出场顺序后移' : 'Turunkan urutan'}">
+                      <i class="fa-solid fa-chevron-down"></i>
+                    </button>
+                  </div>
+                </div>
+                <div style="display:flex; align-items:center; gap:6px;">
+                  <button type="button" class="btn-queue-action delay btn-delay-queue-match" data-matchid="${m.id}" title="${isZh ? '此比赛延后进行' : 'Tunda pertandingan ini'}">
+                    <i class="fa-solid fa-clock-rotate-left"></i> ${isZh ? '延后' : 'Tunda'}
+                  </button>
+                  ${canStart ? `
+                    <button type="button" class="btn-queue-action start btn-start-queue-match" data-matchid="${m.id}" title="${isZh ? '立即开赛' : 'Mulai Tanding Sekarang'}">
+                      <i class="fa-solid fa-play"></i> ${isZh ? '开始' : 'Mulai'}
+                    </button>
+                  ` : ''}
+                  <button type="button" class="btn-queue-action control btn-open-match-ctrl" data-ridx="${item.rIdx}" data-midx="${item.mIdx}" title="${isZh ? '详情' : 'Detail'}">
+                    <i class="fa-solid fa-gear"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+    }
+
+    // 3. Render Finished Matches List
+    if (el.queueFinishedList) {
+      if (finishedList.length === 0) {
+        el.queueFinishedList.innerHTML = `
+          <div class="queue-empty-state">
+            <i class="fa-solid fa-trophy"></i>
+            <span>${isZh ? '暂无已完赛的比赛记录' : 'Belum ada pertandingan yang selesai'}</span>
+          </div>
+        `;
+      } else {
+        // Show in reverse order (most recent first)
+        const reversed = [...finishedList].reverse();
+        el.queueFinishedList.innerHTML = reversed.map(item => {
+          const m = item.match;
+          const label = formatRound(item.roundTitle, item.mIdx, m.isBronzeMatch);
+          const isP1Winner = m.winnerId && m.winnerId === m.p1?.id;
+          const isP2Winner = m.winnerId && m.winnerId === m.p2?.id;
+
+          return `
+            <div class="queue-match-card is-finished" data-matchid="${m.id}">
+              <div class="queue-card-topbar">
+                <span class="queue-match-meta"><i class="fa-solid fa-circle-check" style="color:#3b82f6;"></i> ${escapeHTML(label)}</span>
+                <span class="queue-status-tag done"><i class="fa-solid fa-check"></i> FINISHED</span>
+              </div>
+              <div class="queue-participants-container">
+                ${renderParticipantItem(m.p1, m.score1 ?? 0, isP1Winner, false)}
+                ${renderParticipantItem(m.p2, m.score2 ?? 0, isP2Winner, false)}
+              </div>
+              <div class="queue-card-actions">
+                <span style="font-size:0.75rem; color:var(--text-muted);">
+                  <i class="fa-solid fa-award" style="color:#10b981;"></i> ${isZh ? '胜者:' : 'Pemenang:'} <strong style="color:var(--text-main);">${escapeHTML(isP1Winner ? (m.p1?.name || '') : (isP2Winner ? (m.p2?.name || '') : '-'))}</strong>
+                </span>
+                <button type="button" class="btn-queue-action control btn-open-match-ctrl" data-ridx="${item.rIdx}" data-midx="${item.mIdx}">
+                  <i class="fa-solid fa-pen"></i> ${isZh ? '修改比分' : 'Review / Edit Skor'}
+                </button>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+    }
+
+    // Attach listeners inside drawer
+    attachQueueDrawerEvents();
+  }
+
+  function attachQueueDrawerEvents() {
+    if (!el.matchQueueDrawer) return;
+
+    // Up button
+    el.matchQueueDrawer.querySelectorAll('.btn-move-seq-up').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const matchId = btn.dataset.matchid;
+        moveMatchSequence(matchId, -1);
+      });
+    });
+
+    // Down button
+    el.matchQueueDrawer.querySelectorAll('.btn-move-seq-down').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const matchId = btn.dataset.matchid;
+        moveMatchSequence(1, matchId, -1); // see below
+      });
+    });
+
+    // Up/Down buttons direct handler
+    el.matchQueueDrawer.querySelectorAll('.btn-move-seq-up').forEach(btn => {
+      btn.onclick = (e) => {
+        e.stopPropagation();
+        moveMatchSequence(btn.dataset.matchid, -1);
+      };
+    });
+
+    el.matchQueueDrawer.querySelectorAll('.btn-move-seq-down').forEach(btn => {
+      btn.onclick = (e) => {
+        e.stopPropagation();
+        moveMatchSequence(btn.dataset.matchid, 1);
+      };
+    });
+
+    // Delay button
+    el.matchQueueDrawer.querySelectorAll('.btn-delay-queue-match').forEach(btn => {
+      btn.onclick = (e) => {
+        e.stopPropagation();
+        delayMatchSequence(btn.dataset.matchid);
+      };
+    });
+
+    // Start match button
+    el.matchQueueDrawer.querySelectorAll('.btn-start-queue-match').forEach(btn => {
+      btn.onclick = (e) => {
+        e.stopPropagation();
+        startMatchFromQueue(btn.dataset.matchid);
+      };
+    });
+
+    // Open Match Control modal from drawer
+    el.matchQueueDrawer.querySelectorAll('.btn-open-match-ctrl').forEach(btn => {
+      btn.onclick = (e) => {
+        e.stopPropagation();
+        const rIdx = parseInt(btn.dataset.ridx, 10);
+        const mIdx = parseInt(btn.dataset.midx, 10);
+        const t = state.currentTournament;
+        if (!t) return;
+        let match = null;
+        if (rIdx === -1 && mIdx === -1) {
+          match = t.thirdPlaceMatch;
+        } else if (t.rounds[rIdx] && t.rounds[rIdx].matches) {
+          match = t.rounds[rIdx].matches[mIdx];
+        }
+        if (match) {
+          openMatchControlModal(match, rIdx, mIdx);
+        }
+      };
+    });
+  }
+
+  function moveMatchSequence(matchId, direction) {
+    const t = state.currentTournament;
+    if (!t) return;
+    const upcoming = getUpcomingQueueMatches(t);
+    const idx = upcoming.findIndex(item => item.match.id === matchId);
+    if (idx < 0) return;
+    const targetIdx = idx + direction;
+    if (targetIdx < 0 || targetIdx >= upcoming.length) return;
+
+    // Swap sequence orders
+    const curSeq = upcoming[idx].match.sequenceOrder;
+    upcoming[idx].match.sequenceOrder = upcoming[targetIdx].match.sequenceOrder;
+    upcoming[targetIdx].match.sequenceOrder = curSeq;
+
+    saveTournamentState(false);
+    renderQueueDrawer();
+    updateMatchProgressHUD(t.rounds, false);
+    showToast(state.lang === 'zh' ? '比赛出场顺序已更新' : 'Urutan pertandingan diperbarui', 'info');
+  }
+
+  function delayMatchSequence(matchId) {
+    const t = state.currentTournament;
+    if (!t) return;
+    const upcoming = getUpcomingQueueMatches(t);
+    const idx = upcoming.findIndex(item => item.match.id === matchId);
+    if (idx < 0) return;
+
+    if (idx < upcoming.length - 1) {
+      const cur = upcoming[idx].match;
+      const nxt = upcoming[idx + 1].match;
+      const tmp = cur.sequenceOrder;
+      cur.sequenceOrder = nxt.sequenceOrder;
+      nxt.sequenceOrder = tmp;
+    } else {
+      showToast(state.lang === 'zh' ? '该比赛已在队列最后' : 'Pertandingan sudah berada di urutan paling akhir', 'info');
+      return;
+    }
+
+    saveTournamentState(false);
+    renderQueueDrawer();
+    updateMatchProgressHUD(t.rounds, false);
+    showToast(state.lang === 'zh' ? '比赛已延后出场' : 'Pertandingan telah ditunda ke urutan berikutnya', 'warning');
+  }
+
+  function startMatchFromQueue(matchId) {
+    const t = state.currentTournament;
+    if (!t) return;
+    const all = getAllTournamentMatches(t);
+    const item = all.find(x => x.match.id === matchId);
+    if (!item || !item.match) return;
+
+    item.match.status = 'in_progress';
+    if (t.status === 'setup') {
+      t.status = 'in_progress';
+      if (el.studioStatusBadge) {
+        el.studioStatusBadge.className = 'badge badge-in_progress';
+        el.studioStatusBadge.textContent = 'IN PROGRESS';
+      }
+    }
+
+    saveTournamentState(false);
+    renderBracketStudio();
+    renderQueueDrawer();
+    showToast(state.lang === 'zh' ? '比赛开始！已移至进行中' : 'Pertandingan dimulai! Masuk ke status In Progress', 'success');
   }
 
   // ==================== AUTO-LOCK TIMER & DEADLINE ENGINE ====================
@@ -5469,6 +5949,41 @@
         e.stopPropagation();
         liveHud.classList.toggle('collapsed');
       });
+    }
+
+    // Match Queue Drawer Triggers & Controls
+    document.querySelectorAll('.btn-open-queue-drawer').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        openMatchQueueDrawer();
+      });
+    });
+
+    if (el.btnCloseQueueDrawer) {
+      el.btnCloseQueueDrawer.addEventListener('click', closeMatchQueueDrawer);
+    }
+
+    if (el.matchQueueDrawerOverlay) {
+      el.matchQueueDrawerOverlay.addEventListener('click', (e) => {
+        if (e.target === el.matchQueueDrawerOverlay) {
+          closeMatchQueueDrawer();
+        }
+      });
+    }
+
+    // Escape key closes queue drawer
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && el.matchQueueDrawerOverlay && !el.matchQueueDrawerOverlay.classList.contains('hidden')) {
+        closeMatchQueueDrawer();
+      }
+    });
+
+    if (el.btnQueueTabActive) {
+      el.btnQueueTabActive.addEventListener('click', () => switchQueueTab('active'));
+    }
+
+    if (el.btnQueueTabFinished) {
+      el.btnQueueTabFinished.addEventListener('click', () => switchQueueTab('finished'));
     }
 
     // Dashboard Search & Filters
