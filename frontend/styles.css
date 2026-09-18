@@ -517,10 +517,12 @@ button {
 }
 
 /* ==================== VIEW 2: BRACKET STUDIO ==================== */
-.studio-header-left, .studio-header-right {
+.studio-header-left, .studio-header-right, .live-header-right {
   display: flex;
   align-items: center;
   gap: 0.75rem;
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 
 .tournament-title-wrapper {
@@ -1484,8 +1486,30 @@ button {
   100% { transform: scale(0.95); opacity: 0.8; }
 }
 
-.live-tag {
+.live-header {
   display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.live-header-right {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  flex-shrink: 0;
+  flex-wrap: nowrap;
+  white-space: nowrap;
+}
+
+.live-header-right .btn,
+.live-header-right .live-tag {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.live-tag {
+  display: inline-flex;
   align-items: center;
   gap: 6px;
   background: rgba(255, 51, 102, 0.15);
@@ -1496,6 +1520,8 @@ button {
   font-size: 0.75rem;
   font-weight: 800;
   letter-spacing: 0.05em;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .pulse-dot {

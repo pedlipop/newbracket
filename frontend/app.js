@@ -1130,6 +1130,7 @@
       if (!res.ok) throw new Error('Tournament not found');
       const data = await res.json();
       state.currentTournament = data.tournament;
+      enrichTournamentMatchSlots(state.currentTournament);
       if (reconcileFeederAdvancements(state.currentTournament)) {
         saveTournamentState(false);
       }
@@ -1214,34 +1215,91 @@
     }
   }
 
+  function enrichTournamentMatchSlots(t) {
+    if (!t || !t.rounds || !t.participants || t.participants.length === 0) return;
+    const pMap = new Map();
+    t.participants.forEach(p => {
+      if (p.id) pMap.set(p.id, p);
+      if (p.name) pMap.set(p.name, p);
+    });
+
+    const enrichSlot = (slotObj) => {
+      if (!slotObj || !slotObj.id || slotObj.isPlaceholder || slotObj.isUnseeded) return;
+      const orig = pMap.get(slotObj.id) || (slotObj.name ? pMap.get(slotObj.name) : null);
+      if (!orig) return;
+      if (!slotObj.playerName && orig.playerName) slotObj.playerName = orig.playerName;
+      if (!slotObj.dept && orig.dept) slotObj.dept = orig.dept;
+      if (!slotObj.wecom && (orig.wecom || orig.contact)) slotObj.wecom = orig.wecom || orig.contact;
+      if (slotObj.isTeam === undefined && orig.isTeam !== undefined) slotObj.isTeam = orig.isTeam;
+      if ((!slotObj.partners || slotObj.partners.length === 0) && Array.isArray(orig.partners) && orig.partners.length > 0) {
+        slotObj.partners = orig.partners;
+      }
+      if (!slotObj.partner && orig.partner) slotObj.partner = orig.partner;
+      if (!slotObj.teamName && orig.teamName) slotObj.teamName = orig.teamName;
+    };
+
+    (t.rounds || []).forEach(r => {
+      (r.matches || []).forEach(m => {
+        enrichSlot(m.p1);
+        enrichSlot(m.p2);
+      });
+    });
+
+    if (t.thirdPlaceMatch) {
+      enrichSlot(t.thirdPlaceMatch.p1);
+      enrichSlot(t.thirdPlaceMatch.p2);
+    }
+  }
+
   function showGlobalTooltip(targetEl, p) {
     if (!p) return;
-    const partnersList = Array.isArray(p.partners) && p.partners.length > 0
-      ? p.partners
-      : (p.partner && p.partner.name ? [p.partner] : []);
+    const t = state.currentTournament;
+    const orig = (t?.participants || []).find(item => (p.id && item.id === p.id) || (p.name && item.name === p.name)) || {};
+
+    const fullP = {
+      ...orig,
+      ...p,
+      playerName: p.playerName || orig.playerName || '',
+      dept: p.dept || orig.dept || '',
+      wecom: p.wecom || p.contact || orig.wecom || orig.contact || '',
+      isTeam: p.isTeam !== undefined ? p.isTeam : (orig.isTeam !== undefined ? orig.isTeam : (Array.isArray(p.partners) && p.partners.length > 0))
+    };
+
+    const partnersList = (Array.isArray(fullP.partners) && fullP.partners.length > 0)
+      ? fullP.partners
+      : (Array.isArray(orig.partners) && orig.partners.length > 0)
+        ? orig.partners
+        : (fullP.partner && fullP.partner.name ? [fullP.partner] : (orig.partner && orig.partner.name ? [orig.partner] : []));
 
     const isZh = state.lang === 'zh';
-    const mainPlayerName = p.playerName || p.name || '';
-    const mainDept = p.dept || '';
-    const mainWecom = p.wecom || p.contact || '';
+    let mainPlayerName = fullP.playerName || '';
+    if ((!mainPlayerName || mainPlayerName === fullP.name) && orig.playerName && orig.playerName !== fullP.name) {
+      mainPlayerName = orig.playerName;
+    }
+    if (!mainPlayerName) {
+      mainPlayerName = fullP.name || '';
+    }
+
+    const mainDept = fullP.dept || orig.dept || '';
+    const mainWecom = fullP.wecom || fullP.contact || orig.wecom || orig.contact || '';
     const hasAnyInfo = !!(mainPlayerName || mainDept || mainWecom || partnersList.length > 0);
     if (!hasAnyInfo) return;
 
     ensureGlobalTooltip();
 
     let contentHtml = '';
-    if (partnersList.length > 0 || p.isTeam) {
+    if (partnersList.length > 0 || fullP.isTeam) {
       contentHtml = `
         <div class="tooltip-header-strip">
           <i class="fa-solid fa-users"></i> ${isZh ? '团队成员登记信息' : 'Informasi Tim Pendaftar'}
         </div>
         <div class="tooltip-team-banner">
           <span class="team-label">${isZh ? '战队名称:' : 'Tim:'}</span>
-          <span class="team-name">${escapeHTML(p.name)}</span>
+          <span class="team-name">${escapeHTML(fullP.name)}</span>
         </div>
         <div class="tooltip-person-block">
           <div class="person-role-tag">${isZh ? '队长 / 主力选手' : 'Pemain Utama'}</div>
-          <div class="person-name">${escapeHTML(mainPlayerName || p.name)}</div>
+          <div class="person-name">${escapeHTML(mainPlayerName || fullP.name)}</div>
           ${mainDept ? `<div class="person-meta-item"><i class="fa-solid fa-building"></i> ${escapeHTML(mainDept)}</div>` : ''}
           ${mainWecom ? `<div class="person-meta-item"><i class="fa-solid fa-address-book"></i> No. WeCom: ${escapeHTML(mainWecom)}</div>` : ''}
         </div>
@@ -1260,10 +1318,10 @@
           <i class="fa-solid fa-id-card"></i> ${isZh ? '选手登记信息' : 'Data Pendaftaran Peserta'}
         </div>
         <div class="tooltip-person-block">
-          <div class="person-name primary-highlight">${escapeHTML(mainPlayerName || p.name)}</div>
+          <div class="person-name primary-highlight">${escapeHTML(mainPlayerName || fullP.name)}</div>
           ${mainDept ? `<div class="person-meta-item"><i class="fa-solid fa-building"></i> ${escapeHTML(mainDept)}</div>` : ''}
           ${mainWecom ? `<div class="person-meta-item"><i class="fa-solid fa-address-book"></i> No. WeCom: ${escapeHTML(mainWecom)}</div>` : ''}
-          ${p.registeredAt ? `<div class="person-meta-item time"><i class="fa-regular fa-clock"></i> ${new Date(p.registeredAt).toLocaleDateString()}</div>` : ''}
+          ${fullP.registeredAt ? `<div class="person-meta-item time"><i class="fa-regular fa-clock"></i> ${new Date(fullP.registeredAt).toLocaleDateString()}</div>` : ''}
         </div>
       `;
     }
@@ -1870,6 +1928,7 @@
   function renderBracketStudio() {
     const t = state.currentTournament;
     if (!t) return;
+    enrichTournamentMatchSlots(t);
 
     const P = (t.participants || []).length;
     const hasParticipants = P > 0;
@@ -2493,12 +2552,10 @@
         }
 
         // Put in target feeder slot
+        const origDragged = (t.participants || []).find(p => (draggedP.id && p.id === draggedP.id) || (draggedP.name && p.name === draggedP.name)) || {};
         targetMatch[targetSlot] = {
-          id: draggedP.id,
-          name: draggedP.name,
-          seed: draggedP.seed,
-          partners: draggedP.partners,
-          partner: draggedP.partner,
+          ...origDragged,
+          ...draggedP,
           isPlaceholder: false,
           isUnseeded: false
         };
@@ -2629,12 +2686,19 @@
             : `Anda sedang menempatkan peserta <b>${escapeHTML(participant.name.trim())}</b> ke slot lanjutan play-in.<br><br>• Peserta akan tetap tercatat di babak play-in (${feeder.id.toUpperCase()}).<br>• Pertandingan play-in otomatis berstatus Selesai dengan peserta ini Menang.<br><br>Apakah Anda yakin?`;
 
           openConfirmModal(confirmTitle, confirmMsg, () => {
+            const fullP = {
+              ...participant,
+              name: participant.name.trim(),
+              seed: state.draggedParticipant.index + 1,
+              isPlaceholder: false,
+              isUnseeded: false
+            };
             if (!feeder.p1 || !feeder.p1.id || feeder.p1.isPlaceholder || feeder.p1.isUnseeded) {
-              feeder.p1 = { id: participant.id, name: participant.name.trim(), seed: state.draggedParticipant.index + 1, isPlaceholder: false, isUnseeded: false };
+              feeder.p1 = { ...fullP };
             } else if (!feeder.p2 || !feeder.p2.id || feeder.p2.isPlaceholder || feeder.p2.isUnseeded) {
-              feeder.p2 = { id: participant.id, name: participant.name.trim(), seed: state.draggedParticipant.index + 1, isPlaceholder: false, isUnseeded: false };
+              feeder.p2 = { ...fullP };
             } else {
-              feeder.p1 = { id: participant.id, name: participant.name.trim(), seed: state.draggedParticipant.index + 1, isPlaceholder: false, isUnseeded: false };
+              feeder.p1 = { ...fullP };
             }
             feeder.winnerId = participant.id;
             feeder.status = 'completed';
@@ -2646,13 +2710,7 @@
               feeder.score1 = (feeder.score1 !== undefined && feeder.score1 !== '') ? feeder.score1 : 0;
             }
 
-            match[targetSlot] = {
-              id: participant.id,
-              name: participant.name.trim(),
-              seed: state.draggedParticipant.index + 1,
-              isPlaceholder: false,
-              isUnseeded: false
-            };
+            match[targetSlot] = { ...fullP };
 
             sanitizeBracketDuplicates(t);
             addTournamentLog(t, 'match', `Peserta "${participant.name.trim()}" ditempatkan dan diloloskan dari play-in (${feeder.id.toUpperCase()}).`);
@@ -3022,12 +3080,10 @@
         const loser = match.p1?.id === winner.id ? match.p2 : match.p1;
         const targetSlot = match.matchIndex === 0 ? 'p1' : 'p2';
         if (loser && !loser.isPlaceholder) {
+          const origLoser = (t.participants || []).find(p => (loser.id && p.id === loser.id) || (loser.name && p.name === loser.name)) || {};
           bronzeMatch[targetSlot] = {
-            id: loser.id,
-            name: loser.name,
-            seed: loser.seed,
-            partners: loser.partners,
-            partner: loser.partner,
+            ...origLoser,
+            ...loser,
             isPlaceholder: false
           };
         }
@@ -3066,12 +3122,10 @@
     }
 
     if (targetMatch && targetSlot) {
+      const origWinner = (t.participants || []).find(p => (winner.id && p.id === winner.id) || (winner.name && p.name === winner.name)) || {};
       targetMatch[targetSlot] = {
-        id: winner.id,
-        name: winner.name,
-        seed: winner.seed,
-        partners: winner.partners,
-        partner: winner.partner,
+        ...origWinner,
+        ...winner,
         isPlaceholder: false
       };
     } else if (!nextRound) {
@@ -4672,6 +4726,7 @@
         : incomingT;
 
       state.currentTournament = t;
+      enrichTournamentMatchSlots(t);
 
       const needsHydration = !t.rounds || t.rounds.length === 0 || t.rounds.some(r => r.matches.some(m => !m.pairRange));
       if (needsHydration) {
