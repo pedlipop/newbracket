@@ -1663,6 +1663,38 @@ button {
   animation: fadeIn 0.2s ease-out;
 }
 
+.register-teams-list {
+  max-height: 420px;
+  overflow-y: auto;
+  overflow-x: hidden !important;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-right: 4px;
+  box-sizing: border-box;
+}
+
+.register-teams-list::-webkit-scrollbar,
+.live-teams-list-container::-webkit-scrollbar {
+  width: 5px;
+}
+
+.register-teams-list::-webkit-scrollbar-track,
+.live-teams-list-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.register-teams-list::-webkit-scrollbar-thumb,
+.live-teams-list-container::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+}
+
+.register-teams-list::-webkit-scrollbar-thumb:hover,
+.live-teams-list-container::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 210, 255, 0.4);
+}
+
 .reg-team-item {
   display: flex;
   align-items: center;
@@ -1672,13 +1704,16 @@ button {
   background: var(--bg-surface-elevated);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-sm);
-  transition: all 0.2s ease;
+  box-sizing: border-box;
+  width: 100%;
+  transition: background 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
 }
 
 .reg-team-item:hover {
-  border-color: rgba(0, 210, 255, 0.4);
-  background: rgba(0, 210, 255, 0.04);
-  transform: translateX(2px);
+  border-color: rgba(0, 210, 255, 0.5);
+  background: rgba(0, 210, 255, 0.07);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+  /* No horizontal translation to eliminate horizontal scrollbar popping glitch */
 }
 
 .reg-team-item-left {
