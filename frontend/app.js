@@ -915,6 +915,8 @@
   }
 
   function switchView(viewName) {
+    hideGlobalTooltip();
+    hideFloatingTeamPopover();
     state.currentView = viewName;
     if (el.portalView) el.portalView.classList.add('hidden');
     if (el.dashboardView) el.dashboardView.classList.add('hidden');
@@ -1399,40 +1401,67 @@
     const mainDept = fullP.dept || orig.dept || '';
     const mainWecom = fullP.wecom || fullP.contact || orig.wecom || orig.contact || '';
     const teamSize = 1 + partnersList.length;
+    const isTeam = partnersList.length > 0 || fullP.isTeam;
 
-    floatingTeamPopoverEl.innerHTML = `
-      <div class="popover-header-bar">
-        <div class="popover-title">
-          <i class="fa-solid fa-users" style="color:var(--primary);"></i>
-          <span>${isZh ? '团队成员登记信息' : 'INFORMASI TIM PENDAFTAR'}</span>
-        </div>
-        <button type="button" class="btn-close-team-popover" title="${isZh ? '关闭' : 'Tutup'}">&times;</button>
-      </div>
-
-      <div class="popover-team-banner">
-        <span class="team-label">${isZh ? '战队:' : 'Tim:'}</span>
-        <span class="team-name">${escapeHTML(fullP.name)}</span>
-        <span class="team-partner-tag" style="margin-left:auto;">${teamSize}P</span>
-      </div>
-
-      <div class="popover-members-scroll">
-        <div class="tooltip-person-block">
-          <div class="person-role-tag">${isZh ? '队长 / 主力选手' : 'PEMAIN UTAMA'}</div>
-          <div class="person-name">${escapeHTML(mainPlayerName || fullP.name)}</div>
-          ${mainDept ? `<div class="person-meta-item"><i class="fa-solid fa-building"></i> ${escapeHTML(mainDept)}</div>` : ''}
-          ${mainWecom ? `<div class="person-meta-item"><i class="fa-solid fa-address-book"></i> No. WeCom: ${escapeHTML(mainWecom)}</div>` : ''}
-        </div>
-
-        ${partnersList.map((partner, pIdx) => `
-          <div class="tooltip-person-block partner-block">
-            <div class="person-role-tag partner">${isZh ? `队员 #${pIdx + 1}` : `REKAN #${pIdx + 1}`}</div>
-            <div class="person-name partner-highlight">${escapeHTML(partner.name)}</div>
-            ${partner.dept ? `<div class="person-meta-item"><i class="fa-solid fa-building"></i> ${escapeHTML(partner.dept)}</div>` : ''}
-            ${partner.wecom ? `<div class="person-meta-item"><i class="fa-solid fa-address-book"></i> No. WeCom: ${escapeHTML(partner.wecom)}</div>` : ''}
+    if (isTeam) {
+      floatingTeamPopoverEl.innerHTML = `
+        <div class="popover-header-bar">
+          <div class="popover-title">
+            <i class="fa-solid fa-users" style="color:var(--primary);"></i>
+            <span>${isZh ? '团队成员登记信息' : 'INFORMASI TIM PENDAFTAR'}</span>
           </div>
-        `).join('')}
-      </div>
-    `;
+          <button type="button" class="btn-close-team-popover" title="${isZh ? '关闭' : 'Tutup'}">&times;</button>
+        </div>
+
+        <div class="popover-team-banner">
+          <span class="team-label">${isZh ? '战队:' : 'Tim:'}</span>
+          <span class="team-name">${escapeHTML(fullP.name)}</span>
+          <span class="team-partner-tag" style="margin-left:auto;">${teamSize}P</span>
+        </div>
+
+        <div class="popover-members-scroll">
+          <div class="tooltip-person-block">
+            <div class="person-role-tag">${isZh ? '队长 / 主力选手' : 'PEMAIN UTAMA'}</div>
+            <div class="person-name">${escapeHTML(mainPlayerName || fullP.name)}</div>
+            ${mainDept ? `<div class="person-meta-item"><i class="fa-solid fa-building"></i> ${escapeHTML(mainDept)}</div>` : ''}
+            ${mainWecom ? `<div class="person-meta-item"><i class="fa-solid fa-address-book"></i> No. WeCom: ${escapeHTML(mainWecom)}</div>` : ''}
+          </div>
+
+          ${partnersList.map((partner, pIdx) => `
+            <div class="tooltip-person-block partner-block">
+              <div class="person-role-tag partner">${isZh ? `队员 #${pIdx + 1}` : `REKAN #${pIdx + 1}`}</div>
+              <div class="person-name partner-highlight">${escapeHTML(partner.name)}</div>
+              ${partner.dept ? `<div class="person-meta-item"><i class="fa-solid fa-building"></i> ${escapeHTML(partner.dept)}</div>` : ''}
+              ${partner.wecom ? `<div class="person-meta-item"><i class="fa-solid fa-address-book"></i> No. WeCom: ${escapeHTML(partner.wecom)}</div>` : ''}
+            </div>
+          `).join('')}
+        </div>
+      `;
+    } else {
+      floatingTeamPopoverEl.innerHTML = `
+        <div class="popover-header-bar">
+          <div class="popover-title">
+            <i class="fa-solid fa-id-card" style="color:var(--primary);"></i>
+            <span>${isZh ? '选手登记信息' : 'DATA PENDAFTARAN PESERTA'}</span>
+          </div>
+          <button type="button" class="btn-close-team-popover" title="${isZh ? '关闭' : 'Tutup'}">&times;</button>
+        </div>
+
+        <div class="popover-team-banner">
+          <span class="team-label">${isZh ? '选手名称:' : 'Peserta / Tim:'}</span>
+          <span class="team-name">${escapeHTML(fullP.name)}</span>
+        </div>
+
+        <div class="popover-members-scroll">
+          <div class="tooltip-person-block">
+            <div class="person-name primary-highlight" style="font-size: 15px; font-weight: 700; color: var(--primary); margin-bottom: 4px;">${escapeHTML(mainPlayerName || fullP.name)}</div>
+            ${mainDept ? `<div class="person-meta-item"><i class="fa-solid fa-building"></i> ${escapeHTML(mainDept)}</div>` : ''}
+            ${mainWecom ? `<div class="person-meta-item"><i class="fa-solid fa-address-book"></i> No. WeCom: ${escapeHTML(mainWecom)}</div>` : ''}
+            ${fullP.registeredAt ? `<div class="person-meta-item time" style="margin-top: 4px; font-size: 0.68rem; color: var(--text-muted);"><i class="fa-regular fa-clock"></i> ${new Date(fullP.registeredAt).toLocaleDateString()}</div>` : ''}
+          </div>
+        </div>
+      `;
+    }
 
     const closeBtn = floatingTeamPopoverEl.querySelector('.btn-close-team-popover');
     if (closeBtn) {
@@ -1505,106 +1534,8 @@
     }
   }
 
-  function showGlobalTooltip(targetEl, p) {
-    if (!p) return;
-    const t = state.currentTournament;
-    const orig = (t?.participants || []).find(item => (p.id && item.id === p.id) || (p.name && item.name === p.name)) || {};
-
-    const fullP = {
-      ...orig,
-      ...p,
-      playerName: p.playerName || orig.playerName || '',
-      dept: p.dept || orig.dept || '',
-      wecom: p.wecom || p.contact || orig.wecom || orig.contact || '',
-      isTeam: p.isTeam !== undefined ? p.isTeam : (orig.isTeam !== undefined ? orig.isTeam : (Array.isArray(p.partners) && p.partners.length > 0))
-    };
-
-    const partnersList = (Array.isArray(fullP.partners) && fullP.partners.length > 0)
-      ? fullP.partners
-      : (Array.isArray(orig.partners) && orig.partners.length > 0)
-        ? orig.partners
-        : (fullP.partner && fullP.partner.name ? [fullP.partner] : (orig.partner && orig.partner.name ? [orig.partner] : []));
-
-    const isZh = state.lang === 'zh';
-    const isTeam = partnersList.length > 0 || fullP.isTeam;
-    const teamSize = 1 + partnersList.length;
-
-    let mainPlayerName = fullP.playerName || '';
-    if ((!mainPlayerName || mainPlayerName === fullP.name) && orig.playerName && orig.playerName !== fullP.name) {
-      mainPlayerName = orig.playerName;
-    }
-    if (!mainPlayerName) {
-      mainPlayerName = fullP.name || '';
-    }
-
-    const mainDept = fullP.dept || orig.dept || '';
-    const mainWecom = fullP.wecom || fullP.contact || orig.wecom || orig.contact || '';
-    const hasAnyInfo = !!(mainPlayerName || mainDept || mainWecom || partnersList.length > 0);
-    if (!hasAnyInfo) return;
-
-    ensureGlobalTooltip();
-
-    let contentHtml = '';
-    if (isTeam) {
-      // Hover shows compact team information only ("detail nama tim aja")
-      contentHtml = `
-        <div class="tooltip-header-strip">
-          <i class="fa-solid fa-users"></i> ${isZh ? '团队登记信息' : 'Informasi Tim'}
-        </div>
-        <div class="tooltip-team-banner">
-          <span class="team-label">${isZh ? '战队名称:' : 'Tim:'}</span>
-          <span class="team-name">${escapeHTML(fullP.name)}</span>
-        </div>
-        <div style="font-size: 11px; color: var(--text-muted); display:flex; align-items:center; gap:5px; margin-top:2px;">
-          <span class="team-partner-tag" style="margin-left:0; font-size:10px;">${teamSize}P</span>
-          <span>${isZh ? `点击“${teamSize}P”按钮查看全部队员` : `Klik tombol ${teamSize}P untuk melihat detail pemain`}</span>
-        </div>
-      `;
-    } else {
-      contentHtml = `
-        <div class="tooltip-header-strip">
-          <i class="fa-solid fa-id-card"></i> ${isZh ? '选手登记信息' : 'Data Pendaftaran Peserta'}
-        </div>
-        <div class="tooltip-person-block">
-          <div class="person-name primary-highlight">${escapeHTML(mainPlayerName || fullP.name)}</div>
-          ${mainDept ? `<div class="person-meta-item"><i class="fa-solid fa-building"></i> ${escapeHTML(mainDept)}</div>` : ''}
-          ${mainWecom ? `<div class="person-meta-item"><i class="fa-solid fa-address-book"></i> No. WeCom: ${escapeHTML(mainWecom)}</div>` : ''}
-          ${fullP.registeredAt ? `<div class="person-meta-item time"><i class="fa-regular fa-clock"></i> ${new Date(fullP.registeredAt).toLocaleDateString()}</div>` : ''}
-        </div>
-      `;
-    }
-
-    globalTooltipEl.innerHTML = contentHtml;
-    globalTooltipEl.classList.remove('hidden');
-
-    const rect = targetEl.getBoundingClientRect();
-    const cardWidth = rect.width;
-
-    // Maintain exact width of the card
-    globalTooltipEl.style.width = `${cardWidth}px`;
-    globalTooltipEl.style.minWidth = `${cardWidth}px`;
-    globalTooltipEl.style.maxWidth = `${cardWidth}px`;
-    globalTooltipEl.style.boxSizing = 'border-box';
-
-    // Measure height after width has been set and innerHTML applied
-    const tooltipRect = globalTooltipEl.getBoundingClientRect();
-
-    let top = rect.top - tooltipRect.height - 6;
-    let left = rect.left;
-
-    if (top < 10) {
-      top = rect.bottom + 6;
-    }
-    if (top + tooltipRect.height > window.innerHeight - 10) {
-      top = Math.max(10, window.innerHeight - tooltipRect.height - 10);
-    }
-    if (left < 10) left = 10;
-    if (left + cardWidth > window.innerWidth - 10) {
-      left = window.innerWidth - cardWidth - 10;
-    }
-
-    globalTooltipEl.style.top = `${top}px`;
-    globalTooltipEl.style.left = `${left}px`;
+  function showGlobalTooltip() {
+    hideGlobalTooltip();
   }
 
   function hideGlobalTooltip() {
@@ -1614,6 +1545,11 @@
   }
 
   function renderParticipantsDrawer() {
+    hideGlobalTooltip();
+    if (activeFloatingButton && !document.body.contains(activeFloatingButton)) {
+      hideFloatingTeamPopover();
+    }
+
     const t = state.currentTournament;
     const participants = t.participants || [];
     el.participantCountBadge.textContent = participants.length;
@@ -1690,6 +1626,10 @@
       const isAssigned = hasInfo && assignedIds.has(p.id);
       const canDrag = !t.isLocked && hasInfo;
 
+      const detailBtnHtml = hasPartner
+        ? `<button type="button" class="team-partner-tag team-partner-btn" data-id="${p.id}" title="${state.lang === 'zh' ? `点击查看 ${teamSize} 名队员详情` : `Klik untuk lihat detail ${teamSize} pemain`}">${teamSize}P <i class="fa-solid fa-circle-info" style="font-size:10px; margin-left:2px; opacity:0.85;"></i></button>`
+        : (hasInfo ? `<button type="button" class="btn-participant-info" data-id="${p.id}" title="${state.lang === 'zh' ? '点击查看登记详情' : 'Klik untuk lihat detail pendaftaran'}"><i class="fa-solid fa-circle-info"></i></button>` : '');
+
       return `
         <div class="participant-item ${!hasInfo ? 'is-empty-slot' : ''}" draggable="${canDrag}" data-id="${p.id}" data-idx="${idx}">
           <i class="fa-solid fa-grip-vertical participant-drag-grip" style="${!hasInfo ? 'opacity:0.25; cursor:not-allowed;' : ''}"></i>
@@ -1697,7 +1637,7 @@
           <span class="participant-name ${!t.isLocked ? 'editable' : ''}" title="${hasInfo ? escapeHTML(p.name) : 'Slot Kosong (Isi nama terlebih dahulu untuk dapat memindahkannya ke bagan)'}">
             ${hasInfo ? escapeHTML(p.name) : '<span style="opacity:0.4; font-style:italic;">(Slot Kosong)</span>'}
           </span>
-          ${hasPartner ? `<button type="button" class="team-partner-tag team-partner-btn" data-id="${p.id}" title="${state.lang === 'zh' ? `点击查看 ${teamSize} 名队员详情` : `Klik untuk lihat detail ${teamSize} pemain`}">${teamSize}P</button>` : ''}
+          ${detailBtnHtml}
           <span class="participant-status-dot ${isAssigned ? 'seeded' : 'unseeded'}" title="${isAssigned ? 'Masuk Bagan' : (hasInfo ? 'Belum Di-seed' : 'Wajib Diisi')}"></span>
           ${!t.isLocked ? `
             <button type="button" class="btn-edit-participant" data-id="${p.id}" title="Edit Nama"><i class="fa-solid fa-pen"></i></button>
@@ -1707,23 +1647,14 @@
       `;
     }).join('');
 
-    // Attach click events for team-partner-btn to show floating details popover
-    el.participantsList.querySelectorAll('.team-partner-btn').forEach(btn => {
+    // Attach click events for team-partner-btn and btn-participant-info to show floating details popover
+    el.participantsList.querySelectorAll('.team-partner-btn, .btn-participant-info').forEach(btn => {
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
         e.preventDefault();
         const p = participants.find(part => part.id === btn.dataset.id);
         if (p) showTeamFloatingPopover(btn, p);
       });
-    });
-
-    // Attach hover events for participant details overlay tooltip
-    el.participantsList.querySelectorAll('.participant-item').forEach(item => {
-      const p = participants.find(part => part.id === item.dataset.id);
-      if (p && (p.name || p.playerName || p.dept || p.wecom)) {
-        item.addEventListener('mouseenter', () => showGlobalTooltip(item, p));
-        item.addEventListener('mouseleave', hideGlobalTooltip);
-      }
     });
 
     // Attach drag and edit events to drawer participant items
@@ -2184,6 +2115,10 @@
   }
 
   function renderBracketStudio() {
+    hideGlobalTooltip();
+    if (activeFloatingButton && !document.body.contains(activeFloatingButton)) {
+      hideFloatingTeamPopover();
+    }
     const t = state.currentTournament;
     if (!t) return;
     enrichTournamentMatchSlots(t);
@@ -2519,13 +2454,18 @@
 
       const partnerTagTitle = isZh ? `点击查看 ${teamSize} 名队员详情` : `Klik untuk lihat detail ${teamSize} pemain`;
 
+      const hasParticipantInfo = !isEmpty && !isFeeder && !!(p && (p.name || p.playerName || p.dept || p.wecom || (Array.isArray(p.partners) && p.partners.length > 0) || (p.partner && p.partner.name)));
+      const detailBtnHtml = hasPartner
+        ? `<button type="button" class="team-partner-tag team-partner-btn" title="${partnerTagTitle}">${teamSize}P <i class="fa-solid fa-circle-info" style="font-size:10px; margin-left:2px; opacity:0.85;"></i></button>`
+        : (hasParticipantInfo ? `<button type="button" class="btn-match-info" title="${isZh ? '点击查看登记详情' : 'Klik untuk lihat detail pendaftaran'}"><i class="fa-solid fa-circle-info"></i></button>` : '');
+
       return `
         <div class="match-team-row ${pClass} ${isEmpty ? 'is-empty' : ''} ${(!isLiveView && isSlotLocked) ? 'slot-locked' : ''}" data-slot="${slot}" data-round="${rIdx}" data-match="${mIdx}">
           <span class="team-seed">${!isEmpty ? (p?.seed || '') : ''}</span>
           <span class="team-name-text ${isFeeder ? 'is-feeder-text' : ''} ${isEmpty ? 'empty-slot' : ''} ${(!isLiveView && !t?.isLocked && !isFeeder) ? 'editable' : ''}" title="${escapeHTML(rawName || (isEmpty ? '' : emptyPlaceholder))}${(!isLiveView && !t?.isLocked && !isFeeder) ? (isZh ? ' (双击可编辑)' : ' (Dobel klik untuk edit)') : ''}">
             ${isUnnamed ? `<span style="opacity:0.4; font-style:italic;">${emptyPlaceholder}</span>` : escapeHTML(displayName)}
           </span>
-          ${hasPartner ? `<button type="button" class="team-partner-tag team-partner-btn" title="${partnerTagTitle}">${teamSize}P</button>` : ''}
+          ${detailBtnHtml}
           <div class="slot-actions-cell" style="display:flex; align-items:center; gap:4px; margin-left:auto;">
             ${editBtnHtml}
             ${lockBtnHtml}
@@ -2551,8 +2491,8 @@
       ${renderRow(p2, 'p2', match.score2, p2Class)}
     `;
 
-    // Attach click listener for team-partner-btn on bracket slot rows to show floating popover
-    node.querySelectorAll('.team-partner-btn').forEach(btn => {
+    // Attach click listener for team-partner-btn and btn-match-info on bracket slot rows to show floating popover
+    node.querySelectorAll('.team-partner-btn, .btn-match-info').forEach(btn => {
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
         e.preventDefault();
@@ -2591,20 +2531,6 @@
           });
         }
       });
-    }
-
-    // Attach hover events for registration & member overlay tooltip on match rows
-    const row1 = node.querySelector('[data-slot="p1"]');
-    const row2 = node.querySelector('[data-slot="p2"]');
-    const hasParticipantInfo = (p) => !!(p && !p.isPlaceholder && !p.isUnseeded && (p.name || p.playerName || p.dept || p.wecom || (Array.isArray(p.partners) && p.partners.length > 0) || (p.partner && p.partner.name)));
-
-    if (row1 && hasParticipantInfo(p1)) {
-      row1.addEventListener('mouseenter', () => showGlobalTooltip(row1, p1));
-      row1.addEventListener('mouseleave', hideGlobalTooltip);
-    }
-    if (row2 && hasParticipantInfo(p2)) {
-      row2.addEventListener('mouseenter', () => showGlobalTooltip(row2, p2));
-      row2.addEventListener('mouseleave', hideGlobalTooltip);
     }
 
     // Interactive Drag & Drop Seeding on Match Rows
@@ -4441,6 +4367,9 @@
   }
 
   function removeParticipant(participantId) {
+    hideGlobalTooltip();
+    hideFloatingTeamPopover();
+
     const t = state.currentTournament;
     if (!t || t.isLocked) return;
 

@@ -952,7 +952,9 @@ button {
 .participant-item.is-editing .participant-name,
 .participant-item.is-editing .participant-status-dot,
 .participant-item.is-editing .btn-edit-participant,
-.participant-item.is-editing .btn-remove-participant {
+.participant-item.is-editing .btn-remove-participant,
+.participant-item.is-editing .btn-participant-info,
+.participant-item.is-editing .team-partner-btn {
   display: none !important;
 }
 
@@ -2568,6 +2570,72 @@ button.team-partner-tag.team-partner-btn.active {
   border-color: #ffffff;
   box-shadow: 0 0 12px rgba(168, 85, 247, 0.8);
   transform: translateY(0);
+}
+
+/* Explicit Click Buttons to View Participant Registration Details */
+.btn-participant-info {
+  background: rgba(0, 210, 255, 0.08);
+  border: 1px solid rgba(0, 210, 255, 0.28);
+  color: var(--primary);
+  width: 22px;
+  height: 22px;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.72rem;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all var(--transition-fast);
+  padding: 0;
+}
+
+.btn-participant-info:hover {
+  background: rgba(0, 210, 255, 0.22);
+  border-color: var(--primary);
+  color: #ffffff;
+  box-shadow: 0 0 8px rgba(0, 210, 255, 0.4);
+  transform: translateY(-1px);
+}
+
+.btn-participant-info:active,
+.btn-participant-info.active {
+  background: var(--primary);
+  color: #0b0f19;
+  border-color: #ffffff;
+  box-shadow: 0 0 10px rgba(0, 210, 255, 0.6);
+}
+
+.btn-match-info {
+  background: rgba(0, 210, 255, 0.08);
+  border: 1px solid rgba(0, 210, 255, 0.28);
+  color: var(--primary);
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.68rem;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all var(--transition-fast);
+  padding: 0;
+  margin-left: 2px;
+}
+
+.btn-match-info:hover {
+  background: rgba(0, 210, 255, 0.22);
+  border-color: var(--primary);
+  color: #ffffff;
+  box-shadow: 0 0 8px rgba(0, 210, 255, 0.4);
+}
+
+.btn-match-info:active,
+.btn-match-info.active {
+  background: var(--primary);
+  color: #0b0f19;
+  border-color: #ffffff;
 }
 
 /* Hover Details Tooltip / Popover */
