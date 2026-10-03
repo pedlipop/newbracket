@@ -169,6 +169,13 @@
       summary_label_team_name: 'Nama Tim:',
       label_custom_team_size: 'Masukkan Jumlah Pemain per Tim:',
       opt_team_size_custom: 'Custom Jumlah Pemain...',
+      btn_live_registered_teams: 'Tim Terdaftar',
+      title_live_teams: 'Daftar Tim Terdaftar',
+      reg_panel_teams_title: 'Tim Terdaftar',
+      reg_panel_privacy_note: 'Hanya Nama Tim',
+      ph_search_registered_teams: 'Cari nama tim...',
+      empty_registered_teams: 'Belum ada tim yang terdaftar.',
+      status_registered: 'Terdaftar',
       label_qr_deadline: 'Batas Waktu Otomatis Ditutup:',
       opt_deadline_none: 'Tanpa Batas Waktu (Buka Terus)',
       opt_deadline_5m: '5 Menit Lagi',
@@ -398,6 +405,13 @@
       summary_label_team_name: '战队命名：',
       label_custom_team_size: '输入每队总人数：',
       opt_team_size_custom: '自定义队员人数...',
+      btn_live_registered_teams: '已报名战队',
+      title_live_teams: '已报名战队列表',
+      reg_panel_teams_title: '已报名战队',
+      reg_panel_privacy_note: '仅展示战队名称',
+      ph_search_registered_teams: '搜索战队名称...',
+      empty_registered_teams: '暂无已报名的战队。',
+      status_registered: '已报名',
       label_qr_deadline: '报名截止时间设置：',
       opt_deadline_none: '不设截止时间（长期开启）',
       opt_deadline_5m: '5分钟后截止',
@@ -819,6 +833,24 @@
     el.btnClosedViewLive = document.getElementById('btn-closed-view-live');
     el.successLiveUrl = document.getElementById('success-live-url');
     el.btnCopySuccessLive = document.getElementById('btn-copy-success-live');
+
+    // Registered Teams Panel in Register View
+    el.registerTeamsPanel = document.getElementById('register-teams-panel');
+    el.btnToggleRegTeamsPanel = document.getElementById('btn-toggle-reg-teams-panel');
+    el.regPanelTeamCountBadge = document.getElementById('reg-panel-team-count-badge');
+    el.regPanelChevron = document.getElementById('reg-panel-chevron');
+    el.registerTeamsPanelBody = document.getElementById('register-teams-panel-body');
+    el.inputSearchRegTeams = document.getElementById('input-search-reg-teams');
+    el.registerTeamsList = document.getElementById('register-teams-list');
+
+    // Live Registered Teams Modal Elements
+    el.btnLiveViewTeams = document.getElementById('btn-live-view-teams');
+    el.liveTeamsBtnText = document.getElementById('live-teams-btn-text');
+    el.modalLiveRegisteredTeams = document.getElementById('modal-live-registered-teams');
+    el.liveTeamsListContainer = document.getElementById('live-teams-list-container');
+    el.inputSearchLiveTeams = document.getElementById('input-search-live-teams');
+    el.liveTeamsModalSubtitle = document.getElementById('live-teams-modal-subtitle');
+    el.liveTeamsSummaryText = document.getElementById('live-teams-summary-text');
 
     // Match Queue Drawer Elements
     el.matchQueueDrawerOverlay = document.getElementById('match-queue-drawer-overlay');
@@ -5052,6 +5084,17 @@
       el.liveTournamentName.textContent = t.name;
       el.liveGameBadge.textContent = `${t.game || 'Esports'} • Live Spectator View`;
 
+      if (el.liveTeamsBtnText) {
+        const isZh = state.lang === 'zh';
+        const teamCount = (t.participants || []).length;
+        el.liveTeamsBtnText.textContent = `${isZh ? '已报名战队' : 'Tim Terdaftar'} (${teamCount})`;
+      }
+      if (el.btnLiveViewTeams) {
+        el.btnLiveViewTeams.onclick = () => {
+          openLiveRegisteredTeamsModal(t);
+        };
+      }
+
       // Check if tournament has officially started or has rounds generated
       const hasMatchAction = (t.rounds || []).some(r => (r.matches || []).some(m => m.status === 'in_progress' || m.status === 'completed'));
       const isStarted = t.isLocked || t.status === 'in_progress' || hasMatchAction || hasRounds;
@@ -5104,6 +5147,146 @@
     }
   }
 
+  // ==================== LIVE SPECTATOR: REGISTERED TEAMS MODAL ====================
+  function openLiveRegisteredTeamsModal(t) {
+    if (!el.modalLiveRegisteredTeams) return;
+    const isZh = state.lang === 'zh';
+    const participants = t.participants || [];
+
+    if (el.liveTeamsModalSubtitle) {
+      el.liveTeamsModalSubtitle.textContent = isZh ? `总计：${participants.length} 支战队/选手` : `Total: ${participants.length} Tim / Peserta`;
+    }
+    if (el.liveTeamsSummaryText) {
+      el.liveTeamsSummaryText.textContent = t.name || '';
+    }
+
+    const renderList = (filter = '') => {
+      if (!el.liveTeamsListContainer) return;
+      el.liveTeamsListContainer.innerHTML = '';
+      const query = filter.toLowerCase().trim();
+      const filtered = participants.filter(p => {
+        const name = (p.teamName || p.name || p.playerName || '').toLowerCase();
+        return !query || name.includes(query);
+      });
+
+      if (filtered.length === 0) {
+        el.liveTeamsListContainer.innerHTML = `
+          <div style="text-align: center; padding: 24px 10px; color: var(--text-muted); font-size: 12px;">
+            <i class="fa-solid fa-users-slash" style="font-size: 24px; margin-bottom: 8px; opacity: 0.4; display:block;"></i>
+            ${isZh ? '暂无匹配的战队' : (participants.length === 0 ? 'Belum ada tim yang terdaftar.' : 'Tidak ada tim yang cocok dengan pencarian.')}
+          </div>
+        `;
+        return;
+      }
+
+      filtered.forEach((p, idx) => {
+        const teamName = p.teamName || p.name || p.playerName || `Team ${idx + 1}`;
+        const item = document.createElement('div');
+        item.className = 'reg-team-item';
+
+        let membersBadge = '';
+        const partnerCount = Array.isArray(p.partners) ? p.partners.length : (p.partner ? 1 : 0);
+        if (partnerCount > 0) {
+          const totalMembers = partnerCount + 1;
+          membersBadge = `<span style="font-size: 10px; padding: 2px 7px; border-radius: 10px; background: rgba(0, 210, 255, 0.1); color: var(--primary); border: 1px solid rgba(0, 210, 255, 0.25); white-space: nowrap;"><i class="fa-solid fa-users" style="font-size: 9px; margin-right: 3px;"></i>${totalMembers}</span>`;
+        }
+
+        item.innerHTML = `
+          <div class="reg-team-item-left">
+            <span class="reg-team-item-num">#${idx + 1}</span>
+            <div style="width: 22px; height: 22px; border-radius: 4px; background: rgba(0, 210, 255, 0.12); display: flex; align-items: center; justify-content: center; color: var(--primary); font-size: 10px; flex-shrink: 0;">
+              <i class="fa-solid fa-shield-cat"></i>
+            </div>
+            <span class="reg-team-item-name" title="${escapeHTML(teamName)}">${escapeHTML(teamName)}</span>
+          </div>
+          <div style="display:flex; align-items:center; gap:6px;">
+            ${membersBadge}
+            <span style="font-size: 10px; font-weight: 600; color: #10b981; background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.3); padding: 2px 6px; border-radius: 4px;">${isZh ? '已报名' : 'Terdaftar'}</span>
+          </div>
+        `;
+        el.liveTeamsListContainer.appendChild(item);
+      });
+    };
+
+    if (el.inputSearchLiveTeams) {
+      el.inputSearchLiveTeams.value = '';
+      el.inputSearchLiveTeams.oninput = (e) => {
+        renderList(e.target.value);
+      };
+    }
+
+    renderList();
+    openModal(el.modalLiveRegisteredTeams);
+  }
+
+  // ==================== REGISTER VIEW: FLOATING REGISTERED TEAMS PANEL ====================
+  function renderRegisterTeamsPanel(t) {
+    if (!el.registerTeamsPanel) return;
+    const isZh = state.lang === 'zh';
+    const participants = t.participants || [];
+
+    if (el.regPanelTeamCountBadge) {
+      el.regPanelTeamCountBadge.textContent = participants.length;
+    }
+
+    const renderList = (filter = '') => {
+      if (!el.registerTeamsList) return;
+      el.registerTeamsList.innerHTML = '';
+      const query = filter.toLowerCase().trim();
+      const filtered = participants.filter(p => {
+        const teamName = (p.teamName || p.name || p.playerName || '').toLowerCase();
+        return !query || teamName.includes(query);
+      });
+
+      if (filtered.length === 0) {
+        el.registerTeamsList.innerHTML = `
+          <div style="text-align:center; padding:24px 10px; color:var(--text-muted); font-size:11px;">
+            <i class="fa-solid fa-clipboard-user" style="font-size:22px; margin-bottom:6px; opacity:0.4; display:block;"></i>
+            ${isZh ? '暂无已报名的战队' : (participants.length === 0 ? 'Belum ada tim yang terdaftar.' : 'Tidak ada nama tim yang cocok.')}
+          </div>
+        `;
+        return;
+      }
+
+      filtered.forEach((p, idx) => {
+        // STRICT PRIVACY: ONLY Team Name is exposed, no personal contact data
+        const teamName = p.teamName || p.name || p.playerName || `Tim #${idx + 1}`;
+        const item = document.createElement('div');
+        item.className = 'reg-team-item';
+        item.innerHTML = `
+          <div class="reg-team-item-left">
+            <span class="reg-team-item-num">#${idx + 1}</span>
+            <div style="width:20px; height:20px; border-radius:4px; background:rgba(0,210,255,0.12); display:flex; align-items:center; justify-content:center; color:var(--primary); font-size:10px; flex-shrink:0;">
+              <i class="fa-solid fa-users"></i>
+            </div>
+            <span class="reg-team-item-name" title="${escapeHTML(teamName)}">${escapeHTML(teamName)}</span>
+          </div>
+          <span style="font-size:9px; font-weight:600; color:#10b981; background:rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.25); padding:1px 5px; border-radius:4px;">${isZh ? '已报名' : 'Terdaftar'}</span>
+        `;
+        el.registerTeamsList.appendChild(item);
+      });
+    };
+
+    if (el.inputSearchRegTeams) {
+      el.inputSearchRegTeams.oninput = (e) => {
+        renderList(e.target.value);
+      };
+    }
+
+    // Toggle dropdown accordion
+    if (el.btnToggleRegTeamsPanel) {
+      el.btnToggleRegTeamsPanel.onclick = () => {
+        if (!el.registerTeamsPanelBody) return;
+        const isHidden = el.registerTeamsPanelBody.classList.toggle('hidden');
+        if (el.regPanelChevron) {
+          el.regPanelChevron.style.transform = isHidden ? 'rotate(-90deg)' : '';
+        }
+      };
+    }
+
+    renderList(el.inputSearchRegTeams ? el.inputSearchRegTeams.value : '');
+  }
+
   // ==================== PUBLIC MOBILE REGISTRATION VIEW ====================
   async function loadPublicRegisterView(tournamentId) {
     switchView('register');
@@ -5125,6 +5308,7 @@
       if (el.registerCapacityText) {
         el.registerCapacityText.textContent = currentCount;
       }
+      renderRegisterTeamsPanel(t);
 
       // Check if tournament specifies Mode Tim
       const isTeamTournament = !!(t.settings && (t.settings.isDoubles === true || t.settings.isDoubles === 'true' || t.settings.isDoubles === 1 || t.settings.isDoubles === '1'));
@@ -5210,8 +5394,8 @@
               <input type="text" class="input-modern reg-partner-name" placeholder="${namePh}" required />
             </div>
             <div class="form-group" style="margin-bottom: 10px;">
-              <label class="form-label" style="font-size: 11px;">${wecomLabel}</label>
-              <input type="text" class="input-modern reg-partner-wecom" placeholder="${wecomPh}" />
+              <label class="form-label" style="font-size: 11px;">${wecomLabel} <span class="required">*</span></label>
+              <input type="text" class="input-modern reg-partner-wecom" placeholder="${wecomPh}" required />
             </div>
             <div class="form-group" style="margin-bottom: 0;">
               <label class="form-label" style="font-size: 11px;">${deptLabel}</label>
@@ -5240,6 +5424,17 @@
           return;
         }
 
+        if (!wecom) {
+          showToast(isCurrentZh ? '请填写队长/主选手的企业微信 / 手机号！' : 'Mohon isi No. WeCom pemain utama!', 'warning');
+          if (el.regPlayerWecom) el.regPlayerWecom.focus();
+          return;
+        }
+
+        const cleanWecom = str => (str || '').toString().trim().replace(/[\s\-\+]/g, '').toLowerCase();
+        const enteredWecoms = [
+          { role: isCurrentZh ? '队长 / 主选手' : 'Pemain Utama / Kapten', wecom: cleanWecom(wecom), raw: wecom }
+        ];
+
         const partners = [];
         if (isTeam && el.regPartnersDynamicContainer) {
           const cards = el.regPartnersDynamicContainer.querySelectorAll('.teammate-card');
@@ -5254,6 +5449,23 @@
               card.querySelector('.reg-partner-name')?.focus();
               return;
             }
+            if (!pWecom) {
+              showToast(isCurrentZh ? `请填写队员 #${i + 1} 的企业微信 / 手机号！` : `Mohon isi No. WeCom untuk Rekan #${i + 1}!`, 'warning');
+              card.querySelector('.reg-partner-wecom')?.focus();
+              return;
+            }
+
+            const cPWecom = cleanWecom(pWecom);
+            const dupSelf = enteredWecoms.find(w => w.wecom === cPWecom);
+            if (dupSelf) {
+              showToast(isCurrentZh
+                ? `企业微信/手机号 [${pWecom}] 在本队中重复填写（${dupSelf.role} 与 队员 #${i + 1}）！每个成员必须使用独立号码。`
+                : `No. WeCom [${pWecom}] dimasukkan lebih dari sekali dalam satu tim (${dupSelf.role} dan Rekan #${i + 1})! Setiap anggota tim harus memiliki nomor unik.`, 'error');
+              card.querySelector('.reg-partner-wecom')?.focus();
+              return;
+            }
+
+            enteredWecoms.push({ role: isCurrentZh ? `队员 #${i + 1}` : `Rekan #${i + 1}`, wecom: cPWecom, raw: pWecom });
             partners.push({ name: pName, wecom: pWecom, dept: pDept });
           }
         }
@@ -5288,6 +5500,16 @@
             el.publicRegisterForm.classList.add('hidden');
             el.registerSuccessBox.classList.remove('hidden');
             showToast(isCurrentZh ? '报名成功！祝您在比赛中取得好成绩。' : 'Pendaftaran berhasil! Selamat bertanding.', 'success');
+            
+            // Re-render floating registered teams panel with newly added team
+            if (regData.participant) {
+              t.participants = t.participants || [];
+              t.participants.push(regData.participant);
+              renderRegisterTeamsPanel(t);
+              if (el.registerCapacityText) {
+                el.registerCapacityText.textContent = t.participants.length;
+              }
+            }
           } else {
             showToast((isCurrentZh ? '报名失败: ' : 'Pendaftaran gagal: ') + (regData.error || (isCurrentZh ? '发生未知错误' : 'Terjadi kesalahan')), 'error');
           }

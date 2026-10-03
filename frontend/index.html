@@ -637,6 +637,12 @@
           <span class="lang-toggle-text">🇨🇳 中文</span>
         </button>
 
+        <!-- Registered Teams Spectator Button -->
+        <button id="btn-live-view-teams" class="btn btn-tool btn-sm" title="Lihat tim yang sudah terdaftar" style="gap: 6px; font-weight: 600;">
+          <i class="fa-solid fa-users"></i>
+          <span id="live-teams-btn-text" data-i18n="btn_live_registered_teams">Tim Terdaftar (0)</span>
+        </button>
+
         <!-- Match Search Button for Spectator -->
         <button id="btn-live-match-search" class="btn btn-tool btn-sm" title="Cari match dan pemain di bracket">
           <i class="fa-solid fa-magnifying-glass"></i>
@@ -719,106 +725,141 @@
   <!-- ==================== VIEW 4: PUBLIC MOBILE REGISTRATION ==================== -->
   <section id="register-view" class="app-view hidden">
     <div class="register-container">
-      <div class="register-card">
-        <div class="register-card-header">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
-            <div class="register-badge" data-i18n="reg_badge">PARTICIPANT REGISTRATION</div>
-            <button type="button" class="btn btn-ghost btn-sm btn-lang-toggle" title="Switch Language / 切换语言" style="gap: 5px; font-weight: 700; border: 1px solid var(--border-subtle); padding: 3px 8px; border-radius: var(--radius-sm);">
-              <i class="fa-solid fa-globe"></i>
-              <span class="lang-toggle-text">🇨🇳 中文</span>
+      <div class="register-layout-wrapper">
+        <div class="register-card">
+          <div class="register-card-header">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+              <div class="register-badge" data-i18n="reg_badge">PARTICIPANT REGISTRATION</div>
+              <button type="button" class="btn btn-ghost btn-sm btn-lang-toggle" title="Switch Language / 切换语言" style="gap: 5px; font-weight: 700; border: 1px solid var(--border-subtle); padding: 3px 8px; border-radius: var(--radius-sm);">
+                <i class="fa-solid fa-globe"></i>
+                <span class="lang-toggle-text">🇨🇳 中文</span>
+              </button>
+            </div>
+            <h2 id="register-tournament-name" data-i18n="reg_title">Tournament Registration</h2>
+            <p id="register-tournament-meta" data-i18n="reg_desc">Daftarkan tim Anda untuk masuk ke bagan turnamen.</p>
+            <div class="reg-counter-wrapper" style="display:flex; flex-direction:column; gap:6px; align-items:center;">
+              <span class="registered-counter-badge" id="register-counter-badge">
+                <i class="fa-solid fa-users"></i> <strong id="register-capacity-text">0</strong> <span data-i18n="reg_registered_badge">Peserta Telah Terdaftar</span>
+              </span>
+              <span class="reg-deadline-badge" id="reg-deadline-badge" style="font-size:11px; padding:4px 10px; border-radius:20px; background:rgba(245,158,11,0.15); border:1px solid rgba(245,158,11,0.35); color:#fbbf24; font-weight:600; display:inline-flex; align-items:center; gap:5px;">
+                <i class="fa-regular fa-clock"></i> <span id="reg-deadline-text" data-i18n="reg_open_badge">Pendaftaran Dibuka</span>
+              </span>
+            </div>
+          </div>
+
+          <!-- Registration Closed Message Box -->
+          <div id="register-closed-box" class="register-closed-box hidden" style="padding: 24px; text-align: center; background: rgba(239, 68, 68, 0.08); border-radius: var(--radius-sm); border: 1px solid rgba(239, 68, 68, 0.25); margin: 16px;">
+            <div style="font-size: 36px; color: #ef4444; margin-bottom: 8px;"><i class="fa-solid fa-lock"></i></div>
+            <h3 style="font-size: 1.1rem; color: #f87171; margin-bottom: 6px;" data-i18n="reg_closed_title">Pendaftaran Telah Ditutup</h3>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 16px;" data-i18n="reg_closed_desc">Batas waktu pendaftaran telah berakhir atau bagan pertandingan telah dikunci oleh panitia.</p>
+            <a href="?view=live" id="btn-closed-view-live" class="btn btn-primary btn-block">
+              <i class="fa-solid fa-trophy"></i> <span data-i18n="reg_view_live_btn">Lihat Live Bracket Pertandingan</span>
+            </a>
+          </div>
+
+          <form id="public-register-form" class="register-card-body">
+            <div class="form-group hidden" id="reg-team-name-group">
+              <label for="reg-team-name" data-i18n="reg_team_name_label">Nama Tim (Opsional - jika kosong otomatis TIM [Nama Depan])</label>
+              <input type="text" id="reg-team-name" data-i18n-ph="reg_team_name_ph" placeholder="Contoh: Garuda Team (Opsional)">
+            </div>
+
+            <div class="form-section-title" data-i18n="reg_main_player_title">
+              <i class="fa-solid fa-user"></i> Data Pemain Utama
+            </div>
+
+            <div class="form-group">
+              <label for="reg-player-name"><span data-i18n="reg_main_player_name">Nama Lengkap Pemain Utama</span> <span class="required">*</span></label>
+              <input type="text" id="reg-player-name" data-i18n-ph="reg_main_player_ph" placeholder="Masukkan nama lengkap pemain utama" required autocomplete="name">
+            </div>
+
+            <div class="form-group">
+              <label for="reg-player-wecom"><span data-i18n="reg_wecom_label">No. Wecom</span> <span class="required">*</span></label>
+              <input type="text" id="reg-player-wecom" data-i18n-ph="reg_wecom_ph" placeholder="No. Wecom / WA" required>
+            </div>
+
+            <div class="form-group">
+              <label for="reg-player-dept"><span data-i18n="reg_dept_label">Departemen (Dept)</span> <span class="required">*</span></label>
+              <input type="text" id="reg-player-dept" data-i18n-ph="reg_dept_ph" placeholder="Contoh: Produksi, IT, HR" required>
+            </div>
+
+            <!-- Partner Section: Revealed when Tournament is configured for Team Mode -->
+            <div id="reg-partner-section" class="partner-form-section hidden">
+              <div class="form-section-title partner-accent">
+                <i class="fa-solid fa-user-group"></i> <span data-i18n="reg_partner_title">Data Rekan Satu Tim</span>
+              </div>
+
+              <!-- Pre-configured Fixed Team Format Banner (Shown when admin configured team format via QR settings) -->
+              <div id="reg-team-fixed-info-banner" class="team-fixed-info-banner hidden"></div>
+
+              <!-- Teammate Count Selector Dropdown (Hidden when pre-configured by admin) -->
+              <div class="form-group teammate-count-group" id="reg-teammate-count-wrapper">
+                <label for="reg-teammate-count-select"><i class="fa-solid fa-users-gear"></i> <span data-i18n="reg_partner_count_label">Jumlah Rekan Tim:</span></label>
+                <select id="reg-teammate-count-select" class="input-modern select-modern" style="width: 100%;">
+                  <option value="1">1 Rekan (Ganda / 2 Pemain)</option>
+                  <option value="2">2 Rekan (Trio / 3 Pemain)</option>
+                  <option value="3">3 Rekan (Quad / 4 Pemain)</option>
+                  <option value="4">4 Rekan (5 Pemain)</option>
+                  <option value="5">5 Rekan (6 Pemain)</option>
+                </select>
+              </div>
+
+              <!-- Dynamic Teammate Input Cards Container -->
+              <div id="reg-partners-dynamic-container" class="partners-dynamic-container">
+                <!-- Rendered dynamically by app.js (1-5 cards) -->
+              </div>
+            </div>
+
+            <button type="submit" id="btn-submit-registration" class="btn btn-primary btn-block">
+              <i class="fa-solid fa-paper-plane"></i> <span data-i18n="reg_submit_btn">Submit Pendaftaran</span>
+            </button>
+          </form>
+
+          <div id="register-success-box" class="register-success-box hidden">
+            <div class="success-icon"><i class="fa-solid fa-circle-check"></i></div>
+            <h3 data-i18n="reg_success_title">Pendaftaran Berhasil Terkonfirmasi!</h3>
+            <p data-i18n="reg_success_desc">Anda resmi terdaftar dalam bagan pertandingan turnamen. Pantau live bracket pertandingan melalui link di bawah:</p>
+            <div class="success-live-box" style="margin: 14px 0; background: var(--bg-surface-elevated); padding: 10px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle); display:flex; gap:8px;">
+              <input type="text" id="success-live-url" readonly style="font-size: 11px; flex: 1;" />
+              <button type="button" id="btn-copy-success-live" class="btn btn-secondary btn-sm" style="white-space:nowrap;"><i class="fa-solid fa-copy"></i> <span data-i18n="btn_copy">Salin</span></button>
+            </div>
+            <a href="?view=live" id="btn-view-live-bracket" class="btn btn-primary btn-block">
+              <i class="fa-solid fa-trophy"></i> <span data-i18n="btn_open_live_now">Buka Live Bracket Sekarang</span>
+            </a>
+          </div>
+        </div>
+
+        <!-- Floating / Side Panel: Tim yang Sudah Terdaftar (Hanya Nama Tim) -->
+        <aside id="register-teams-panel" class="register-teams-panel">
+          <div class="register-teams-panel-header" id="btn-toggle-reg-teams-panel" role="button" tabindex="0">
+            <div style="display:flex; align-items:center; gap:8px;">
+              <div style="width:28px; height:28px; border-radius:6px; background:rgba(0,210,255,0.12); display:flex; align-items:center; justify-content:center; color:var(--primary); font-size:12px;">
+                <i class="fa-solid fa-clipboard-list"></i>
+              </div>
+              <div>
+                <div style="display:flex; align-items:center; gap:6px;">
+                  <h3 style="margin:0; font-size:0.95rem; font-weight:700; color:var(--text-primary);" data-i18n="reg_panel_teams_title">Tim Terdaftar</h3>
+                  <span id="reg-panel-team-count-badge" class="badge" style="font-size:10px; font-weight:700; padding:1px 6px; border-radius:10px; background:rgba(0,210,255,0.15); color:var(--primary); border: 1px solid rgba(0,210,255,0.3);">0</span>
+                </div>
+                <span style="font-size:10px; color:var(--text-muted); display:flex; align-items:center; gap:4px; margin-top:2px;">
+                  <i class="fa-solid fa-shield-halved" style="font-size:9px; color:var(--accent-gold);"></i> <span data-i18n="reg_panel_privacy_note">Hanya Nama Tim</span>
+                </span>
+              </div>
+            </div>
+            <button type="button" class="btn btn-ghost btn-xs" style="padding:4px 8px; color:var(--text-secondary); border: 1px solid var(--border-subtle); border-radius: 4px;">
+              <i id="reg-panel-chevron" class="fa-solid fa-chevron-down" style="transition:transform 0.25s ease;"></i>
             </button>
           </div>
-          <h2 id="register-tournament-name" data-i18n="reg_title">Tournament Registration</h2>
-          <p id="register-tournament-meta" data-i18n="reg_desc">Daftarkan tim Anda untuk masuk ke bagan turnamen.</p>
-          <div class="reg-counter-wrapper" style="display:flex; flex-direction:column; gap:6px; align-items:center;">
-            <span class="registered-counter-badge" id="register-counter-badge">
-              <i class="fa-solid fa-users"></i> <strong id="register-capacity-text">0</strong> <span data-i18n="reg_registered_badge">Peserta Telah Terdaftar</span>
-            </span>
-            <span class="reg-deadline-badge" id="reg-deadline-badge" style="font-size:11px; padding:4px 10px; border-radius:20px; background:rgba(245,158,11,0.15); border:1px solid rgba(245,158,11,0.35); color:#fbbf24; font-weight:600; display:inline-flex; align-items:center; gap:5px;">
-              <i class="fa-regular fa-clock"></i> <span id="reg-deadline-text" data-i18n="reg_open_badge">Pendaftaran Dibuka</span>
-            </span>
-          </div>
-        </div>
 
-        <!-- Registration Closed Message Box -->
-        <div id="register-closed-box" class="register-closed-box hidden" style="padding: 24px; text-align: center; background: rgba(239, 68, 68, 0.08); border-radius: var(--radius-sm); border: 1px solid rgba(239, 68, 68, 0.25); margin: 16px;">
-          <div style="font-size: 36px; color: #ef4444; margin-bottom: 8px;"><i class="fa-solid fa-lock"></i></div>
-          <h3 style="font-size: 1.1rem; color: #f87171; margin-bottom: 6px;" data-i18n="reg_closed_title">Pendaftaran Telah Ditutup</h3>
-          <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 16px;" data-i18n="reg_closed_desc">Batas waktu pendaftaran telah berakhir atau bagan pertandingan telah dikunci oleh panitia.</p>
-          <a href="?view=live" id="btn-closed-view-live" class="btn btn-primary btn-block">
-            <i class="fa-solid fa-trophy"></i> <span data-i18n="reg_view_live_btn">Lihat Live Bracket Pertandingan</span>
-          </a>
-        </div>
-
-        <form id="public-register-form" class="register-card-body">
-          <div class="form-group hidden" id="reg-team-name-group">
-            <label for="reg-team-name" data-i18n="reg_team_name_label">Nama Tim (Opsional - jika kosong otomatis TIM [Nama Depan])</label>
-            <input type="text" id="reg-team-name" data-i18n-ph="reg_team_name_ph" placeholder="Contoh: Garuda Team (Opsional)">
-          </div>
-
-          <div class="form-section-title" data-i18n="reg_main_player_title">
-            <i class="fa-solid fa-user"></i> Data Pemain Utama
-          </div>
-
-          <div class="form-group">
-            <label for="reg-player-name"><span data-i18n="reg_main_player_name">Nama Lengkap Pemain Utama</span> <span class="required">*</span></label>
-            <input type="text" id="reg-player-name" data-i18n-ph="reg_main_player_ph" placeholder="Masukkan nama lengkap pemain utama" required autocomplete="name">
-          </div>
-
-          <div class="form-group">
-            <label for="reg-player-wecom"><span data-i18n="reg_wecom_label">No. Wecom</span> <span class="required">*</span></label>
-            <input type="text" id="reg-player-wecom" data-i18n-ph="reg_wecom_ph" placeholder="No. Wecom / WA" required>
-          </div>
-
-          <div class="form-group">
-            <label for="reg-player-dept"><span data-i18n="reg_dept_label">Departemen (Dept)</span> <span class="required">*</span></label>
-            <input type="text" id="reg-player-dept" data-i18n-ph="reg_dept_ph" placeholder="Contoh: Produksi, IT, HR" required>
-          </div>
-
-          <!-- Partner Section: Revealed when Tournament is configured for Team Mode -->
-          <div id="reg-partner-section" class="partner-form-section hidden">
-            <div class="form-section-title partner-accent">
-              <i class="fa-solid fa-user-group"></i> <span data-i18n="reg_partner_title">Data Rekan Satu Tim</span>
+          <div id="register-teams-panel-body" class="register-teams-panel-body">
+            <div class="reg-teams-search-box" style="margin-bottom:10px; position:relative;">
+              <i class="fa-solid fa-magnifying-glass" style="position:absolute; left:10px; top:50%; transform:translateY(-50%); color:var(--text-muted); font-size:11px;"></i>
+              <input type="text" id="input-search-reg-teams" placeholder="Cari nama tim..." data-i18n-ph="ph_search_registered_teams" style="width:100%; font-size:11px; padding:6px 10px 6px 30px; background:var(--bg-surface-elevated); border:1px solid var(--border-subtle); border-radius:var(--radius-sm); color:var(--text-primary); box-sizing:border-box;">
             </div>
-
-            <!-- Pre-configured Fixed Team Format Banner (Shown when admin configured team format via QR settings) -->
-            <div id="reg-team-fixed-info-banner" class="team-fixed-info-banner hidden"></div>
-
-            <!-- Teammate Count Selector Dropdown (Hidden when pre-configured by admin) -->
-            <div class="form-group teammate-count-group" id="reg-teammate-count-wrapper">
-              <label for="reg-teammate-count-select"><i class="fa-solid fa-users-gear"></i> <span data-i18n="reg_partner_count_label">Jumlah Rekan Tim:</span></label>
-              <select id="reg-teammate-count-select" class="input-modern select-modern" style="width: 100%;">
-                <option value="1">1 Rekan (Ganda / 2 Pemain)</option>
-                <option value="2">2 Rekan (Trio / 3 Pemain)</option>
-                <option value="3">3 Rekan (Quad / 4 Pemain)</option>
-                <option value="4">4 Rekan (5 Pemain)</option>
-                <option value="5">5 Rekan (6 Pemain)</option>
-              </select>
-            </div>
-
-            <!-- Dynamic Teammate Input Cards Container -->
-            <div id="reg-partners-dynamic-container" class="partners-dynamic-container">
-              <!-- Rendered dynamically by app.js (1-5 cards) -->
+            <div id="register-teams-list" class="register-teams-list" style="max-height:420px; overflow-y:auto; display:flex; flex-direction:column; gap:6px;">
+              <!-- Rendered list of team names -->
             </div>
           </div>
-
-          <button type="submit" id="btn-submit-registration" class="btn btn-primary btn-block">
-            <i class="fa-solid fa-paper-plane"></i> <span data-i18n="reg_submit_btn">Submit Pendaftaran</span>
-          </button>
-        </form>
-
-        <div id="register-success-box" class="register-success-box hidden">
-          <div class="success-icon"><i class="fa-solid fa-circle-check"></i></div>
-          <h3 data-i18n="reg_success_title">Pendaftaran Berhasil Terkonfirmasi!</h3>
-          <p data-i18n="reg_success_desc">Anda resmi terdaftar dalam bagan pertandingan turnamen. Pantau live bracket pertandingan melalui link di bawah:</p>
-          <div class="success-live-box" style="margin: 14px 0; background: var(--bg-surface-elevated); padding: 10px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle); display:flex; gap:8px;">
-            <input type="text" id="success-live-url" readonly style="font-size: 11px; flex: 1;" />
-            <button type="button" id="btn-copy-success-live" class="btn btn-secondary btn-sm" style="white-space:nowrap;"><i class="fa-solid fa-copy"></i> <span data-i18n="btn_copy">Salin</span></button>
-          </div>
-          <a href="?view=live" id="btn-view-live-bracket" class="btn btn-primary btn-block">
-            <i class="fa-solid fa-trophy"></i> <span data-i18n="btn_open_live_now">Buka Live Bracket Sekarang</span>
-          </a>
-        </div>
+        </aside>
       </div>
     </div>
   </section>
@@ -1413,6 +1454,37 @@
       <!-- Drawer Content Body -->
       <div class="queue-drawer-body qualifiers-body" id="qualifiers-drawer-body">
         <!-- Rendered dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Live Spectator: Registered Teams List -->
+  <div id="modal-live-registered-teams" class="modal-overlay hidden">
+    <div class="modal-content modal-md" style="max-width: 500px;">
+      <div class="modal-header">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <div class="modal-icon-badge" style="background: rgba(0, 210, 255, 0.15); color: var(--primary);">
+            <i class="fa-solid fa-users"></i>
+          </div>
+          <div>
+            <h3 style="margin: 0; font-size: 1.1rem;" data-i18n="title_live_teams">Daftar Tim Terdaftar</h3>
+            <span style="font-size: 11px; color: var(--text-muted);" id="live-teams-modal-subtitle">Total: 0 Tim</span>
+          </div>
+        </div>
+        <button class="btn-close-modal" data-close="modal-live-registered-teams">&times;</button>
+      </div>
+      <div class="modal-body" style="padding: 1rem 1.25rem;">
+        <div style="position:relative; margin-bottom: 12px;">
+          <i class="fa-solid fa-magnifying-glass" style="position:absolute; left:10px; top:50%; transform:translateY(-50%); color:var(--text-muted); font-size:12px;"></i>
+          <input type="text" id="input-search-live-teams" placeholder="Cari nama tim / peserta..." data-i18n-ph="ph_search_registered_teams" style="width: 100%; font-size: 12px; padding: 7px 10px 7px 30px; background:var(--bg-surface-elevated); border:1px solid var(--border-subtle); border-radius:var(--radius-sm); color:var(--text-primary); box-sizing:border-box;" />
+        </div>
+        <div id="live-teams-list-container" class="live-teams-list-container" style="max-height: 380px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px;">
+          <!-- Rendered team items -->
+        </div>
+      </div>
+      <div class="modal-footer" style="justify-content: space-between;">
+        <span style="font-size: 11px; color: var(--text-muted);" id="live-teams-summary-text"></span>
+        <button type="button" class="btn btn-secondary btn-sm" data-close="modal-live-registered-teams" data-i18n="btn_close">Tutup</button>
       </div>
     </div>
   </div>

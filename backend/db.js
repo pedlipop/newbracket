@@ -81,8 +81,18 @@ function writeLocalData(data) {
   try {
     const tmpFile = `${DB_FILE}.tmp`;
     const serialized = JSON.stringify(data, null, 2);
-    fs.writeFileSync(tmpFile, serialized, 'utf8');
-    fs.renameSync(tmpFile, DB_FILE);
+    try {
+      fs.writeFileSync(tmpFile, serialized, 'utf8');
+      try {
+        fs.renameSync(tmpFile, DB_FILE);
+      } catch (renameErr) {
+        // Fallback for Windows EPERM lock: copy and unlink tmp
+        fs.copyFileSync(tmpFile, DB_FILE);
+        try { fs.unlinkSync(tmpFile); } catch (e) {}
+      }
+    } catch (e) {
+      fs.writeFileSync(DB_FILE, serialized, 'utf8');
+    }
     return true;
   } catch (err) {
     console.error('Error writing local database file:', err);

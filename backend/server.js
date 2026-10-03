@@ -163,6 +163,64 @@ app.post('/api/tournaments/:id/register', async (req, res) => {
 
     const { name, playerName, teamName, wecom, dept, contact, tag, isTeam, partner, partners } = req.body;
     const effectiveName = (playerName || name || teamName || '').trim();
+
+    // Duplicate WeCom Validation
+    const cleanWecom = str => (str || '').toString().trim().replace(/[\s\-\+]/g, '').toLowerCase();
+    
+    // Collect all wecoms submitted in this request
+    const submittedWecoms = [];
+    const mainWecom = cleanWecom(wecom || contact);
+    if (mainWecom) {
+      submittedWecoms.push({ role: 'Pemain Utama / Kapten', wecom: mainWecom, raw: (wecom || contact).trim() });
+    }
+    
+    const rawPartners = Array.isArray(partners) ? partners : (partner ? [partner] : []);
+    rawPartners.forEach((p, idx) => {
+      const pWecom = cleanWecom(p.wecom);
+      if (pWecom) {
+        submittedWecoms.push({ role: `Rekan #${idx + 1} (${p.name || ''})`, wecom: pWecom, raw: (p.wecom || '').trim() });
+      }
+    });
+
+    // 1. Check duplicate within the same submission
+    const selfMap = new Map();
+    for (const item of submittedWecoms) {
+      if (selfMap.has(item.wecom)) {
+        return res.status(400).json({
+          success: false,
+          error: `No. WeCom [${item.raw}] dimasukkan lebih dari sekali dalam satu tim (${item.role} dan ${selfMap.get(item.wecom).role})! Setiap anggota tim harus memiliki nomor unik.`
+        });
+      }
+      selfMap.set(item.wecom, item);
+    }
+
+    // 2. Check duplicate against existing participants in this tournament
+    const existingList = tournament.participants || [];
+    for (const ep of existingList) {
+      const teamLabel = ep.teamName || ep.name || ep.playerName || 'Tim Lain';
+      
+      const epWecoms = [];
+      const epMain = cleanWecom(ep.wecom);
+      if (epMain) epWecoms.push({ label: ep.name || ep.playerName || 'Kapten', wecom: epMain, raw: ep.wecom });
+      
+      const epPartners = Array.isArray(ep.partners) ? ep.partners : (ep.partner ? [ep.partner] : []);
+      epPartners.forEach(part => {
+        const partW = cleanWecom(part.wecom);
+        if (partW) epWecoms.push({ label: part.name || 'Rekan', wecom: partW, raw: part.wecom });
+      });
+
+      for (const epw of epWecoms) {
+        for (const sub of submittedWecoms) {
+          if (sub.wecom === epw.wecom) {
+            return res.status(400).json({
+              success: false,
+              error: `No. WeCom [${sub.raw}] sudah terdaftar pada tim "${teamLabel}"! Setiap nomor WeCom hanya boleh terdaftar 1 kali untuk menghindari tim ganda.`
+            });
+          }
+        }
+      }
+    }
+
     const result = await db.addParticipant(req.params.id, {
       name: effectiveName,
       playerName: (playerName || name || '').trim(),
