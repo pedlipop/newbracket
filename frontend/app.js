@@ -964,6 +964,16 @@
     }[m]));
   }
 
+  function getRealParticipants(participants) {
+    if (!Array.isArray(participants)) return [];
+    return participants.filter(p => {
+      if (!p) return false;
+      if (p.isPlaceholder || p.isUnseeded) return false;
+      const n = (p.name || p.teamName || p.playerName || '').trim();
+      return n.length > 0 && n.toLowerCase() !== '(slot kosong)' && n.toLowerCase() !== 'slot kosong';
+    });
+  }
+
   // ==================== VIEWER PORTAL VIEW (PUBLIC LANDING PAGE) ====================
   async function loadViewerPortal() {
     switchView('portal');
@@ -1005,8 +1015,9 @@
       const isSetup = t.status === 'setup';
       const isDoubles = !!(t.settings && (t.settings.isDoubles === true || t.settings.isDoubles === 'true' || t.settings.isDoubles === 1 || t.settings.isDoubles === '1'));
       const formatLabel = isDoubles ? (isZh ? '团队 / 双人赛' : 'Mode Tim / Ganda') : (isZh ? '个人 / 单人赛' : 'Individu / Single');
-      const participantCount = t.participants ? t.participants.length : 0;
-      const maxSlots = t.maxParticipants || 8;
+      const realParticipants = getRealParticipants(t.participants);
+      const participantCount = realParticipants.length;
+      const maxSlots = (t.participants && t.participants.length > 0) ? t.participants.length : (t.maxParticipants || 8);
       const participantsUnit = isZh ? '支队伍/选手' : 'Tim/Pemain';
       const watchText = isZh ? '观看实时对阵' : 'Tonton Live Bracket';
       const registerText = isZh ? '立即报名' : 'Daftar';
@@ -1110,7 +1121,9 @@
 
     el.dashboardEmptyState.classList.add('hidden');
     el.tournamentsGrid.innerHTML = filtered.map(t => {
-      const pCount = (t.participants || []).length;
+      const realParticipants = getRealParticipants(t.participants);
+      const pCount = realParticipants.length;
+      const totalSlots = (t.participants && t.participants.length > 0) ? t.participants.length : (t.maxParticipants || 8);
       const statusClass = `badge-${t.status || 'setup'}`;
       let statusText = (t.status || 'setup').replace('_', ' ').toUpperCase();
       if (isZh) {
@@ -1147,7 +1160,7 @@
             <span class="card-game">${escapeHTML(t.game || (isZh ? '常规比赛' : 'Generic Tournament'))}</span>
             <div class="card-meta">
               <span><i class="fa-solid fa-sitemap"></i> ${typeLabel}</span>
-              <span><i class="fa-solid fa-users"></i> ${pCount} / ${t.maxParticipants || 8}</span>
+              <span><i class="fa-solid fa-users"></i> ${pCount} / ${totalSlots}</span>
             </div>
           </div>
           <div class="card-footer">
@@ -5084,10 +5097,10 @@
       el.liveTournamentName.textContent = t.name;
       el.liveGameBadge.textContent = `${t.game || 'Esports'} • Live Spectator View`;
 
+      const realParticipants = getRealParticipants(t.participants);
       if (el.liveTeamsBtnText) {
         const isZh = state.lang === 'zh';
-        const teamCount = (t.participants || []).length;
-        el.liveTeamsBtnText.textContent = `${isZh ? '已报名战队' : 'Tim Terdaftar'} (${teamCount})`;
+        el.liveTeamsBtnText.textContent = `${isZh ? '已报名战队' : 'Tim Terdaftar'} (${realParticipants.length})`;
       }
       if (el.btnLiveViewTeams) {
         el.btnLiveViewTeams.onclick = () => {
@@ -5108,7 +5121,7 @@
 
       if (!isStarted) {
         if (el.notStartedParticipantCount) {
-          el.notStartedParticipantCount.textContent = `${(t.participants || []).length} Tim Terdaftar`;
+          el.notStartedParticipantCount.textContent = `${realParticipants.length} Tim Terdaftar`;
         }
         if (el.notStartedTimer) {
           if (t.autoLockAt) {
@@ -5151,7 +5164,7 @@
   function openLiveRegisteredTeamsModal(t) {
     if (!el.modalLiveRegisteredTeams) return;
     const isZh = state.lang === 'zh';
-    const participants = t.participants || [];
+    const participants = getRealParticipants(t.participants);
 
     if (el.liveTeamsModalSubtitle) {
       el.liveTeamsModalSubtitle.textContent = isZh ? `总计：${participants.length} 支战队/选手` : `Total: ${participants.length} Tim / Peserta`;
@@ -5180,7 +5193,8 @@
       }
 
       filtered.forEach((p, idx) => {
-        const teamName = p.teamName || p.name || p.playerName || `Team ${idx + 1}`;
+        const teamName = p.teamName || p.name || p.playerName;
+        if (!teamName) return;
         const item = document.createElement('div');
         item.className = 'reg-team-item';
 
@@ -5223,7 +5237,7 @@
   function renderRegisterTeamsPanel(t) {
     if (!el.registerTeamsPanel) return;
     const isZh = state.lang === 'zh';
-    const participants = t.participants || [];
+    const participants = getRealParticipants(t.participants);
 
     if (el.regPanelTeamCountBadge) {
       el.regPanelTeamCountBadge.textContent = participants.length;
@@ -5250,7 +5264,8 @@
 
       filtered.forEach((p, idx) => {
         // STRICT PRIVACY: ONLY Team Name is exposed, no personal contact data
-        const teamName = p.teamName || p.name || p.playerName || `Tim #${idx + 1}`;
+        const teamName = p.teamName || p.name || p.playerName;
+        if (!teamName) return;
         const item = document.createElement('div');
         item.className = 'reg-team-item';
         item.innerHTML = `
@@ -5304,7 +5319,7 @@
       const formTitle = t.settings?.regFormTitle || t.name;
       el.registerTournamentName.textContent = formTitle;
 
-      const currentCount = (t.participants || []).length;
+      const currentCount = getRealParticipants(t.participants).length;
       if (el.registerCapacityText) {
         el.registerCapacityText.textContent = currentCount;
       }
@@ -5501,14 +5516,24 @@
             el.registerSuccessBox.classList.remove('hidden');
             showToast(isCurrentZh ? '报名成功！祝您在比赛中取得好成绩。' : 'Pendaftaran berhasil! Selamat bertanding.', 'success');
             
-            // Re-render floating registered teams panel with newly added team
-            if (regData.participant) {
-              t.participants = t.participants || [];
-              t.participants.push(regData.participant);
-              renderRegisterTeamsPanel(t);
-              if (el.registerCapacityText) {
-                el.registerCapacityText.textContent = t.participants.length;
+            // Re-render floating registered teams panel with updated tournament
+            if (regData.tournament) {
+              t.participants = regData.tournament.participants;
+              if (regData.tournament.rounds) {
+                t.rounds = regData.tournament.rounds;
               }
+            } else if (regData.participant) {
+              t.participants = t.participants || [];
+              const emptyIdx = t.participants.findIndex(p => !p || !p.name || !p.name.trim());
+              if (emptyIdx !== -1) {
+                t.participants[emptyIdx] = regData.participant;
+              } else {
+                t.participants.push(regData.participant);
+              }
+            }
+            renderRegisterTeamsPanel(t);
+            if (el.registerCapacityText) {
+              el.registerCapacityText.textContent = getRealParticipants(t.participants).length;
             }
           } else {
             showToast((isCurrentZh ? '报名失败: ' : 'Pendaftaran gagal: ') + (regData.error || (isCurrentZh ? '发生未知错误' : 'Terjadi kesalahan')), 'error');

@@ -288,15 +288,63 @@ export const db = {
       registeredAt: new Date().toISOString()
     };
 
+    const isNewEmptySlot = !participant.name.trim();
+
+    const attachToTournament = (t) => {
+      t.participants = t.participants || [];
+
+      if (!isNewEmptySlot) {
+        // Look for the first available empty slot to fill/replace
+        const emptySlotIdx = t.participants.findIndex(p => {
+          if (!p) return true;
+          if (p.isPlaceholder) return true;
+          const n = (p.name || p.teamName || p.playerName || '').trim();
+          return n === '' || n.toLowerCase() === '(slot kosong)' || n.toLowerCase() === 'slot kosong';
+        });
+
+        if (emptySlotIdx !== -1) {
+          const existingSlot = t.participants[emptySlotIdx];
+          if (existingSlot && existingSlot.id) {
+            participant.id = existingSlot.id;
+          }
+          t.participants[emptySlotIdx] = participant;
+
+          // Update matching match slots in bracket tree
+          if (Array.isArray(t.rounds)) {
+            t.rounds.forEach(r => {
+              (r.matches || []).forEach(m => {
+                if (m.p1 && (m.p1.id === participant.id || m.p1.seed === emptySlotIdx + 1)) {
+                  m.p1 = { ...m.p1, ...participant, isPlaceholder: false, isUnseeded: false };
+                }
+                if (m.p2 && (m.p2.id === participant.id || m.p2.seed === emptySlotIdx + 1)) {
+                  m.p2 = { ...m.p2, ...participant, isPlaceholder: false, isUnseeded: false };
+                }
+              });
+            });
+          }
+        } else {
+          t.participants.push(participant);
+          if (t.maxParticipants && t.participants.length > t.maxParticipants) {
+            t.maxParticipants = t.participants.length;
+          }
+        }
+      } else {
+        t.participants.push(participant);
+        if (t.maxParticipants && t.participants.length > t.maxParticipants) {
+          t.maxParticipants = t.participants.length;
+        }
+      }
+
+      t.updatedAt = new Date().toISOString();
+    };
+
     if (DATABASE_URL) {
       await initPostgres();
       try {
         const t = await this.getTournament(tournamentId);
         if (!t) return null;
 
-        t.participants = t.participants || [];
-        t.participants.push(participant);
-        t.updatedAt = new Date().toISOString();
+        attachToTournament(t);
 
         await pgPool.query(
           `UPDATE tournaments SET data = $1, updated_at = NOW() WHERE id = $2`,
@@ -312,9 +360,7 @@ export const db = {
       const t = (data.tournaments || []).find(item => item.id === tournamentId);
       if (!t) return null;
 
-      t.participants = t.participants || [];
-      t.participants.push(participant);
-      t.updatedAt = new Date().toISOString();
+      attachToTournament(t);
       writeLocalData(data);
       return { tournament: t, participant };
     }
