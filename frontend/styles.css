@@ -1923,6 +1923,22 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
   white-space: nowrap !important;
 }
 
+/* Unified QR Status & Deadline Box */
+.qr-unified-box {
+  transition: all var(--transition-normal);
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-surface-elevated);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.qr-unified-box:hover {
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.qr-deadline-date-preview {
+  animation: fadeIn 0.2s ease-out;
+}
+
 /* QR Modal Team Configuration Box */
 .qr-team-config-box {
   transition: all var(--transition-normal);
@@ -1933,6 +1949,19 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
 
 .qr-team-config-box:hover {
   border-color: rgba(0, 210, 255, 0.45) !important;
+}
+
+.qr-team-config-header:hover label {
+  color: var(--text-primary) !important;
+}
+
+.qr-team-active-summary {
+  animation: fadeIn 0.2s ease-out;
+  transition: all 0.2s ease;
+}
+
+.qr-team-config-body {
+  animation: fadeIn 0.25s ease-out;
 }
 
 .qr-team-config-box label {

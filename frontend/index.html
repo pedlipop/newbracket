@@ -896,76 +896,127 @@
           </button>
         </div>
 
-        <!-- Registration Status & Quick Close/Open Action -->
-        <div class="qr-status-box" style="margin-top: 14px; width: 100%; text-align: left; background: var(--bg-surface-elevated); padding: 12px 14px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 8px;">
-            <label style="font-size: 12px; font-weight: 600; color: var(--text-secondary); display:flex; align-items:center; gap:6px;">
-              <i class="fa-solid fa-clipboard-check"></i> <span data-i18n="label_qr_reg_status">Status Pendaftaran Form:</span>
-            </label>
-            <span id="qr-reg-status-badge" class="badge" style="font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 6px;">Buka</span>
+        <!-- UNIFIED CONTAINER: Status Pendaftaran Form & Batas Waktu Otomatis -->
+        <div class="qr-unified-box" style="margin-top: 14px; width: 100%; text-align: left; background: var(--bg-surface-elevated); padding: 12px 14px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
+          <!-- Bagian 1: Status Pendaftaran Form -->
+          <div class="qr-status-section">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 8px;">
+              <label style="font-size: 12px; font-weight: 600; color: var(--text-secondary); display:flex; align-items:center; gap:6px;">
+                <i class="fa-solid fa-clipboard-check" style="color: var(--primary);"></i> <span data-i18n="label_qr_reg_status">Status Pendaftaran Form:</span>
+              </label>
+              <span id="qr-reg-status-badge" class="badge" style="font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 6px;">Buka</span>
+            </div>
+            <button type="button" id="btn-toggle-reg-status" class="btn btn-sm btn-block" style="display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 600; padding: 8px 12px; transition: all 0.2s ease;">
+              <i class="fa-solid fa-lock"></i> <span id="btn-toggle-reg-text" data-i18n="btn_close_reg_now">Tutup Pendaftaran Sekarang</span>
+            </button>
           </div>
-          <button type="button" id="btn-toggle-reg-status" class="btn btn-sm btn-block" style="display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 600; padding: 8px 12px; transition: all 0.2s ease;">
-            <i class="fa-solid fa-lock"></i> <span id="btn-toggle-reg-text" data-i18n="btn_close_reg_now">Tutup Pendaftaran Sekarang</span>
-          </button>
+
+          <!-- Divider Halus -->
+          <div class="qr-unified-divider" style="margin: 12px 0 10px 0; height: 1px; background: var(--border-subtle); opacity: 0.7;"></div>
+
+          <!-- Bagian 2: Batas Waktu Otomatis Ditutup -->
+          <div class="qr-deadline-section">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 6px;">
+              <label style="font-size: 12px; font-weight: 600; color: var(--text-secondary); display:flex; align-items:center; gap:6px;">
+                <i class="fa-regular fa-clock" style="color: var(--accent-gold);"></i> <span data-i18n="label_qr_deadline">Batas Waktu Otomatis Ditutup:</span>
+              </label>
+              <span id="qr-deadline-status-badge" style="font-size: 11px; font-weight: 700; color: var(--accent-gold);"></span>
+            </div>
+            <div style="display: flex; gap: 8px; align-items: center; width: 100%; min-width: 0;">
+              <select id="qr-deadline-preset" style="font-size: 12px; flex: 1 1 0; min-width: 0;">
+                <option value="none" data-i18n="opt_deadline_none">Tanpa Batas Waktu (Buka Terus)</option>
+                <option value="5" data-i18n="opt_deadline_5m">5 Menit Lagi</option>
+                <option value="15" data-i18n="opt_deadline_15m">15 Menit Lagi</option>
+                <option value="30" data-i18n="opt_deadline_30m">30 Menit Lagi</option>
+                <option value="60" data-i18n="opt_deadline_1h">1 Jam Lagi</option>
+                <option value="120" data-i18n="opt_deadline_2h">2 Jam Lagi</option>
+                <option value="custom" data-i18n="opt_deadline_custom">Pilih Waktu Custom...</option>
+              </select>
+              <input type="datetime-local" id="qr-deadline-custom" class="hidden custom-datetime-input" />
+              <button type="button" id="btn-save-qr-deadline" class="btn btn-secondary btn-sm" style="flex-shrink: 0; white-space: nowrap;" data-i18n="btn_save">Simpan</button>
+            </div>
+            <!-- Tampilan Detail Tanggal untuk Waktu Custom & Batas Waktu Aktif -->
+            <div id="qr-deadline-date-preview" class="qr-deadline-date-preview hidden" style="margin-top: 6px; font-size: 11px; display: flex; align-items: center; gap: 6px; color: var(--accent-gold); background: rgba(251, 191, 36, 0.08); padding: 5px 10px; border-radius: 4px; border: 1px dashed rgba(251, 191, 36, 0.35);">
+              <i class="fa-solid fa-calendar-day"></i>
+              <span id="qr-deadline-date-text"></span>
+            </div>
+          </div>
         </div>
 
         <!-- Team Mode Configuration Box (Visible ONLY when Tournament has Team Mode checked) -->
         <div id="qr-team-config-box" class="qr-team-config-box hidden" style="margin-top: 10px; width: 100%; text-align: left; background: var(--bg-surface-elevated); padding: 12px 14px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 8px;">
-            <label style="font-size: 12px; font-weight: 600; color: var(--text-secondary); display:flex; align-items:center; gap:6px;">
+          <!-- Accordion Header & Toggle -->
+          <div class="qr-team-config-header" id="qr-team-config-header" style="display:flex; justify-content:space-between; align-items:center; cursor: pointer; user-select: none;">
+            <label style="font-size: 12px; font-weight: 600; color: var(--text-secondary); display:flex; align-items:center; gap:6px; cursor: pointer;">
               <i class="fa-solid fa-users-gear" style="color: var(--primary);"></i> <span data-i18n="label_qr_team_config">Pengaturan Form Registrasi Tim:</span>
             </label>
-            <span class="badge badge-info" style="font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 4px; background: rgba(0, 210, 255, 0.15); color: var(--primary); border: 1px solid rgba(0, 210, 255, 0.3);">Mode Tim Aktif</span>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <span class="badge badge-info" style="font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 4px; background: rgba(0, 210, 255, 0.15); color: var(--primary); border: 1px solid rgba(0, 210, 255, 0.3);">Mode Tim Aktif</span>
+              <button type="button" id="btn-toggle-team-accordion" class="btn btn-ghost btn-xs" style="padding: 3px 8px; font-size: 11px; display:flex; align-items:center; gap:5px; color:var(--text-secondary); border: 1px solid var(--border-subtle); border-radius: 4px;">
+                <span id="team-accordion-btn-text" data-i18n="btn_edit_team_settings">Ubah Pengaturan</span>
+                <i id="team-accordion-chevron" class="fa-solid fa-chevron-down" style="transition: transform 0.25s ease;"></i>
+              </button>
+            </div>
           </div>
 
-          <div class="form-group" style="margin-bottom: 8px;">
-            <label for="qr-team-reg-title" style="font-size: 11px; font-weight: 600; color: var(--text-secondary); margin-bottom: 3px;" data-i18n="label_qr_team_title">Judul / Nama Form Registrasi (Tampil ke Peserta):</label>
-            <input type="text" id="qr-team-reg-title" class="input-modern" style="width: 100%; font-size: 12px; padding: 6px 10px;" data-i18n-ph="ph_qr_team_title" placeholder="Contoh: Honor of Kings 5v5 Championship" />
+          <!-- Detail Pengaturan yang Sudah Di-set (Active Settings Summary) -->
+          <div id="qr-team-active-summary" class="qr-team-active-summary" style="margin-top: 8px; padding: 8px 10px; background: rgba(0, 210, 255, 0.05); border-radius: var(--radius-sm); border: 1px solid rgba(0, 210, 255, 0.2); display: flex; flex-direction: column; gap: 5px; font-size: 11px;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span style="color: var(--text-muted); display:flex; align-items:center; gap:5px;"><i class="fa-solid fa-heading" style="color:var(--primary);"></i> <span data-i18n="summary_label_form_title">Judul Form:</span></span>
+              <span id="summary-team-title" style="font-weight: 600; color: var(--text-primary); text-align: right; max-width: 65%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">-</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span style="color: var(--text-muted); display:flex; align-items:center; gap:5px;"><i class="fa-solid fa-users" style="color:var(--primary);"></i> <span data-i18n="summary_label_team_format">Format Tim:</span></span>
+              <span id="summary-team-size" class="badge" style="font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 4px; background: rgba(0, 210, 255, 0.15); color: var(--primary);">-</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span style="color: var(--text-muted); display:flex; align-items:center; gap:5px;"><i class="fa-solid fa-signature" style="color:var(--primary);"></i> <span data-i18n="summary_label_team_name">Nama Tim:</span></span>
+              <span id="summary-team-mode" style="font-weight: 600; color: var(--text-secondary);">-</span>
+            </div>
           </div>
 
-          <div class="form-group" style="margin-bottom: 8px;">
-            <label for="qr-team-size-select" style="font-size: 11px; font-weight: 600; color: var(--text-secondary); margin-bottom: 3px;" data-i18n="label_qr_team_size">Jumlah Anggota per Tim (Termasuk Kapten):</label>
-            <select id="qr-team-size-select" style="font-size: 12px; width: 100%; padding: 6px 10px;">
-              <option value="2">2 Orang (Ganda: 1 Kapten + 1 Rekan)</option>
-              <option value="3">3 Orang (Trio: 1 Kapten + 2 Rekan)</option>
-              <option value="4">4 Orang (Quad: 1 Kapten + 3 Rekan)</option>
-              <option value="5" selected>5 Orang (5v5 Tim: 1 Kapten + 4 Rekan)</option>
-              <option value="6">6 Orang (6 Pemain: 1 Kapten + 5 Rekan)</option>
-            </select>
-            <small class="form-hint" style="font-size: 10px; color: var(--text-muted); margin-top: 2px;" data-i18n="hint_qr_team_size">Peserta yang membuka form tidak perlu memilih jumlah anggota lagi.</small>
-          </div>
+          <!-- Dropdown Collapsible Form Panel -->
+          <div id="qr-team-config-body" class="qr-team-config-body hidden" style="margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--border-subtle);">
+            <div class="form-group" style="margin-bottom: 8px;">
+              <label for="qr-team-reg-title" style="font-size: 11px; font-weight: 600; color: var(--text-secondary); margin-bottom: 3px;" data-i18n="label_qr_team_title">Judul / Nama Form Registrasi (Tampil ke Peserta):</label>
+              <input type="text" id="qr-team-reg-title" class="input-modern" style="width: 100%; font-size: 12px; padding: 6px 10px;" data-i18n-ph="ph_qr_team_title" placeholder="Contoh: Honor of Kings 5v5 Championship" />
+            </div>
 
-          <div class="form-group" style="margin-bottom: 10px;">
-            <label for="qr-team-name-mode" style="font-size: 11px; font-weight: 600; color: var(--text-secondary); margin-bottom: 3px;" data-i18n="label_qr_team_name_mode">Format Nama Tim Pendaftar:</label>
-            <select id="qr-team-name-mode" style="font-size: 12px; width: 100%; padding: 6px 10px;">
-              <option value="manual" data-i18n="opt_team_name_manual">Peserta Ketik Nama Tim Sendiri</option>
-              <option value="auto_captain" data-i18n="opt_team_name_auto">Otomatis Format: TIM [Nama Kapten] (Tanpa Input Tim)</option>
-            </select>
-          </div>
+            <div class="form-group" style="margin-bottom: 8px;">
+              <label for="qr-team-size-select" style="font-size: 11px; font-weight: 600; color: var(--text-secondary); margin-bottom: 3px;" data-i18n="label_qr_team_size">Jumlah Anggota per Tim (Termasuk Kapten):</label>
+              <select id="qr-team-size-select" style="font-size: 12px; width: 100%; padding: 6px 10px;">
+                <option value="2">2 Orang (Ganda: 1 Kapten + 1 Rekan)</option>
+                <option value="3">3 Orang (Trio: 1 Kapten + 2 Rekan)</option>
+                <option value="4">4 Orang (Quad: 1 Kapten + 3 Rekan)</option>
+                <option value="5" selected>5 Orang (5v5 Tim: 1 Kapten + 4 Rekan)</option>
+                <option value="6">6 Orang (6 Pemain: 1 Kapten + 5 Rekan)</option>
+                <option value="custom" data-i18n="opt_team_size_custom">Custom Jumlah Pemain...</option>
+              </select>
+              <small class="form-hint" style="font-size: 10px; color: var(--text-muted); margin-top: 2px;" data-i18n="hint_qr_team_size">Peserta yang membuka form tidak perlu memilih jumlah anggota lagi.</small>
+            </div>
 
-          <button type="button" id="btn-save-qr-team-config" class="btn btn-secondary btn-sm btn-block" style="display: flex; align-items: center; justify-content: center; gap: 6px; font-weight: 600; padding: 7px 12px;">
-            <i class="fa-solid fa-floppy-disk"></i> <span data-i18n="btn_save_team_settings">Simpan Pengaturan Tim</span>
-          </button>
-        </div>
+            <!-- Custom Team Size Numeric Input (Visible when "custom" is selected) -->
+            <div id="qr-team-custom-size-group" class="form-group hidden" style="margin-bottom: 8px; padding: 8px 12px; background: rgba(0, 210, 255, 0.06); border: 1px dashed rgba(0, 210, 255, 0.35); border-radius: var(--radius-sm);">
+              <label for="qr-team-custom-size-input" style="font-size: 11px; font-weight: 600; color: var(--text-secondary); margin-bottom: 4px; display: block;">
+                <i class="fa-solid fa-user-plus" style="color: var(--primary);"></i> <span data-i18n="label_custom_team_size">Masukkan Jumlah Pemain per Tim:</span>
+              </label>
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <input type="number" id="qr-team-custom-size-input" class="input-modern" min="2" max="50" style="width: 100px; padding: 6px 10px; font-size: 13px; font-weight: 700; text-align: center;" placeholder="7" />
+                <span id="qr-team-custom-breakdown-hint" style="font-size: 11px; color: var(--text-muted);">(= 1 Kapten + X Rekan)</span>
+              </div>
+            </div>
 
-        <!-- QR Registration Closing Deadline Setting -->
-        <div class="qr-deadline-box" style="margin-top: 10px; width: 100%; text-align: left; background: var(--bg-surface-elevated); padding: 12px 14px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 6px;">
-            <label style="font-size: 12px; font-weight: 600; color: var(--text-secondary);"><i class="fa-regular fa-clock"></i> <span data-i18n="label_qr_deadline">Batas Waktu QR / Pendaftaran Ditutup:</span></label>
-            <span id="qr-deadline-status-badge" style="font-size: 11px; font-weight: 700; color: var(--accent-gold);"></span>
-          </div>
-          <div style="display: flex; gap: 8px; align-items: center; width: 100%; min-width: 0;">
-            <select id="qr-deadline-preset" style="font-size: 12px; flex: 1 1 0; min-width: 0;">
-              <option value="none" data-i18n="opt_deadline_none">Tanpa Batas Waktu (Buka Terus)</option>
-              <option value="5" data-i18n="opt_deadline_5m">5 Menit Lagi</option>
-              <option value="15" data-i18n="opt_deadline_15m">15 Menit Lagi</option>
-              <option value="30" data-i18n="opt_deadline_30m">30 Menit Lagi</option>
-              <option value="60" data-i18n="opt_deadline_1h">1 Jam Lagi</option>
-              <option value="120" data-i18n="opt_deadline_2h">2 Jam Lagi</option>
-              <option value="custom" data-i18n="opt_deadline_custom">Pilih Waktu Custom...</option>
-            </select>
-            <input type="datetime-local" id="qr-deadline-custom" class="hidden custom-datetime-input" />
-            <button type="button" id="btn-save-qr-deadline" class="btn btn-secondary btn-sm" style="flex-shrink: 0; white-space: nowrap;" data-i18n="btn_save">Simpan</button>
+            <div class="form-group" style="margin-bottom: 10px;">
+              <label for="qr-team-name-mode" style="font-size: 11px; font-weight: 600; color: var(--text-secondary); margin-bottom: 3px;" data-i18n="label_qr_team_name_mode">Format Nama Tim Pendaftar:</label>
+              <select id="qr-team-name-mode" style="font-size: 12px; width: 100%; padding: 6px 10px;">
+                <option value="manual" data-i18n="opt_team_name_manual">Peserta Ketik Nama Tim Sendiri</option>
+                <option value="auto_captain" data-i18n="opt_team_name_auto">Otomatis Format: TIM [Nama Kapten] (Tanpa Input Tim)</option>
+              </select>
+            </div>
+
+            <button type="button" id="btn-save-qr-team-config" class="btn btn-secondary btn-sm btn-block" style="display: flex; align-items: center; justify-content: center; gap: 6px; font-weight: 600; padding: 7px 12px;">
+              <i class="fa-solid fa-floppy-disk"></i> <span data-i18n="btn_save_team_settings">Simpan Pengaturan Tim</span>
+            </button>
           </div>
         </div>
       </div>

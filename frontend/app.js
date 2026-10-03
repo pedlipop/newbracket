@@ -162,6 +162,13 @@
       opt_team_name_manual: 'Peserta Ketik Nama Tim Sendiri',
       opt_team_name_auto: 'Otomatis Format: TIM [Nama Kapten] (Tanpa Input Tim)',
       btn_save_team_settings: 'Simpan Pengaturan Tim',
+      btn_edit_team_settings: 'Ubah Pengaturan',
+      btn_hide_team_settings: 'Tutup Pengaturan',
+      summary_label_form_title: 'Judul Form:',
+      summary_label_team_format: 'Format Tim:',
+      summary_label_team_name: 'Nama Tim:',
+      label_custom_team_size: 'Masukkan Jumlah Pemain per Tim:',
+      opt_team_size_custom: 'Custom Jumlah Pemain...',
       label_qr_deadline: 'Batas Waktu Otomatis Ditutup:',
       opt_deadline_none: 'Tanpa Batas Waktu (Buka Terus)',
       opt_deadline_5m: '5 Menit Lagi',
@@ -384,6 +391,13 @@
       opt_team_name_manual: '参赛选手自行填写战队名称',
       opt_team_name_auto: '自动命名：战队 [队长名字]（选手无需填写）',
       btn_save_team_settings: '保存团队报名设置',
+      btn_edit_team_settings: '修改配置',
+      btn_hide_team_settings: '收起配置',
+      summary_label_form_title: '表单标题：',
+      summary_label_team_format: '队伍规格：',
+      summary_label_team_name: '战队命名：',
+      label_custom_team_size: '输入每队总人数：',
+      opt_team_size_custom: '自定义队员人数...',
       label_qr_deadline: '报名截止时间设置：',
       opt_deadline_none: '不设截止时间（长期开启）',
       opt_deadline_5m: '5分钟后截止',
@@ -752,7 +766,7 @@
     el.liveUpNextTitle = document.getElementById('live-up-next-title');
     el.liveUpNextNames = document.getElementById('live-up-next-names');
 
-    // QR Deadline & Registration Toggle Elements
+    // QR Deadline & Registration Toggle Elements (Unified Container)
     el.qrRegStatusBadge = document.getElementById('qr-reg-status-badge');
     el.btnToggleRegStatus = document.getElementById('btn-toggle-reg-status');
     el.btnToggleRegText = document.getElementById('btn-toggle-reg-text');
@@ -760,11 +774,25 @@
     el.qrDeadlineCustom = document.getElementById('qr-deadline-custom');
     el.btnSaveQrDeadline = document.getElementById('btn-save-qr-deadline');
     el.qrDeadlineStatusBadge = document.getElementById('qr-deadline-status-badge');
+    el.qrDeadlineDatePreview = document.getElementById('qr-deadline-date-preview');
+    el.qrDeadlineDateText = document.getElementById('qr-deadline-date-text');
 
     // QR Team Configuration Elements
     el.qrTeamConfigBox = document.getElementById('qr-team-config-box');
+    el.qrTeamConfigHeader = document.getElementById('qr-team-config-header');
+    el.btnToggleTeamAccordion = document.getElementById('btn-toggle-team-accordion');
+    el.teamAccordionBtnText = document.getElementById('team-accordion-btn-text');
+    el.teamAccordionChevron = document.getElementById('team-accordion-chevron');
+    el.qrTeamActiveSummary = document.getElementById('qr-team-active-summary');
+    el.summaryTeamTitle = document.getElementById('summary-team-title');
+    el.summaryTeamSize = document.getElementById('summary-team-size');
+    el.summaryTeamMode = document.getElementById('summary-team-mode');
+    el.qrTeamConfigBody = document.getElementById('qr-team-config-body');
     el.qrTeamRegTitle = document.getElementById('qr-team-reg-title');
     el.qrTeamSizeSelect = document.getElementById('qr-team-size-select');
+    el.qrTeamCustomSizeGroup = document.getElementById('qr-team-custom-size-group');
+    el.qrTeamCustomSizeInput = document.getElementById('qr-team-custom-size-input');
+    el.qrTeamCustomBreakdownHint = document.getElementById('qr-team-custom-breakdown-hint');
     el.qrTeamNameMode = document.getElementById('qr-team-name-mode');
     el.btnSaveQrTeamConfig = document.getElementById('btn-save-qr-team-config');
 
@@ -3428,6 +3456,41 @@
     showToast(state.highlightInProgress ? '⚡ Live Focus enabled (pulsing live matches)' : 'Live Focus disabled');
   }
 
+  function formatDeadlineDate(dateVal) {
+    if (!dateVal) return '';
+    const d = new Date(dateVal);
+    if (isNaN(d.getTime())) return '';
+    const isZh = state.lang === 'zh';
+    const pad = n => String(n).padStart(2, '0');
+    if (isZh) {
+      return `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日 ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    }
+    const days = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+    return `${days[d.getDay()]}, ${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())} WIB`;
+  }
+
+  function updateTeamSummaryUI(tourn) {
+    if (!tourn) return;
+    const isZh = state.lang === 'zh';
+    const regFormTitle = tourn.settings?.regFormTitle || tourn.name || '-';
+    const teamSize = parseInt(tourn.settings?.teamSize, 10) || 2;
+    const teammates = Math.max(1, teamSize - 1);
+    const mode = tourn.settings?.teamNameMode || 'manual';
+
+    if (el.summaryTeamTitle) el.summaryTeamTitle.textContent = regFormTitle;
+    if (el.summaryTeamSize) {
+      el.summaryTeamSize.textContent = isZh
+        ? `${teamSize} 人（1 队长 + ${teammates} 队员）`
+        : `${teamSize} Orang (1 Kapten + ${teammates} Rekan)`;
+    }
+    if (el.summaryTeamMode) {
+      el.summaryTeamMode.textContent = mode === 'auto_captain'
+        ? (isZh ? '自动命名: 战队 [队长]' : 'Otomatis: TIM [Kapten]')
+        : (isZh ? '选手自行填写名称' : 'Ketik Manual (Nama Tim)');
+    }
+  }
+
   let activeQrTournamentId = null;
 
   async function openQrModalForTournament(tournamentId) {
@@ -3438,6 +3501,12 @@
       if (!tourn) return;
       if (tourn.registrationDeadline) {
         const rem = new Date(tourn.registrationDeadline).getTime() - Date.now();
+        const formatted = formatDeadlineDate(tourn.registrationDeadline);
+        if (el.qrDeadlineDatePreview && el.qrDeadlineDateText) {
+          el.qrDeadlineDatePreview.classList.remove('hidden');
+          el.qrDeadlineDateText.innerHTML = (state.lang === 'zh' ? '<strong>当前截止：</strong> ' : '<strong>Batas Waktu:</strong> ') + formatted;
+        }
+
         if (rem > 0) {
           const mins = Math.round(rem / 60000);
           if ([5, 15, 30, 60, 120].includes(mins)) {
@@ -3459,6 +3528,7 @@
       } else {
         if (el.qrDeadlinePreset) el.qrDeadlinePreset.value = 'none';
         if (el.qrDeadlineCustom) el.qrDeadlineCustom.classList.add('hidden');
+        if (el.qrDeadlineDatePreview) el.qrDeadlineDatePreview.classList.add('hidden');
       }
     };
 
@@ -3468,12 +3538,34 @@
       if (el.qrTeamConfigBox) {
         if (isTeam) {
           el.qrTeamConfigBox.classList.remove('hidden');
+          updateTeamSummaryUI(tourn);
+
+          // Reset accordion dropdown to collapsed by default for compact modal view
+          if (el.qrTeamConfigBody) el.qrTeamConfigBody.classList.add('hidden');
+          if (el.teamAccordionChevron) el.teamAccordionChevron.style.transform = '';
+          if (el.teamAccordionBtnText) el.teamAccordionBtnText.textContent = state.lang === 'zh' ? '修改配置' : 'Ubah Pengaturan';
+
           if (el.qrTeamRegTitle) {
             el.qrTeamRegTitle.value = tourn.settings?.regFormTitle || tourn.name || '';
             el.qrTeamRegTitle.placeholder = tourn.name || 'Nama Form Registrasi';
           }
+          
+          const teamSize = parseInt(tourn.settings?.teamSize, 10) || 2;
+          const teammates = Math.max(1, teamSize - 1);
           if (el.qrTeamSizeSelect) {
-            el.qrTeamSizeSelect.value = String(tourn.settings?.teamSize || 2);
+            if ([2, 3, 4, 5, 6].includes(teamSize)) {
+              el.qrTeamSizeSelect.value = String(teamSize);
+              if (el.qrTeamCustomSizeGroup) el.qrTeamCustomSizeGroup.classList.add('hidden');
+            } else {
+              el.qrTeamSizeSelect.value = 'custom';
+              if (el.qrTeamCustomSizeGroup) el.qrTeamCustomSizeGroup.classList.remove('hidden');
+              if (el.qrTeamCustomSizeInput) el.qrTeamCustomSizeInput.value = String(teamSize);
+              if (el.qrTeamCustomBreakdownHint) {
+                el.qrTeamCustomBreakdownHint.textContent = state.lang === 'zh'
+                  ? `(= 1 队长 + ${teammates} 队员)`
+                  : `(= 1 Kapten + ${teammates} Rekan)`;
+              }
+            }
           }
           if (el.qrTeamNameMode) {
             el.qrTeamNameMode.value = tourn.settings?.teamNameMode || 'manual';
@@ -6509,21 +6601,33 @@
       }
     }
 
-    // 2. Deadline Status Badge
+    // 2. Deadline Status Badge & Date Preview
     if (el.qrDeadlineStatusBadge) {
       if (t.registrationDeadline) {
         const rem = new Date(t.registrationDeadline).getTime() - Date.now();
+        const formattedDate = formatDeadlineDate(t.registrationDeadline);
         if (rem <= 0) {
-          el.qrDeadlineStatusBadge.textContent = isZh ? 'Ditutup (Waktu Habis)' : 'Waktu Habis (Ditutup)';
+          el.qrDeadlineStatusBadge.textContent = isZh ? `已截止 (${formattedDate})` : `Waktu Habis (${formattedDate})`;
           el.qrDeadlineStatusBadge.style.color = '#ef4444';
         } else {
           const mins = Math.round(rem / 60000);
-          el.qrDeadlineStatusBadge.textContent = isZh ? `约 ${mins} 分钟后` : `Tutup ~${mins} mnt lagi`;
+          if (mins <= 60) {
+            el.qrDeadlineStatusBadge.textContent = isZh ? `约 ${mins} 分钟后 (${formattedDate})` : `Tutup ~${mins} mnt lagi (${formattedDate})`;
+          } else {
+            el.qrDeadlineStatusBadge.textContent = isZh ? `截止于 ${formattedDate}` : `${formattedDate}`;
+          }
           el.qrDeadlineStatusBadge.style.color = '#fbbf24';
+        }
+        if (el.qrDeadlineDatePreview && el.qrDeadlineDateText) {
+          el.qrDeadlineDatePreview.classList.remove('hidden');
+          el.qrDeadlineDateText.innerHTML = (isZh ? '<strong>当前截止：</strong> ' : '<strong>Batas Waktu:</strong> ') + formattedDate;
         }
       } else {
         el.qrDeadlineStatusBadge.textContent = isZh ? '长期开启' : 'Buka Terus';
         el.qrDeadlineStatusBadge.style.color = 'var(--text-muted)';
+        if (el.qrDeadlinePreset?.value !== 'custom' && el.qrDeadlineDatePreview) {
+          el.qrDeadlineDatePreview.classList.add('hidden');
+        }
       }
     }
   }
@@ -7391,6 +7495,71 @@
       });
     }
 
+    // QR Team Configuration Accordion Toggle
+    const toggleTeamAccordion = () => {
+      if (!el.qrTeamConfigBody) return;
+      const isCollapsed = el.qrTeamConfigBody.classList.contains('hidden');
+      if (isCollapsed) {
+        el.qrTeamConfigBody.classList.remove('hidden');
+        if (el.teamAccordionChevron) el.teamAccordionChevron.style.transform = 'rotate(180deg)';
+        if (el.teamAccordionBtnText) el.teamAccordionBtnText.textContent = state.lang === 'zh' ? '收起配置' : 'Tutup Pengaturan';
+      } else {
+        el.qrTeamConfigBody.classList.add('hidden');
+        if (el.teamAccordionChevron) el.teamAccordionChevron.style.transform = '';
+        if (el.teamAccordionBtnText) el.teamAccordionBtnText.textContent = state.lang === 'zh' ? '修改配置' : 'Ubah Pengaturan';
+      }
+    };
+
+    if (el.btnToggleTeamAccordion) {
+      el.btnToggleTeamAccordion.addEventListener('click', (e) => {
+        e.stopPropagation();
+        toggleTeamAccordion();
+      });
+    }
+
+    if (el.qrTeamConfigHeader) {
+      el.qrTeamConfigHeader.addEventListener('click', () => {
+        toggleTeamAccordion();
+      });
+    }
+
+    // QR Team Size Dropdown & Custom Size Input Listeners
+    if (el.qrTeamSizeSelect) {
+      el.qrTeamSizeSelect.addEventListener('change', () => {
+        const isCustom = el.qrTeamSizeSelect.value === 'custom';
+        if (el.qrTeamCustomSizeGroup) {
+          el.qrTeamCustomSizeGroup.classList.toggle('hidden', !isCustom);
+        }
+        if (isCustom && el.qrTeamCustomSizeInput) {
+          if (!el.qrTeamCustomSizeInput.value || parseInt(el.qrTeamCustomSizeInput.value, 10) < 2) {
+            el.qrTeamCustomSizeInput.value = '7';
+          }
+          const val = parseInt(el.qrTeamCustomSizeInput.value, 10) || 7;
+          if (el.qrTeamCustomBreakdownHint) {
+            el.qrTeamCustomBreakdownHint.textContent = state.lang === 'zh'
+              ? `(= 1 队长 + ${val - 1} 队员)`
+              : `(= 1 Kapten + ${val - 1} Rekan)`;
+          }
+          el.qrTeamCustomSizeInput.focus();
+        }
+      });
+    }
+
+    if (el.qrTeamCustomSizeInput) {
+      el.qrTeamCustomSizeInput.addEventListener('input', () => {
+        const val = parseInt(el.qrTeamCustomSizeInput.value, 10) || 0;
+        if (el.qrTeamCustomBreakdownHint) {
+          if (val >= 2) {
+            el.qrTeamCustomBreakdownHint.textContent = state.lang === 'zh'
+              ? `(= 1 队长 + ${val - 1} 队员)`
+              : `(= 1 Kapten + ${val - 1} Rekan)`;
+          } else {
+            el.qrTeamCustomBreakdownHint.textContent = state.lang === 'zh' ? '(至少 2 人)' : '(Min. 2 pemain)';
+          }
+        }
+      });
+    }
+
     // QR Team Configuration Save
     if (el.btnSaveQrTeamConfig) {
       el.btnSaveQrTeamConfig.addEventListener('click', async () => {
@@ -7404,7 +7573,16 @@
         if (!t) return;
 
         const regFormTitle = (el.qrTeamRegTitle?.value || '').trim() || t.name;
-        const teamSize = parseInt(el.qrTeamSizeSelect?.value, 10) || 2;
+        
+        let teamSize = 2;
+        if (el.qrTeamSizeSelect?.value === 'custom') {
+          teamSize = parseInt(el.qrTeamCustomSizeInput?.value, 10) || 7;
+          if (teamSize < 2) teamSize = 2;
+          if (teamSize > 50) teamSize = 50;
+        } else {
+          teamSize = parseInt(el.qrTeamSizeSelect?.value, 10) || 2;
+        }
+
         const teamNameMode = el.qrTeamNameMode?.value || 'manual';
 
         const updatedSettings = {
@@ -7434,6 +7612,14 @@
             if (idx !== -1) state.tournaments[idx].settings = updatedSettings;
           }
 
+          // Update active settings summary display
+          updateTeamSummaryUI(t);
+
+          // Collapse the accordion dropdown after successful save
+          if (el.qrTeamConfigBody) el.qrTeamConfigBody.classList.add('hidden');
+          if (el.teamAccordionChevron) el.teamAccordionChevron.style.transform = '';
+          if (el.teamAccordionBtnText) el.teamAccordionBtnText.textContent = state.lang === 'zh' ? '修改配置' : 'Ubah Pengaturan';
+
           showToast(state.lang === 'zh' ? '团队报名配置已成功保存！' : 'Pengaturan registrasi tim berhasil disimpan!', 'success');
         } catch (err) {
           showToast('Gagal menyimpan: ' + err.message, 'error');
@@ -7444,10 +7630,56 @@
     // QR Deadline Preset & Save
     if (el.qrDeadlinePreset) {
       el.qrDeadlinePreset.addEventListener('change', () => {
+        const isCustom = el.qrDeadlinePreset.value === 'custom';
+        const isNone = el.qrDeadlinePreset.value === 'none';
+
         if (el.qrDeadlineCustom) {
-          el.qrDeadlineCustom.classList.toggle('hidden', el.qrDeadlinePreset.value !== 'custom');
+          el.qrDeadlineCustom.classList.toggle('hidden', !isCustom);
+          if (isCustom && !el.qrDeadlineCustom.value) {
+            const now = new Date();
+            now.setHours(now.getHours() + 2);
+            const pad = n => String(n).padStart(2, '0');
+            el.qrDeadlineCustom.value = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
+          }
+        }
+
+        if (el.qrDeadlineDatePreview && el.qrDeadlineDateText) {
+          if (isCustom) {
+            if (el.qrDeadlineCustom && el.qrDeadlineCustom.value) {
+              const dt = new Date(el.qrDeadlineCustom.value);
+              el.qrDeadlineDatePreview.classList.remove('hidden');
+              el.qrDeadlineDateText.innerHTML = (state.lang === 'zh' ? '<strong>自定义截止：</strong> ' : '<strong>Waktu Custom:</strong> ') + formatDeadlineDate(dt);
+            }
+          } else if (isNone) {
+            const targetId = activeQrTournamentId || state.currentTournament?.id;
+            const t = (state.tournaments && state.tournaments.find(item => item.id === targetId)) || state.currentTournament;
+            if (t && t.registrationDeadline) {
+              el.qrDeadlineDatePreview.classList.remove('hidden');
+              el.qrDeadlineDateText.innerHTML = (state.lang === 'zh' ? '<strong>当前截止：</strong> ' : '<strong>Batas Waktu:</strong> ') + formatDeadlineDate(t.registrationDeadline);
+            } else {
+              el.qrDeadlineDatePreview.classList.add('hidden');
+            }
+          } else {
+            const mins = parseInt(el.qrDeadlinePreset.value, 10);
+            const targetDate = new Date(Date.now() + mins * 60000);
+            el.qrDeadlineDatePreview.classList.remove('hidden');
+            el.qrDeadlineDateText.innerHTML = (state.lang === 'zh' ? '<strong>预计截止：</strong> ' : '<strong>Perkiraan Batas:</strong> ') + formatDeadlineDate(targetDate);
+          }
         }
       });
+    }
+
+    if (el.qrDeadlineCustom) {
+      const updateCustomDatePreview = () => {
+        if (!el.qrDeadlineCustom.value) return;
+        const dt = new Date(el.qrDeadlineCustom.value);
+        if (!isNaN(dt.getTime()) && el.qrDeadlineDatePreview && el.qrDeadlineDateText) {
+          el.qrDeadlineDatePreview.classList.remove('hidden');
+          el.qrDeadlineDateText.innerHTML = (state.lang === 'zh' ? '<strong>自定义截止：</strong> ' : '<strong>Waktu Custom:</strong> ') + formatDeadlineDate(dt);
+        }
+      };
+      el.qrDeadlineCustom.addEventListener('input', updateCustomDatePreview);
+      el.qrDeadlineCustom.addEventListener('change', updateCustomDatePreview);
     }
 
     if (el.btnSaveQrDeadline) {
