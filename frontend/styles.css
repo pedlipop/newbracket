@@ -598,10 +598,10 @@ button {
   border-left: 3px solid var(--primary);
 }
 
-/* Side Drawer Panel (Resizable up to 50% width, min 340px) */
+/* Side Drawer Panel (Resizable up to 50% width, min 360px) */
 .studio-drawer {
-  width: 350px;
-  min-width: 340px;
+  width: 390px;
+  min-width: 360px;
   max-width: 50vw;
   background: var(--bg-surface-elevated);
   border-right: 1px solid var(--border-subtle);
@@ -748,10 +748,47 @@ button {
   height: 100%;
   padding: 1.25rem;
   overflow-y: auto;
+  overflow-x: hidden;
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
 }
 
 .drawer-panel.active {
   display: flex;
+}
+
+/* Auto-Lock Bracket Controls in Settings */
+.auto-lock-group {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+}
+
+.auto-lock-controls-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  width: 100%;
+  min-width: 0;
+}
+
+.auto-lock-controls-row select,
+#setting-autolock-select {
+  flex: 1 1 auto !important;
+  min-width: 140px !important;
+  width: auto !important;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.auto-lock-controls-row button,
+#btn-save-autolock {
+  flex-shrink: 0 !important;
+  white-space: nowrap !important;
+  padding: 6px 12px !important;
+  font-size: 12px;
 }
 
 #panel-participants.drawer-panel.active {
@@ -1875,6 +1912,66 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
   transform: translateY(0);
 }
 
+.url-copy-box input {
+  flex: 1 1 0 !important;
+  min-width: 0 !important;
+  font-size: 0.8rem;
+}
+
+.url-copy-box button {
+  flex-shrink: 0 !important;
+  white-space: nowrap !important;
+}
+
+/* QR Modal Team Configuration Box */
+.qr-team-config-box {
+  transition: all var(--transition-normal);
+  border: 1px solid rgba(0, 210, 255, 0.3) !important;
+  background: rgba(0, 210, 255, 0.04) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.qr-team-config-box:hover {
+  border-color: rgba(0, 210, 255, 0.45) !important;
+}
+
+.qr-team-config-box label {
+  color: var(--text-secondary);
+}
+
+.qr-team-config-box input,
+.qr-team-config-box select {
+  background: var(--bg-surface) !important;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+}
+
+.qr-team-config-box input:focus,
+.qr-team-config-box select:focus {
+  border-color: var(--primary) !important;
+  box-shadow: 0 0 0 2px var(--primary-glow) !important;
+}
+
+#btn-save-qr-team-config {
+  transition: all 0.2s ease;
+  background: rgba(0, 210, 255, 0.15);
+  border: 1px solid rgba(0, 210, 255, 0.4);
+  color: var(--primary);
+}
+
+#btn-save-qr-team-config:hover {
+  background: var(--primary);
+  color: #0b0f19;
+  box-shadow: 0 0 12px var(--primary-glow);
+}
+
+/* Public Register Form Team Fixed Banner */
+.team-fixed-info-banner {
+  animation: fadeIn 0.25s ease-out;
+  margin-bottom: 12px;
+}
+
 /* Match Score & Direct Win Controller */
 .match-status-bar {
   display: flex;
@@ -2257,21 +2354,48 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
   animation: modal-pop 0.2s ease-out;
 }
 
-/* Teammate Hover Highlight & Badge */
+/* Teammate Hover Highlight & Interactive Badge Button */
 .team-partner-tag {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 3px;
-  background: rgba(168, 85, 247, 0.18);
+  background: rgba(168, 85, 247, 0.22);
   color: #c084fc;
-  border: 1px solid rgba(168, 85, 247, 0.4);
+  border: 1px solid rgba(168, 85, 247, 0.45);
   font-size: 0.65rem;
   font-weight: 700;
-  padding: 1px 5px;
-  border-radius: 3px;
+  padding: 1px 6px;
+  border-radius: 4px;
   margin-left: 6px;
   white-space: nowrap;
   flex-shrink: 0;
+  transition: all var(--transition-fast);
+}
+
+button.team-partner-tag.team-partner-btn {
+  cursor: pointer;
+  outline: none;
+  font-family: inherit;
+  user-select: none;
+  line-height: 1.2;
+}
+
+button.team-partner-tag.team-partner-btn:hover {
+  background: rgba(168, 85, 247, 0.42);
+  border-color: #d8b4fe;
+  color: #ffffff;
+  box-shadow: 0 0 10px rgba(168, 85, 247, 0.6);
+  transform: translateY(-1px);
+}
+
+button.team-partner-tag.team-partner-btn:active,
+button.team-partner-tag.team-partner-btn.active {
+  background: #a855f7;
+  color: #ffffff;
+  border-color: #ffffff;
+  box-shadow: 0 0 12px rgba(168, 85, 247, 0.8);
+  transform: translateY(0);
 }
 
 /* Hover Details Tooltip / Popover */
@@ -2429,6 +2553,164 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
   display: none !important;
   opacity: 0;
   pointer-events: none;
+}
+
+/* Floating Team Members Popover (Opened via clicking 5P button) */
+#floating-team-popover {
+  position: fixed;
+  z-index: 100000;
+  width: 320px;
+  max-width: calc(100vw - 24px);
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  background: rgba(13, 17, 28, 0.98);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(0, 210, 255, 0.5);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.9), 0 0 20px rgba(0, 210, 255, 0.25);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  box-sizing: border-box;
+  animation: popover-fade 0.15s ease-out;
+  pointer-events: auto;
+}
+
+#floating-team-popover.hidden {
+  display: none !important;
+  pointer-events: none;
+}
+
+#floating-team-popover .popover-header-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding-bottom: 6px;
+  margin-bottom: 6px;
+}
+
+#floating-team-popover .popover-title {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--primary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+#floating-team-popover .btn-close-team-popover {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 1.25rem;
+  cursor: pointer;
+  line-height: 1;
+  padding: 0 4px;
+  transition: color 0.15s;
+}
+
+#floating-team-popover .btn-close-team-popover:hover {
+  color: #f87171;
+}
+
+#floating-team-popover .popover-team-banner {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 0 8px 0;
+  font-size: 0.8rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  margin-bottom: 6px;
+}
+
+#floating-team-popover .popover-team-banner .team-label {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+#floating-team-popover .popover-team-banner .team-name {
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 0.88rem;
+}
+
+#floating-team-popover .popover-members-scroll {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  overflow-y: auto;
+  max-height: calc(80vh - 100px);
+  padding-right: 4px;
+}
+
+#floating-team-popover .tooltip-person-block {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 4px;
+  padding: 6px 8px;
+  box-sizing: border-box;
+}
+
+#floating-team-popover .tooltip-person-block.partner-block {
+  background: rgba(168, 85, 247, 0.04);
+  border-color: rgba(168, 85, 247, 0.18);
+}
+
+#floating-team-popover .person-role-tag {
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: #38bdf8;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  margin-bottom: 1px;
+}
+
+#floating-team-popover .person-role-tag.partner {
+  color: #c084fc;
+}
+
+#floating-team-popover .person-name {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #ffffff;
+  word-break: break-word;
+  white-space: normal;
+  line-height: 1.25;
+}
+
+#floating-team-popover .person-name.partner-highlight {
+  color: #e9d5ff;
+}
+
+#floating-team-popover .person-meta-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 5px;
+  font-size: 0.7rem;
+  color: var(--text-secondary);
+  word-break: break-word;
+  white-space: normal;
+  line-height: 1.3;
+}
+
+#floating-team-popover .person-meta-item i {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  width: 12px;
+  text-align: center;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+@keyframes popover-fade {
+  from { opacity: 0; transform: scale(0.96) translateY(4px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
 }
 
 @keyframes tooltip-fade {

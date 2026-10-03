@@ -325,11 +325,11 @@
                 <span data-i18n="label_bronze_match">Include 3rd Place (Bronze) Match</span>
               </label>
             </div>
-            <div class="form-group auto-lock-group" style="padding: 12px; background: var(--bg-surface-elevated); border-radius: var(--radius-sm); border: 1px solid var(--border-subtle); margin-top: 10px;">
+            <div class="form-group auto-lock-group">
               <label style="color: var(--primary);"><i class="fa-solid fa-clock-rotate-left"></i> <span data-i18n="label_autolock">Auto-Lock Bracket Timer</span></label>
               <p class="form-hint" style="margin-top: 2px;" data-i18n="hint_autolock">Kunci bracket secara otomatis setelah timer habis agar pertandingan langsung segera dimulai.</p>
-              <div style="display:flex; gap:8px; margin-top:8px;">
-                <select id="setting-autolock-select" style="font-size:12px; flex: 1;">
+              <div class="autolock-controls-row">
+                <select id="setting-autolock-select">
                   <option value="none" data-i18n="autolock_none">Mati (Kunci Manual)</option>
                   <option value="3" data-i18n="autolock_3m">3 Menit Lagi</option>
                   <option value="5" data-i18n="autolock_5m">5 Menit Lagi</option>
@@ -338,7 +338,7 @@
                   <option value="30" data-i18n="autolock_30m">30 Menit Lagi</option>
                   <option value="sync_qr" data-i18n="autolock_sync_qr">Sesuai Batas Waktu QR</option>
                 </select>
-                <button type="button" id="btn-save-autolock" class="btn btn-secondary btn-sm" style="white-space:nowrap;" data-i18n="btn_set_timer">Set Timer</button>
+                <button type="button" id="btn-save-autolock" class="btn btn-secondary btn-sm" data-i18n="btn_set_timer">Set Timer</button>
               </div>
               <div id="autolock-countdown-banner" class="autolock-status-banner hidden" style="margin-top:8px; font-size:11px; padding:6px 10px; border-radius:6px; background:rgba(0,210,255,0.12); border:1px solid rgba(0,210,255,0.3); color:var(--primary); display:flex; align-items:center; gap:6px;">
                 <i class="fa-solid fa-hourglass-start"></i> <span id="autolock-countdown-text">Auto-lock dalam: --:--</span>
@@ -781,8 +781,11 @@
               <i class="fa-solid fa-user-group"></i> <span data-i18n="reg_partner_title">Data Rekan Satu Tim</span>
             </div>
 
-            <!-- Teammate Count Selector Dropdown -->
-            <div class="form-group teammate-count-group">
+            <!-- Pre-configured Fixed Team Format Banner (Shown when admin configured team format via QR settings) -->
+            <div id="reg-team-fixed-info-banner" class="team-fixed-info-banner hidden"></div>
+
+            <!-- Teammate Count Selector Dropdown (Hidden when pre-configured by admin) -->
+            <div class="form-group teammate-count-group" id="reg-teammate-count-wrapper">
               <label for="reg-teammate-count-select"><i class="fa-solid fa-users-gear"></i> <span data-i18n="reg_partner_count_label">Jumlah Rekan Tim:</span></label>
               <select id="reg-teammate-count-select" class="input-modern select-modern" style="width: 100%;">
                 <option value="1">1 Rekan (Ganda / 2 Pemain)</option>
@@ -859,7 +862,7 @@
         <div class="form-group">
           <label class="toggle-label">
             <input type="checkbox" id="create-is-doubles">
-            <span data-i18n="label_tourn_doubles">Mode Ganda / Tim (2 Pemain per Tim)</span>
+            <span data-i18n="label_tourn_doubles">Mode Tim / Turnamen Berkelompok</span>
           </label>
         </div>
         <div class="modal-footer">
@@ -906,14 +909,53 @@
           </button>
         </div>
 
+        <!-- Team Mode Configuration Box (Visible ONLY when Tournament has Team Mode checked) -->
+        <div id="qr-team-config-box" class="qr-team-config-box hidden" style="margin-top: 10px; width: 100%; text-align: left; background: var(--bg-surface-elevated); padding: 12px 14px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 8px;">
+            <label style="font-size: 12px; font-weight: 600; color: var(--text-secondary); display:flex; align-items:center; gap:6px;">
+              <i class="fa-solid fa-users-gear" style="color: var(--primary);"></i> <span data-i18n="label_qr_team_config">Pengaturan Form Registrasi Tim:</span>
+            </label>
+            <span class="badge badge-info" style="font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 4px; background: rgba(0, 210, 255, 0.15); color: var(--primary); border: 1px solid rgba(0, 210, 255, 0.3);">Mode Tim Aktif</span>
+          </div>
+
+          <div class="form-group" style="margin-bottom: 8px;">
+            <label for="qr-team-reg-title" style="font-size: 11px; font-weight: 600; color: var(--text-secondary); margin-bottom: 3px;" data-i18n="label_qr_team_title">Judul / Nama Form Registrasi (Tampil ke Peserta):</label>
+            <input type="text" id="qr-team-reg-title" class="input-modern" style="width: 100%; font-size: 12px; padding: 6px 10px;" data-i18n-ph="ph_qr_team_title" placeholder="Contoh: Honor of Kings 5v5 Championship" />
+          </div>
+
+          <div class="form-group" style="margin-bottom: 8px;">
+            <label for="qr-team-size-select" style="font-size: 11px; font-weight: 600; color: var(--text-secondary); margin-bottom: 3px;" data-i18n="label_qr_team_size">Jumlah Anggota per Tim (Termasuk Kapten):</label>
+            <select id="qr-team-size-select" style="font-size: 12px; width: 100%; padding: 6px 10px;">
+              <option value="2">2 Orang (Ganda: 1 Kapten + 1 Rekan)</option>
+              <option value="3">3 Orang (Trio: 1 Kapten + 2 Rekan)</option>
+              <option value="4">4 Orang (Quad: 1 Kapten + 3 Rekan)</option>
+              <option value="5" selected>5 Orang (5v5 Tim: 1 Kapten + 4 Rekan)</option>
+              <option value="6">6 Orang (6 Pemain: 1 Kapten + 5 Rekan)</option>
+            </select>
+            <small class="form-hint" style="font-size: 10px; color: var(--text-muted); margin-top: 2px;" data-i18n="hint_qr_team_size">Peserta yang membuka form tidak perlu memilih jumlah anggota lagi.</small>
+          </div>
+
+          <div class="form-group" style="margin-bottom: 10px;">
+            <label for="qr-team-name-mode" style="font-size: 11px; font-weight: 600; color: var(--text-secondary); margin-bottom: 3px;" data-i18n="label_qr_team_name_mode">Format Nama Tim Pendaftar:</label>
+            <select id="qr-team-name-mode" style="font-size: 12px; width: 100%; padding: 6px 10px;">
+              <option value="manual" data-i18n="opt_team_name_manual">Peserta Ketik Nama Tim Sendiri</option>
+              <option value="auto_captain" data-i18n="opt_team_name_auto">Otomatis Format: TIM [Nama Kapten] (Tanpa Input Tim)</option>
+            </select>
+          </div>
+
+          <button type="button" id="btn-save-qr-team-config" class="btn btn-secondary btn-sm btn-block" style="display: flex; align-items: center; justify-content: center; gap: 6px; font-weight: 600; padding: 7px 12px;">
+            <i class="fa-solid fa-floppy-disk"></i> <span data-i18n="btn_save_team_settings">Simpan Pengaturan Tim</span>
+          </button>
+        </div>
+
         <!-- QR Registration Closing Deadline Setting -->
         <div class="qr-deadline-box" style="margin-top: 10px; width: 100%; text-align: left; background: var(--bg-surface-elevated); padding: 12px 14px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 6px;">
             <label style="font-size: 12px; font-weight: 600; color: var(--text-secondary);"><i class="fa-regular fa-clock"></i> <span data-i18n="label_qr_deadline">Batas Waktu QR / Pendaftaran Ditutup:</span></label>
             <span id="qr-deadline-status-badge" style="font-size: 11px; font-weight: 700; color: var(--accent-gold);"></span>
           </div>
-          <div style="display: flex; gap: 8px;">
-            <select id="qr-deadline-preset" style="font-size: 12px; flex: 1;">
+          <div style="display: flex; gap: 8px; align-items: center; width: 100%; min-width: 0;">
+            <select id="qr-deadline-preset" style="font-size: 12px; flex: 1 1 0; min-width: 0;">
               <option value="none" data-i18n="opt_deadline_none">Tanpa Batas Waktu (Buka Terus)</option>
               <option value="5" data-i18n="opt_deadline_5m">5 Menit Lagi</option>
               <option value="15" data-i18n="opt_deadline_15m">15 Menit Lagi</option>
@@ -923,7 +965,7 @@
               <option value="custom" data-i18n="opt_deadline_custom">Pilih Waktu Custom...</option>
             </select>
             <input type="datetime-local" id="qr-deadline-custom" class="hidden custom-datetime-input" />
-            <button type="button" id="btn-save-qr-deadline" class="btn btn-secondary btn-sm" style="white-space: nowrap;" data-i18n="btn_save">Simpan</button>
+            <button type="button" id="btn-save-qr-deadline" class="btn btn-secondary btn-sm" style="flex-shrink: 0; white-space: nowrap;" data-i18n="btn_save">Simpan</button>
           </div>
         </div>
       </div>

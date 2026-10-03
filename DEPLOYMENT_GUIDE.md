@@ -107,7 +107,7 @@ Jika Anda ingin performa maksimal dengan biaya sangat murah (mulai **Rp 45.000 -
    ```bash
    sudo apt install -y nginx certbot python3-certbot-nginx
    ```
-   Arahkan Nginx proxy pass ke `http://localhost:3000`.
+   Arahkan Nginx proxy pass ke `http://localhost:4000`.
 
 ---
 

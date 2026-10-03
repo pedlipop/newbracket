@@ -8,7 +8,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 4000;
 const HOST = '0.0.0.0';
 
 app.use(express.json({ limit: '10mb' }));
@@ -237,6 +237,14 @@ const server = app.listen(PORT, HOST, () => {
   console.log(`===================================================`);
 });
 
+process.on('uncaughtException', (err) => {
+  console.error('Uncaught Exception:', err);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+});
+
 server.on('error', (err) => {
   if (err.code === 'EADDRINUSE' && !process.env.PORT) {
     const nextPort = Number(PORT) + 1;
@@ -246,3 +254,4 @@ server.on('error', (err) => {
     console.error('Server error:', err);
   }
 });
+

@@ -144,7 +144,7 @@
       ph_tourn_game: 'e.g. Valorant, MLBB, Tekken 8, Badminton',
       label_tourn_format: 'Format',
       label_tourn_size: 'Initial Participants',
-      label_tourn_doubles: 'Mode Ganda / Tim (2 Pemain per Tim)',
+      label_tourn_doubles: 'Mode Tim / Turnamen Berkelompok',
       btn_cancel: 'Cancel',
       btn_create_tournament: 'Create Tournament',
       modal_qr_title: 'Participant Registration QR',
@@ -153,6 +153,15 @@
       label_qr_reg_status: 'Status Pendaftaran Form:',
       btn_close_reg_now: 'Tutup Pendaftaran Sekarang',
       btn_open_reg_now: 'Buka Pendaftaran Kembali',
+      label_qr_team_config: 'Pengaturan Form Registrasi Tim:',
+      label_qr_team_title: 'Judul / Nama Form Registrasi (Tampil ke Peserta):',
+      ph_qr_team_title: 'Contoh: Honor of Kings 5v5 Championship',
+      label_qr_team_size: 'Jumlah Anggota per Tim (Termasuk Kapten):',
+      hint_qr_team_size: 'Peserta yang membuka form tidak perlu memilih jumlah anggota lagi.',
+      label_qr_team_name_mode: 'Format Nama Tim Pendaftar:',
+      opt_team_name_manual: 'Peserta Ketik Nama Tim Sendiri',
+      opt_team_name_auto: 'Otomatis Format: TIM [Nama Kapten] (Tanpa Input Tim)',
+      btn_save_team_settings: 'Simpan Pengaturan Tim',
       label_qr_deadline: 'Batas Waktu Otomatis Ditutup:',
       opt_deadline_none: 'Tanpa Batas Waktu (Buka Terus)',
       opt_deadline_5m: '5 Menit Lagi',
@@ -366,6 +375,15 @@
       label_qr_reg_status: '报名表单通道状态：',
       btn_close_reg_now: '立即关闭报名通道',
       btn_open_reg_now: '重新开启报名通道',
+      label_qr_team_config: '团队报名通道配置：',
+      label_qr_team_title: '报名页面标题 / 比赛名称：',
+      ph_qr_team_title: '例如：王者荣耀五人战队邀请赛',
+      label_qr_team_size: '每队队员人数（含队长）：',
+      hint_qr_team_size: '选手扫码打开表单时无需再自行选择队员人数。',
+      label_qr_team_name_mode: '战队名称生成规则：',
+      opt_team_name_manual: '参赛选手自行填写战队名称',
+      opt_team_name_auto: '自动命名：战队 [队长名字]（选手无需填写）',
+      btn_save_team_settings: '保存团队报名设置',
       label_qr_deadline: '报名截止时间设置：',
       opt_deadline_none: '不设截止时间（长期开启）',
       opt_deadline_5m: '5分钟后截止',
@@ -743,6 +761,13 @@
     el.btnSaveQrDeadline = document.getElementById('btn-save-qr-deadline');
     el.qrDeadlineStatusBadge = document.getElementById('qr-deadline-status-badge');
 
+    // QR Team Configuration Elements
+    el.qrTeamConfigBox = document.getElementById('qr-team-config-box');
+    el.qrTeamRegTitle = document.getElementById('qr-team-reg-title');
+    el.qrTeamSizeSelect = document.getElementById('qr-team-size-select');
+    el.qrTeamNameMode = document.getElementById('qr-team-name-mode');
+    el.btnSaveQrTeamConfig = document.getElementById('btn-save-qr-team-config');
+
     // Auto-Lock Bracket Elements
     el.settingAutoLockSelect = document.getElementById('setting-autolock-select');
     el.btnSaveAutoLock = document.getElementById('btn-save-autolock');
@@ -756,7 +781,9 @@
     el.regPlayerWecom = document.getElementById('reg-player-wecom');
     el.regPlayerDept = document.getElementById('reg-player-dept');
     el.regPartnerSection = document.getElementById('reg-partner-section');
+    el.regTeammateCountWrapper = document.getElementById('reg-teammate-count-wrapper');
     el.regTeammateCountSelect = document.getElementById('reg-teammate-count-select');
+    el.regTeamFixedInfoBanner = document.getElementById('reg-team-fixed-info-banner');
     el.regPartnersDynamicContainer = document.getElementById('reg-partners-dynamic-container');
     el.regDeadlineBadge = document.getElementById('reg-deadline-badge');
     el.regDeadlineText = document.getElementById('reg-deadline-text');
@@ -1202,6 +1229,8 @@
   }
 
   let globalTooltipEl = null;
+  let floatingTeamPopoverEl = null;
+  let activeFloatingButton = null;
 
   function ensureGlobalTooltip() {
     if (!globalTooltipEl) {
@@ -1213,6 +1242,158 @@
         document.body.appendChild(globalTooltipEl);
       }
     }
+  }
+
+  function ensureFloatingTeamPopover() {
+    if (!floatingTeamPopoverEl) {
+      floatingTeamPopoverEl = document.getElementById('floating-team-popover');
+      if (!floatingTeamPopoverEl) {
+        floatingTeamPopoverEl = document.createElement('div');
+        floatingTeamPopoverEl.id = 'floating-team-popover';
+        floatingTeamPopoverEl.className = 'hidden';
+        document.body.appendChild(floatingTeamPopoverEl);
+
+        document.addEventListener('click', (e) => {
+          if (!floatingTeamPopoverEl || floatingTeamPopoverEl.classList.contains('hidden')) return;
+          if (!floatingTeamPopoverEl.contains(e.target) && !e.target.closest('.team-partner-btn')) {
+            hideFloatingTeamPopover();
+          }
+        });
+
+        document.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape') {
+            hideFloatingTeamPopover();
+          }
+        });
+      }
+    }
+  }
+
+  function hideFloatingTeamPopover() {
+    if (floatingTeamPopoverEl) {
+      floatingTeamPopoverEl.classList.add('hidden');
+    }
+    if (activeFloatingButton) {
+      activeFloatingButton.classList.remove('active');
+      activeFloatingButton = null;
+    }
+  }
+
+  function showTeamFloatingPopover(buttonEl, p) {
+    if (!buttonEl || !p) return;
+    ensureFloatingTeamPopover();
+
+    if (activeFloatingButton === buttonEl && !floatingTeamPopoverEl.classList.contains('hidden')) {
+      hideFloatingTeamPopover();
+      return;
+    }
+
+    if (activeFloatingButton) {
+      activeFloatingButton.classList.remove('active');
+    }
+    activeFloatingButton = buttonEl;
+    buttonEl.classList.add('active');
+
+    hideGlobalTooltip();
+
+    const t = state.currentTournament;
+    const orig = (t?.participants || []).find(item => (p.id && item.id === p.id) || (p.name && item.name === p.name)) || {};
+
+    const fullP = {
+      ...orig,
+      ...p,
+      playerName: p.playerName || orig.playerName || '',
+      dept: p.dept || orig.dept || '',
+      wecom: p.wecom || p.contact || orig.wecom || orig.contact || '',
+      isTeam: p.isTeam !== undefined ? p.isTeam : (orig.isTeam !== undefined ? orig.isTeam : (Array.isArray(p.partners) && p.partners.length > 0))
+    };
+
+    const partnersList = (Array.isArray(fullP.partners) && fullP.partners.length > 0)
+      ? fullP.partners
+      : (Array.isArray(orig.partners) && orig.partners.length > 0)
+        ? orig.partners
+        : (fullP.partner && fullP.partner.name ? [fullP.partner] : (orig.partner && orig.partner.name ? [orig.partner] : []));
+
+    const isZh = state.lang === 'zh';
+    let mainPlayerName = fullP.playerName || '';
+    if ((!mainPlayerName || mainPlayerName === fullP.name) && orig.playerName && orig.playerName !== fullP.name) {
+      mainPlayerName = orig.playerName;
+    }
+    if (!mainPlayerName) {
+      mainPlayerName = fullP.name || '';
+    }
+
+    const mainDept = fullP.dept || orig.dept || '';
+    const mainWecom = fullP.wecom || fullP.contact || orig.wecom || orig.contact || '';
+    const teamSize = 1 + partnersList.length;
+
+    floatingTeamPopoverEl.innerHTML = `
+      <div class="popover-header-bar">
+        <div class="popover-title">
+          <i class="fa-solid fa-users" style="color:var(--primary);"></i>
+          <span>${isZh ? '团队成员登记信息' : 'INFORMASI TIM PENDAFTAR'}</span>
+        </div>
+        <button type="button" class="btn-close-team-popover" title="${isZh ? '关闭' : 'Tutup'}">&times;</button>
+      </div>
+
+      <div class="popover-team-banner">
+        <span class="team-label">${isZh ? '战队:' : 'Tim:'}</span>
+        <span class="team-name">${escapeHTML(fullP.name)}</span>
+        <span class="team-partner-tag" style="margin-left:auto;">${teamSize}P</span>
+      </div>
+
+      <div class="popover-members-scroll">
+        <div class="tooltip-person-block">
+          <div class="person-role-tag">${isZh ? '队长 / 主力选手' : 'PEMAIN UTAMA'}</div>
+          <div class="person-name">${escapeHTML(mainPlayerName || fullP.name)}</div>
+          ${mainDept ? `<div class="person-meta-item"><i class="fa-solid fa-building"></i> ${escapeHTML(mainDept)}</div>` : ''}
+          ${mainWecom ? `<div class="person-meta-item"><i class="fa-solid fa-address-book"></i> No. WeCom: ${escapeHTML(mainWecom)}</div>` : ''}
+        </div>
+
+        ${partnersList.map((partner, pIdx) => `
+          <div class="tooltip-person-block partner-block">
+            <div class="person-role-tag partner">${isZh ? `队员 #${pIdx + 1}` : `REKAN #${pIdx + 1}`}</div>
+            <div class="person-name partner-highlight">${escapeHTML(partner.name)}</div>
+            ${partner.dept ? `<div class="person-meta-item"><i class="fa-solid fa-building"></i> ${escapeHTML(partner.dept)}</div>` : ''}
+            ${partner.wecom ? `<div class="person-meta-item"><i class="fa-solid fa-address-book"></i> No. WeCom: ${escapeHTML(partner.wecom)}</div>` : ''}
+          </div>
+        `).join('')}
+      </div>
+    `;
+
+    const closeBtn = floatingTeamPopoverEl.querySelector('.btn-close-team-popover');
+    if (closeBtn) {
+      closeBtn.onclick = (e) => {
+        e.stopPropagation();
+        hideFloatingTeamPopover();
+      };
+    }
+
+    floatingTeamPopoverEl.classList.remove('hidden');
+
+    const btnRect = buttonEl.getBoundingClientRect();
+    const popWidth = Math.min(320, window.innerWidth - 20);
+    floatingTeamPopoverEl.style.width = `${popWidth}px`;
+
+    const popoverRect = floatingTeamPopoverEl.getBoundingClientRect();
+
+    let top = btnRect.bottom + 6;
+    let left = btnRect.left;
+
+    if (left + popWidth > window.innerWidth - 10) {
+      left = window.innerWidth - popWidth - 10;
+    }
+    if (left < 10) left = 10;
+
+    if (top + popoverRect.height > window.innerHeight - 10) {
+      top = btnRect.top - popoverRect.height - 6;
+      if (top < 10) {
+        top = 10;
+      }
+    }
+
+    floatingTeamPopoverEl.style.top = `${top}px`;
+    floatingTeamPopoverEl.style.left = `${left}px`;
   }
 
   function enrichTournamentMatchSlots(t) {
@@ -1272,6 +1453,9 @@
         : (fullP.partner && fullP.partner.name ? [fullP.partner] : (orig.partner && orig.partner.name ? [orig.partner] : []));
 
     const isZh = state.lang === 'zh';
+    const isTeam = partnersList.length > 0 || fullP.isTeam;
+    const teamSize = 1 + partnersList.length;
+
     let mainPlayerName = fullP.playerName || '';
     if ((!mainPlayerName || mainPlayerName === fullP.name) && orig.playerName && orig.playerName !== fullP.name) {
       mainPlayerName = orig.playerName;
@@ -1288,29 +1472,20 @@
     ensureGlobalTooltip();
 
     let contentHtml = '';
-    if (partnersList.length > 0 || fullP.isTeam) {
+    if (isTeam) {
+      // Hover shows compact team information only ("detail nama tim aja")
       contentHtml = `
         <div class="tooltip-header-strip">
-          <i class="fa-solid fa-users"></i> ${isZh ? '团队成员登记信息' : 'Informasi Tim Pendaftar'}
+          <i class="fa-solid fa-users"></i> ${isZh ? '团队登记信息' : 'Informasi Tim'}
         </div>
         <div class="tooltip-team-banner">
           <span class="team-label">${isZh ? '战队名称:' : 'Tim:'}</span>
           <span class="team-name">${escapeHTML(fullP.name)}</span>
         </div>
-        <div class="tooltip-person-block">
-          <div class="person-role-tag">${isZh ? '队长 / 主力选手' : 'Pemain Utama'}</div>
-          <div class="person-name">${escapeHTML(mainPlayerName || fullP.name)}</div>
-          ${mainDept ? `<div class="person-meta-item"><i class="fa-solid fa-building"></i> ${escapeHTML(mainDept)}</div>` : ''}
-          ${mainWecom ? `<div class="person-meta-item"><i class="fa-solid fa-address-book"></i> No. WeCom: ${escapeHTML(mainWecom)}</div>` : ''}
+        <div style="font-size: 11px; color: var(--text-muted); display:flex; align-items:center; gap:5px; margin-top:2px;">
+          <span class="team-partner-tag" style="margin-left:0; font-size:10px;">${teamSize}P</span>
+          <span>${isZh ? `点击“${teamSize}P”按钮查看全部队员` : `Klik tombol ${teamSize}P untuk melihat detail pemain`}</span>
         </div>
-        ${partnersList.map((partner, pIdx) => `
-          <div class="tooltip-person-block partner-block">
-            <div class="person-role-tag partner">${isZh ? `队员 #${pIdx + 1}` : `Rekan #${pIdx + 1}`}</div>
-            <div class="person-name partner-highlight">${escapeHTML(partner.name)}</div>
-            ${partner.dept ? `<div class="person-meta-item"><i class="fa-solid fa-building"></i> ${escapeHTML(partner.dept)}</div>` : ''}
-            ${partner.wecom ? `<div class="person-meta-item"><i class="fa-solid fa-address-book"></i> No. WeCom: ${escapeHTML(partner.wecom)}</div>` : ''}
-          </div>
-        `).join('')}
       `;
     } else {
       contentHtml = `
@@ -1449,7 +1624,7 @@
           <span class="participant-name ${!t.isLocked ? 'editable' : ''}" title="${hasInfo ? escapeHTML(p.name) : 'Slot Kosong (Isi nama terlebih dahulu untuk dapat memindahkannya ke bagan)'}">
             ${hasInfo ? escapeHTML(p.name) : '<span style="opacity:0.4; font-style:italic;">(Slot Kosong)</span>'}
           </span>
-          ${hasPartner ? `<span class="team-partner-tag" title="Mode Tim (${teamSize} Pemain)">${teamSize}P</span>` : ''}
+          ${hasPartner ? `<button type="button" class="team-partner-tag team-partner-btn" data-id="${p.id}" title="${state.lang === 'zh' ? `点击查看 ${teamSize} 名队员详情` : `Klik untuk lihat detail ${teamSize} pemain`}">${teamSize}P</button>` : ''}
           <span class="participant-status-dot ${isAssigned ? 'seeded' : 'unseeded'}" title="${isAssigned ? 'Masuk Bagan' : (hasInfo ? 'Belum Di-seed' : 'Wajib Diisi')}"></span>
           ${!t.isLocked ? `
             <button type="button" class="btn-edit-participant" data-id="${p.id}" title="Edit Nama"><i class="fa-solid fa-pen"></i></button>
@@ -1458,6 +1633,16 @@
         </div>
       `;
     }).join('');
+
+    // Attach click events for team-partner-btn to show floating details popover
+    el.participantsList.querySelectorAll('.team-partner-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        e.preventDefault();
+        const p = participants.find(part => part.id === btn.dataset.id);
+        if (p) showTeamFloatingPopover(btn, p);
+      });
+    });
 
     // Attach hover events for participant details overlay tooltip
     el.participantsList.querySelectorAll('.participant-item').forEach(item => {
@@ -2259,7 +2444,7 @@
           </button>`
         : (!isLiveView && isSlotLocked ? `<span class="slot-locked-tag" title="${isZh ? '槽位已锁定' : 'Slot Terkunci'}"><i class="fa-solid fa-lock"></i></span>` : '');
 
-      const partnerTagTitle = isZh ? `团队模式 (${teamSize}名选手)` : `Mode Tim (${teamSize} Pemain)`;
+      const partnerTagTitle = isZh ? `点击查看 ${teamSize} 名队员详情` : `Klik untuk lihat detail ${teamSize} pemain`;
 
       return `
         <div class="match-team-row ${pClass} ${isEmpty ? 'is-empty' : ''} ${(!isLiveView && isSlotLocked) ? 'slot-locked' : ''}" data-slot="${slot}" data-round="${rIdx}" data-match="${mIdx}">
@@ -2267,7 +2452,7 @@
           <span class="team-name-text ${isFeeder ? 'is-feeder-text' : ''} ${isEmpty ? 'empty-slot' : ''} ${(!isLiveView && !t?.isLocked && !isFeeder) ? 'editable' : ''}" title="${escapeHTML(rawName || (isEmpty ? '' : emptyPlaceholder))}${(!isLiveView && !t?.isLocked && !isFeeder) ? (isZh ? ' (双击可编辑)' : ' (Dobel klik untuk edit)') : ''}">
             ${isUnnamed ? `<span style="opacity:0.4; font-style:italic;">${emptyPlaceholder}</span>` : escapeHTML(displayName)}
           </span>
-          ${hasPartner ? `<span class="team-partner-tag" title="${partnerTagTitle}">${teamSize}P</span>` : ''}
+          ${hasPartner ? `<button type="button" class="team-partner-tag team-partner-btn" title="${partnerTagTitle}">${teamSize}P</button>` : ''}
           <div class="slot-actions-cell" style="display:flex; align-items:center; gap:4px; margin-left:auto;">
             ${editBtnHtml}
             ${lockBtnHtml}
@@ -2292,6 +2477,18 @@
       ${renderRow(p1, 'p1', match.score1, p1Class)}
       ${renderRow(p2, 'p2', match.score2, p2Class)}
     `;
+
+    // Attach click listener for team-partner-btn on bracket slot rows to show floating popover
+    node.querySelectorAll('.team-partner-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        e.preventDefault();
+        const row = btn.closest('.match-team-row');
+        const slot = row?.dataset.slot;
+        const p = slot === 'p1' ? p1 : (slot === 'p2' ? p2 : null);
+        if (p) showTeamFloatingPopover(btn, p);
+      });
+    });
 
     // Attach click listener for individual slot lock buttons
     node.querySelectorAll('.btn-slot-lock').forEach(btn => {
@@ -3265,8 +3462,31 @@
       }
     };
 
+    const syncTeamConfigInputs = (tourn) => {
+      if (!tourn) return;
+      const isTeam = !!(tourn.settings && (tourn.settings.isDoubles === true || tourn.settings.isDoubles === 'true' || tourn.settings.isDoubles === 1 || tourn.settings.isDoubles === '1'));
+      if (el.qrTeamConfigBox) {
+        if (isTeam) {
+          el.qrTeamConfigBox.classList.remove('hidden');
+          if (el.qrTeamRegTitle) {
+            el.qrTeamRegTitle.value = tourn.settings?.regFormTitle || tourn.name || '';
+            el.qrTeamRegTitle.placeholder = tourn.name || 'Nama Form Registrasi';
+          }
+          if (el.qrTeamSizeSelect) {
+            el.qrTeamSizeSelect.value = String(tourn.settings?.teamSize || 2);
+          }
+          if (el.qrTeamNameMode) {
+            el.qrTeamNameMode.value = tourn.settings?.teamNameMode || 'manual';
+          }
+        } else {
+          el.qrTeamConfigBox.classList.add('hidden');
+        }
+      }
+    };
+
     if (t) {
       syncPresetInputs(t);
+      syncTeamConfigInputs(t);
       refreshQrModalStatusUI(t);
     }
     await refreshQrDisplay();
@@ -3285,6 +3505,7 @@
           state.currentTournament = t;
         }
         syncPresetInputs(t);
+        syncTeamConfigInputs(t);
         refreshQrModalStatusUI(t);
       }
     } catch (e) {
@@ -4805,8 +5026,8 @@
       state.currentTournament = t;
 
       const isZh = state.lang === 'zh';
-      el.registerTournamentName.textContent = t.name;
-      el.registerTournamentMeta.textContent = isZh ? `${t.game || '比赛项目'} • 选手报名开放中` : `${t.game || 'Esports'} • Pendaftaran Dibuka`;
+      const formTitle = t.settings?.regFormTitle || t.name;
+      el.registerTournamentName.textContent = formTitle;
 
       const currentCount = (t.participants || []).length;
       if (el.registerCapacityText) {
@@ -4815,10 +5036,22 @@
 
       // Check if tournament specifies Mode Tim
       const isTeamTournament = !!(t.settings && (t.settings.isDoubles === true || t.settings.isDoubles === 'true' || t.settings.isDoubles === 1 || t.settings.isDoubles === '1'));
+      const teamSize = parseInt(t.settings?.teamSize, 10) || 2;
+      const teammatesCount = Math.max(1, teamSize - 1);
+      const teamNameMode = t.settings?.teamNameMode || 'manual';
 
-      // Hide or show Team Name input based on tournament setting
+      el.registerTournamentMeta.textContent = isTeamTournament
+        ? (isZh ? `${t.game || '比赛项目'} • 团队报名通道（每队 ${teamSize} 人）` : `${t.game || 'Esports'} • Pendaftaran Tim (${teamSize} Pemain per Tim)`)
+        : (isZh ? `${t.game || '比赛项目'} • 个人选手报名开放中` : `${t.game || 'Esports'} • Pendaftaran Individu / Single`);
+
+      // Hide or show Team Name input based on tournament setting and teamNameMode
       if (el.regTeamNameGroup) {
-        el.regTeamNameGroup.classList.toggle('hidden', !isTeamTournament);
+        if (!isTeamTournament || teamNameMode === 'auto_captain') {
+          el.regTeamNameGroup.classList.add('hidden');
+          if (el.regTeamName) el.regTeamName.value = '';
+        } else {
+          el.regTeamNameGroup.classList.remove('hidden');
+        }
       }
 
       // Hide or show Partner Section directly based on tournament setting
@@ -4826,12 +5059,40 @@
         el.regPartnerSection.classList.toggle('hidden', !isTeamTournament);
       }
 
+      // Hide teammate count selector: player does NOT need to configure count anymore
+      if (el.regTeammateCountWrapper) {
+        el.regTeammateCountWrapper.classList.add('hidden');
+      } else if (el.regTeammateCountSelect) {
+        el.regTeammateCountSelect.parentElement.classList.add('hidden');
+      }
+
+      // Show fixed team info banner
+      if (el.regTeamFixedInfoBanner) {
+        if (isTeamTournament) {
+          el.regTeamFixedInfoBanner.classList.remove('hidden');
+          el.regTeamFixedInfoBanner.innerHTML = `
+            <div style="display:flex; align-items:center; gap:10px; padding:10px 14px; background:rgba(0,210,255,0.08); border:1px solid rgba(0,210,255,0.25); border-radius:var(--radius-sm); color:var(--primary); font-size:12px; font-weight:600; margin-bottom:12px;">
+              <i class="fa-solid fa-users" style="font-size:18px; color:var(--primary);"></i>
+              <div>
+                <div>${isZh ? `队伍规格：每队 ${teamSize} 名选手` : `Format Pertandingan: Tim ${teamSize} Pemain`}</div>
+                <div style="font-size:11px; font-weight:400; color:var(--text-secondary); margin-top:2px;">
+                  ${isZh ? `1 名队长/主选手 + ${teammatesCount} 名队友（已由赛事管理员统一配置，请直接录入队员信息）` : `1 Kapten/Pemain Utama + ${teammatesCount} Rekan Tim (Ditetapkan oleh Panitia, langsung isi data rekan)`}
+                </div>
+              </div>
+            </div>
+          `;
+        } else {
+          el.regTeamFixedInfoBanner.classList.add('hidden');
+          el.regTeamFixedInfoBanner.innerHTML = '';
+        }
+      }
+
       if (!isTeamTournament && el.regPartnersDynamicContainer) {
         el.regPartnersDynamicContainer.innerHTML = '';
       }
 
       // Render dynamic teammate cards helper
-      state.regTeammateCount = 1;
+      state.regTeammateCount = teammatesCount;
       function renderTeammateCards(count) {
         state.regTeammateCount = count;
         if (!el.regPartnersDynamicContainer) return;
@@ -4869,30 +5130,8 @@
         }
       }
 
-      // Dropdown selection for teammate count
-      if (el.regTeammateCountSelect) {
-        el.regTeammateCountSelect.innerHTML = isZh ? `
-          <option value="1">1 名队友（双人赛 / 共2人）</option>
-          <option value="2">2 名队友（三人赛 / 共3人）</option>
-          <option value="3">3 名队友（四人赛 / 共4人）</option>
-          <option value="4">4 名队友（五人赛 / 共5人）</option>
-          <option value="5">5 名队友（六人赛 / 共6人）</option>
-        ` : `
-          <option value="1">1 Rekan (Ganda / 2 Pemain)</option>
-          <option value="2">2 Rekan (Trio / 3 Pemain)</option>
-          <option value="3">3 Rekan (Quad / 4 Pemain)</option>
-          <option value="4">4 Rekan (5 Pemain)</option>
-          <option value="5">5 Rekan (6 Pemain)</option>
-        `;
-        el.regTeammateCountSelect.value = '1';
-        el.regTeammateCountSelect.onchange = () => {
-          const cnt = parseInt(el.regTeammateCountSelect.value, 10) || 1;
-          renderTeammateCards(cnt);
-        };
-      }
-
       if (isTeamTournament) {
-        renderTeammateCards(1);
+        renderTeammateCards(teammatesCount);
       }
 
       el.publicRegisterForm.onsubmit = async (e) => {
@@ -4928,7 +5167,14 @@
         }
 
         const firstName = playerName.split(/\s+/)[0] || 'Player';
-        const finalDisplayName = isTeam ? (teamNameInput || `${isCurrentZh ? '战队' : 'TIM'} ${firstName}`) : playerName;
+        let finalDisplayName = playerName;
+        if (isTeam) {
+          if (teamNameMode === 'auto_captain') {
+            finalDisplayName = `${isCurrentZh ? '战队 ' : 'TIM '}${firstName.toUpperCase()}`;
+          } else {
+            finalDisplayName = teamNameInput || `${isCurrentZh ? '战队 ' : 'TIM '}${firstName.toUpperCase()}`;
+          }
+        }
 
         try {
           const regRes = await fetch(`/api/tournaments/${t.id}/register`, {
@@ -7141,6 +7387,56 @@
           }
         } catch (err) {
           showToast('Error: ' + err.message, 'error');
+        }
+      });
+    }
+
+    // QR Team Configuration Save
+    if (el.btnSaveQrTeamConfig) {
+      el.btnSaveQrTeamConfig.addEventListener('click', async () => {
+        const targetId = activeQrTournamentId || state.currentTournament?.id;
+        if (!targetId) {
+          showToast('Turnamen tidak ditemukan.', 'error');
+          return;
+        }
+
+        let t = (state.tournaments && state.tournaments.find(item => item.id === targetId)) || (state.currentTournament?.id === targetId ? state.currentTournament : null);
+        if (!t) return;
+
+        const regFormTitle = (el.qrTeamRegTitle?.value || '').trim() || t.name;
+        const teamSize = parseInt(el.qrTeamSizeSelect?.value, 10) || 2;
+        const teamNameMode = el.qrTeamNameMode?.value || 'manual';
+
+        const updatedSettings = {
+          ...(t.settings || {}),
+          isDoubles: true,
+          isTeam: true,
+          regFormTitle,
+          teamSize,
+          teamNameMode
+        };
+
+        try {
+          const res = await fetch(`/api/tournaments/${targetId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ settings: updatedSettings })
+          });
+          const data = await res.json();
+          if (!data.success) throw new Error(data.error);
+
+          t.settings = updatedSettings;
+          if (state.currentTournament && state.currentTournament.id === targetId) {
+            state.currentTournament.settings = updatedSettings;
+          }
+          if (state.tournaments) {
+            const idx = state.tournaments.findIndex(item => item.id === targetId);
+            if (idx !== -1) state.tournaments[idx].settings = updatedSettings;
+          }
+
+          showToast(state.lang === 'zh' ? '团队报名配置已成功保存！' : 'Pengaturan registrasi tim berhasil disimpan!', 'success');
+        } catch (err) {
+          showToast('Gagal menyimpan: ' + err.message, 'error');
         }
       });
     }
