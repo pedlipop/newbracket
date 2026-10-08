@@ -791,6 +791,89 @@ button {
   font-size: 12px;
 }
 
+/* Custom Toggle Switch Styling */
+.toggle-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  user-select: none;
+  font-size: 0.88rem;
+  color: var(--text-primary);
+  font-weight: 500;
+  transition: opacity var(--transition-fast);
+}
+
+.toggle-label:hover {
+  color: #ffffff;
+}
+
+.toggle-label input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 38px;
+  height: 22px;
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-accent);
+  border-radius: 9999px;
+  position: relative;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  flex-shrink: 0;
+  margin: 0;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+
+.toggle-label input[type="checkbox"]::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--text-muted);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.toggle-label input[type="checkbox"]:checked {
+  background: var(--primary);
+  border-color: var(--primary);
+  box-shadow: 0 0 12px var(--primary-glow);
+}
+
+.toggle-label input[type="checkbox"]:checked::after {
+  left: 18px;
+  background: #ffffff;
+}
+
+/* Live Hidden Indicator in Studio Header */
+.live-hidden-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(239, 68, 68, 0.2);
+  border: 1px solid rgba(239, 68, 68, 0.55);
+  color: #f87171;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 10px;
+  margin-left: 6px;
+  animation: pulse-dot-red 2s infinite ease-in-out;
+}
+
+@keyframes pulse-dot-red {
+  0%, 100% {
+    box-shadow: 0 0 4px rgba(239, 68, 68, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 12px rgba(239, 68, 68, 0.7);
+  }
+}
+
 #panel-participants.drawer-panel.active {
   overflow-y: hidden;
 }
@@ -3674,10 +3757,34 @@ button.team-partner-tag.team-partner-btn.active {
 }
 
 .bracket-canvas.bracket-blurred {
-  filter: blur(14px) brightness(0.65);
+  filter: blur(18px) brightness(0.55) saturate(0.85);
   pointer-events: none;
   user-select: none;
-  transition: filter 0.6s ease;
+  transition: filter 0.5s ease;
+}
+
+/* Hidden Bracket Spectator Overlay & Cards */
+.live-hidden-overlay {
+  z-index: 105;
+}
+
+.hidden-bracket-card {
+  border-color: rgba(239, 68, 68, 0.4) !important;
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.7), 0 0 35px rgba(239, 68, 68, 0.2) !important;
+}
+
+.hidden-bracket-icon {
+  background: rgba(239, 68, 68, 0.14) !important;
+  border: 1px solid rgba(239, 68, 68, 0.45) !important;
+  color: #f87171 !important;
+  box-shadow: 0 0 24px rgba(239, 68, 68, 0.35) !important;
+  animation: pulse-dot-red 2.2s infinite ease-in-out !important;
+}
+
+.hidden-bracket-badge {
+  color: #fca5a5 !important;
+  background: rgba(239, 68, 68, 0.16) !important;
+  border: 1px solid rgba(239, 68, 68, 0.45) !important;
 }
 
 /* ==================== UP NEXT MATCH HIGHLIGHTS ==================== */

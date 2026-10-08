@@ -163,14 +163,19 @@
                 "seed": 1,
                 "partners": [],
                 "partner": null,
-                "isPlaceholder": false
+                "isPlaceholder": false,
+                "playerName": "dada",
+                "isTeam": false
               },
               "p2": {
                 "id": "p_1789464071200_ibzf",
                 "name": "aw",
                 "seed": 4,
                 "partners": [],
-                "isPlaceholder": false
+                "isPlaceholder": false,
+                "playerName": "aw",
+                "isTeam": false,
+                "teamName": "aw"
               },
               "p1Locked": false,
               "p2Locked": false,
@@ -189,10 +194,13 @@
       "settings": {
         "thirdPlaceMatch": false,
         "theme": "dark-modern",
-        "isDoubles": true
+        "isDoubles": true,
+        "hideLiveBracket": true
       },
       "createdAt": "2026-09-15T07:49:24.160Z",
-      "updatedAt": "2026-09-15T10:08:08.372Z"
+      "updatedAt": "2026-10-08T01:14:13.201Z",
+      "isRegistrationClosed": false,
+      "hideLiveBracket": true
     },
     {
       "id": "t_1789456425335_txrx6",
@@ -649,10 +657,13 @@
       "settings": {
         "thirdPlaceMatch": false,
         "theme": "dark-modern",
-        "isDoubles": false
+        "isDoubles": false,
+        "hideLiveBracket": true
       },
       "createdAt": "2026-09-15T07:13:45.335Z",
-      "updatedAt": "2026-09-15T07:26:59.878Z"
+      "updatedAt": "2026-10-08T01:14:19.000Z",
+      "isRegistrationClosed": false,
+      "hideLiveBracket": true
     },
     {
       "id": "t_1789455772363_lw3ws",

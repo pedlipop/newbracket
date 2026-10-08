@@ -84,6 +84,13 @@
       opt_double_elim: 'Double Elimination',
       hint_format_locked: 'Format is locked during active bracket generation.',
       label_bronze_match: 'Include 3rd Place (Bronze) Match',
+      label_hide_live_bracket: 'Sembunyikan Bagan di Live Spectator',
+      hint_hide_live_bracket: 'Jika diaktifkan, bagan pertandingan di halaman live spectator akan diburamkan (blurred out) dari penonton.',
+      badge_hidden: 'Disembunyikan',
+      live_bracket_hidden_badge: 'BAGAN DISEMBUNYIKAN',
+      live_bracket_hidden_title: 'Bagan Pertandingan Diburamkan',
+      live_bracket_hidden_desc: 'Panitia turnamen sedang menyembunyikan susunan bagan pertandingan dari penonton langsung.',
+      live_bracket_hidden_status: 'Mode Privasi Aktif',
       label_autolock: 'Auto-Lock Bracket Timer',
       hint_autolock: 'Kunci bracket secara otomatis setelah timer habis agar pertandingan langsung segera dimulai.',
       autolock_none: 'Mati (Kunci Manual)',
@@ -320,6 +327,13 @@
       opt_double_elim: '双败淘汰制 (Double Elimination)',
       hint_format_locked: '对阵生成后赛制已锁定。',
       label_bronze_match: '包含季军赛（争夺第三名）',
+      label_hide_live_bracket: '在观众大屏隐藏对阵图（模糊处理）',
+      hint_hide_live_bracket: '开启后，公开观众大屏中的对阵图将被模糊虚化，隐藏比赛对阵。',
+      badge_hidden: '已隐藏',
+      live_bracket_hidden_badge: '对阵已隐藏',
+      live_bracket_hidden_title: '对阵图暂时保密中',
+      live_bracket_hidden_desc: '比赛组委会已隐藏公开观众大屏上的对阵图，请等待公开。',
+      live_bracket_hidden_status: '隐私保护模式生效中',
       label_autolock: '自动锁定对阵倒计时',
       hint_autolock: '倒计时结束后自动锁定对阵图并正式开始比赛。',
       autolock_none: '关闭（手动锁定）',
@@ -617,6 +631,8 @@
     el.participantsList = document.getElementById('participants-list');
     el.settingGameInput = document.getElementById('setting-game-input');
     el.settingBronzeMatch = document.getElementById('setting-bronze-match');
+    el.settingHideLiveBracket = document.getElementById('setting-hide-live-bracket');
+    el.studioLiveHiddenIndicator = document.getElementById('studio-live-hidden-indicator');
     el.btnResetScores = document.getElementById('btn-reset-scores');
 
     // Drawer Participant Search & Pagination
@@ -690,6 +706,13 @@
     el.btnLiveZoomOut = document.getElementById('btn-live-zoom-out');
     el.btnLiveCenter = document.getElementById('btn-live-center');
     el.liveZoomText = document.getElementById('live-zoom-text');
+    el.liveNotStartedOverlay = document.getElementById('live-not-started-overlay');
+    el.notStartedParticipantCount = document.getElementById('not-started-participant-count');
+    el.notStartedTimer = document.getElementById('not-started-timer');
+    el.liveHiddenOverlay = document.getElementById('live-hidden-overlay');
+    el.liveHiddenParticipantCount = document.getElementById('live-hidden-participant-count');
+    el.liveMatchProgress = document.getElementById('live-match-progress');
+    el.btnLiveMatchSearch = document.getElementById('btn-live-match-search');
 
     // Register View
     el.registerTournamentName = document.getElementById('register-tournament-name');
@@ -1289,6 +1312,13 @@
     // Settings
     el.settingGameInput.value = t.game || '';
     el.settingBronzeMatch.checked = !!(t.settings && t.settings.thirdPlaceMatch);
+    if (el.settingHideLiveBracket) {
+      el.settingHideLiveBracket.checked = !!(t.settings && t.settings.hideLiveBracket) || !!t.hideLiveBracket;
+    }
+    if (el.studioLiveHiddenIndicator) {
+      const isHidden = !!(t.settings && t.settings.hideLiveBracket) || !!t.hideLiveBracket;
+      el.studioLiveHiddenIndicator.classList.toggle('hidden', !isHidden);
+    }
 
     // Apply theme
     applyTheme(t.settings?.theme || 'dark');
@@ -4964,6 +4994,7 @@
           inProgressHighlight: t.inProgressHighlight,
           name: t.name,
           settings: t.settings,
+          hideLiveBracket: !!(t.settings && t.settings.hideLiveBracket) || !!t.hideLiveBracket,
           registrationDeadline: t.registrationDeadline || null,
           autoLockAt: t.autoLockAt || null,
           isRegistrationClosed: !!t.isRegistrationClosed
@@ -5041,11 +5072,33 @@
       const hasMatchAction = (t.rounds || []).some(r => (r.matches || []).some(m => m.status === 'in_progress' || m.status === 'completed'));
       const isStarted = t.isLocked || t.status === 'in_progress' || hasMatchAction || hasRounds;
 
+      // Check if bracket is explicitly hidden from live spectators
+      const isBracketHidden = !!(incomingT.settings && incomingT.settings.hideLiveBracket) ||
+                              !!incomingT.hideLiveBracket ||
+                              !!(t.settings && t.settings.hideLiveBracket) ||
+                              !!t.hideLiveBracket;
+
+      if (el.liveHiddenOverlay) {
+        el.liveHiddenOverlay.classList.toggle('hidden', !isBracketHidden);
+        if (isBracketHidden && el.liveHiddenParticipantCount) {
+          const isZh = state.lang === 'zh';
+          el.liveHiddenParticipantCount.textContent = isZh
+            ? `${realParticipants.length} 支战队已报名`
+            : `${realParticipants.length} Tim Terdaftar`;
+        }
+      }
+
       if (el.liveNotStartedOverlay) {
-        el.liveNotStartedOverlay.classList.toggle('hidden', isStarted);
+        el.liveNotStartedOverlay.classList.toggle('hidden', isBracketHidden || isStarted);
       }
       if (el.liveCanvas) {
-        el.liveCanvas.classList.toggle('bracket-blurred', !isStarted);
+        el.liveCanvas.classList.toggle('bracket-blurred', isBracketHidden || !isStarted);
+      }
+      if (el.liveMatchProgress) {
+        el.liveMatchProgress.classList.toggle('hidden', isBracketHidden);
+      }
+      if (el.btnLiveMatchSearch) {
+        el.btnLiveMatchSearch.classList.toggle('hidden', isBracketHidden);
       }
 
       if (!isStarted) {
@@ -7412,6 +7465,27 @@
         showToast(el.settingBronzeMatch.checked ? '🥉 Perebutan Juara 3 (Bronze Match) ditampilkan di bawah Final!' : 'Perebutan Juara 3 disembunyikan', 'info');
       }
     });
+
+    if (el.settingHideLiveBracket) {
+      el.settingHideLiveBracket.addEventListener('change', () => {
+        if (state.currentTournament) {
+          const isHidden = el.settingHideLiveBracket.checked;
+          state.currentTournament.settings = state.currentTournament.settings || {};
+          state.currentTournament.settings.hideLiveBracket = isHidden;
+          state.currentTournament.hideLiveBracket = isHidden;
+          if (el.studioLiveHiddenIndicator) {
+            el.studioLiveHiddenIndicator.classList.toggle('hidden', !isHidden);
+          }
+          saveTournamentState(false);
+          showToast(
+            isHidden
+              ? (state.lang === 'zh' ? '🔒 观众大屏对阵图已隐藏并模糊' : '🔒 Bagan di Live Spectator disembunyikan & diburamkan')
+              : (state.lang === 'zh' ? '👁️ 观众大屏对阵图已恢复显示' : '👁️ Bagan di Live Spectator ditampilkan kembali'),
+            'info'
+          );
+        }
+      });
+    }
 
     el.btnResetScores.addEventListener('click', () => {
       openConfirmModal(

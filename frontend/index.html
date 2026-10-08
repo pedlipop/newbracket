@@ -193,6 +193,7 @@
         <a href="?view=live" id="btn-open-live-view" class="btn btn-outline" title="Open public live spectator bracket">
           <i class="fa-solid fa-arrow-up-right-from-square"></i>
           <span data-i18n="studio_live_btn">Live Spectator</span>
+          <span id="studio-live-hidden-indicator" class="live-hidden-indicator hidden" title="Bagan sedang disembunyikan di Live Spectator"><i class="fa-solid fa-eye-slash"></i> <span data-i18n="badge_hidden">Hidden</span></span>
         </a>
       </div>
     </header>
@@ -324,6 +325,13 @@
                 <input type="checkbox" id="setting-bronze-match">
                 <span data-i18n="label_bronze_match">Include 3rd Place (Bronze) Match</span>
               </label>
+            </div>
+            <div class="form-group">
+              <label class="toggle-label">
+                <input type="checkbox" id="setting-hide-live-bracket">
+                <span data-i18n="label_hide_live_bracket">Sembunyikan Bagan di Live Spectator</span>
+              </label>
+              <small class="form-hint" data-i18n="hint_hide_live_bracket">Jika diaktifkan, bagan pertandingan di halaman live spectator akan diburamkan (blurred out) dari penonton.</small>
             </div>
             <div class="form-group auto-lock-group">
               <label style="color: var(--primary);"><i class="fa-solid fa-clock-rotate-left"></i> <span data-i18n="label_autolock">Auto-Lock Bracket Timer</span></label>
@@ -658,6 +666,24 @@
         <span id="live-zoom-text" class="zoom-display">100%</span>
         <button id="btn-live-zoom-out" class="canvas-control-btn"><i class="fa-solid fa-minus"></i></button>
         <button id="btn-live-center" class="canvas-control-btn"><i class="fa-solid fa-crosshairs"></i></button>
+      </div>
+
+      <!-- Hidden Bracket Live Overlay -->
+      <div id="live-hidden-overlay" class="live-not-started-overlay live-hidden-overlay hidden">
+        <div class="not-started-card hidden-bracket-card">
+          <div class="not-started-icon hidden-bracket-icon">
+            <i class="fa-solid fa-eye-slash"></i>
+          </div>
+          <div class="not-started-badge hidden-bracket-badge" data-i18n="live_bracket_hidden_badge">BAGAN DISEMBUNYIKAN</div>
+          <h2 class="not-started-title" data-i18n="live_bracket_hidden_title">Bagan Pertandingan Diburamkan</h2>
+          <p class="not-started-desc" data-i18n="live_bracket_hidden_desc">
+            Panitia turnamen sedang menyembunyikan susunan bagan pertandingan dari penonton langsung.
+          </p>
+          <div class="not-started-meta">
+            <div class="meta-item"><i class="fa-solid fa-shield-halved"></i> <span data-i18n="live_bracket_hidden_status">Mode Privasi Aktif</span></div>
+            <div class="meta-item"><i class="fa-solid fa-users"></i> <span id="live-hidden-participant-count">0 Tim Terdaftar</span></div>
+          </div>
+        </div>
       </div>
 
       <!-- Not Started Live Overlay -->
