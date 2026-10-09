@@ -2589,8 +2589,8 @@
       if (pos.y + pos.height > maxOverallY) maxOverallY = pos.y + pos.height;
     });
 
-    const canvasW = Math.max(6000, maxOverallX + 1200);
-    const canvasH = Math.max(8000, maxOverallY + 1200);
+    const canvasW = Math.max(1600, maxOverallX + 400);
+    const canvasH = Math.max(1200, maxOverallY + 400);
 
     const canvasParent = svgEl.closest('.bracket-canvas, .live-canvas') || svgEl.parentElement;
     if (canvasParent) {

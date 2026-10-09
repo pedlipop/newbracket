@@ -1366,18 +1366,16 @@ button {
   margin: 0 2px;
 }
 
-/* Canvas Container (Expanded to comfortably support large brackets with 78+ participants without clipping) */
+/* Canvas Container */
 .bracket-canvas,
 .live-canvas {
   position: absolute;
   top: 0;
   left: 0;
-  min-width: 6000px;
-  min-height: 8000px;
-  width: 14000px;
-  height: 20000px;
   transform-origin: 0 0;
-  will-change: transform;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 /* SVG Connectors Layer */
@@ -1480,13 +1478,14 @@ button {
   overflow: visible;
   box-shadow: var(--shadow-sm);
   cursor: pointer;
-  transition: border-color var(--transition-fast), box-shadow var(--transition-fast), transform var(--transition-fast);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .match-node:hover {
   border-color: var(--primary);
   box-shadow: var(--shadow-md);
-  transform: translateY(-1px);
   z-index: 50;
 }
 
