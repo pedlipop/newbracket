@@ -83,6 +83,10 @@
       opt_single_elim: 'Single Elimination',
       opt_double_elim: 'Double Elimination',
       hint_format_locked: 'Format is locked during active bracket generation.',
+      label_bracket_layout: 'Layout Bagan Pertandingan',
+      opt_layout_standard: 'Standar (1-Sisi Kiri ke Kanan)',
+      opt_layout_split: 'Bagan 2 Sisi (Split View Simetris)',
+      hint_bracket_layout: 'Membagi bagan ke dua sisi simetris (sayap kiri & kanan) yang bertemu di Final tengah.',
       label_bronze_match: 'Include 3rd Place (Bronze) Match',
       label_hide_live_bracket: 'Sembunyikan Bagan di Live Spectator',
       hint_hide_live_bracket: 'Jika diaktifkan, bagan pertandingan di halaman live spectator akan diburamkan (blurred out) dari penonton.',
@@ -121,6 +125,11 @@
       not_started_desc: 'Bagan pertandingan (bracket) sedang dipersiapkan oleh panitia. Halaman ini akan otomatis terupdate begitu pertandingan dimulai.',
       not_started_waiting: 'Menunggu Pembukaan',
       reg_badge: 'PARTICIPANT REGISTRATION',
+      label_bracket_layout: 'Tata Letak Bagan (Layout)',
+      opt_layout_standard: 'Standar (1-Sisi Kiri ke Kanan)',
+      opt_layout_split_semi: 'Bagan 2 Sisi (Split ke Semifinal, Final Tengah)',
+      opt_layout_split_top4: 'Bagan 2 Sisi (Split ke Top 4 / Semifinal Tengah)',
+      hint_bracket_layout: 'Membagi bagan ke dua sisi (sayap kiri & kanan) yang bertemu di tengah menuju Semifinal dan Final.',
       reg_title: 'Tournament Registration',
       reg_desc: 'Daftarkan tim Anda untuk masuk ke bagan turnamen.',
       reg_registered_badge: 'Peserta Telah Terdaftar',
@@ -364,6 +373,10 @@
       not_started_desc: '裁判与组委会正在编排对阵图。比赛一旦开始，本页面将自动刷新并展示实时赛程。',
       not_started_waiting: '等待开赛',
       reg_badge: '参赛选手登记报名',
+      label_bracket_layout: '对阵图布局',
+      opt_layout_standard: '标准单侧 (从左至右)',
+      opt_layout_split: '双翼对称 (Split View 汇聚总决赛)',
+      hint_bracket_layout: '将对阵图分为左右两翼，向中间总决赛汇聚。',
       reg_title: '比赛选手报名表',
       reg_desc: '请填写报名信息以录入比赛对阵图。',
       reg_registered_badge: '位选手/队伍已报名',
@@ -632,6 +645,7 @@
     el.settingGameInput = document.getElementById('setting-game-input');
     el.settingBronzeMatch = document.getElementById('setting-bronze-match');
     el.settingHideLiveBracket = document.getElementById('setting-hide-live-bracket');
+    el.settingBracketLayout = document.getElementById('setting-bracket-layout');
     el.studioLiveHiddenIndicator = document.getElementById('studio-live-hidden-indicator');
     el.btnResetScores = document.getElementById('btn-reset-scores');
 
@@ -692,6 +706,7 @@
     el.btnZoomOut = document.getElementById('btn-zoom-out');
     el.btnZoomReset = document.getElementById('btn-zoom-reset');
     el.btnCenterBracket = document.getElementById('btn-center-bracket');
+    el.btnToggleSplit = document.getElementById('btn-toggle-split');
     el.zoomLevelText = document.getElementById('zoom-level-text');
 
     // Live View
@@ -705,6 +720,7 @@
     el.btnLiveZoomIn = document.getElementById('btn-live-zoom-in');
     el.btnLiveZoomOut = document.getElementById('btn-live-zoom-out');
     el.btnLiveCenter = document.getElementById('btn-live-center');
+    el.btnLiveToggleSplit = document.getElementById('btn-live-toggle-split');
     el.liveZoomText = document.getElementById('live-zoom-text');
     el.liveNotStartedOverlay = document.getElementById('live-not-started-overlay');
     el.notStartedParticipantCount = document.getElementById('not-started-participant-count');
@@ -1312,6 +1328,15 @@
     // Settings
     el.settingGameInput.value = t.game || '';
     el.settingBronzeMatch.checked = !!(t.settings && t.settings.thirdPlaceMatch);
+    if (el.settingBracketLayout) {
+      const sp = t.settings?.splitView;
+      el.settingBracketLayout.value = (sp === 'split' || sp === 'split_semi') ? 'split' : 'standard';
+    }
+    if (el.btnToggleSplit) {
+      const sp = t.settings?.splitView;
+      const isSplit = !!(sp && sp !== 'standard');
+      el.btnToggleSplit.classList.toggle('active', isSplit);
+    }
     if (el.settingHideLiveBracket) {
       el.settingHideLiveBracket.checked = !!(t.settings && t.settings.hideLiveBracket) || !!t.hideLiveBracket;
     }
@@ -2240,6 +2265,76 @@
     return t.thirdPlaceMatch;
   }
 
+  function partitionTournamentTree(rounds) {
+    const numRounds = (rounds || []).length;
+    if (numRounds < 2) return null;
+
+    const finalRound = rounds[numRounds - 1];
+    const finalMatch = (finalRound?.matches || []).find(m => !m.isBronzeMatch) || finalRound?.matches?.[0];
+    if (!finalMatch) return null;
+
+    const totalPairs = (finalMatch.pairRange && Array.isArray(finalMatch.pairRange))
+      ? (finalMatch.pairRange[1] + 1)
+      : Math.pow(2, numRounds - 1);
+    const midPair = Math.max(1, Math.floor(totalPairs / 2));
+
+    const matchMap = new Map();
+    rounds.forEach(r => {
+      (r.matches || []).forEach(m => matchMap.set(m.id, m));
+    });
+
+    const leftMatchIds = new Set();
+    const rightMatchIds = new Set();
+
+    // 1. Trace ancestors from finalMatch.feederTopId -> Left Wing
+    if (finalMatch.feederTopId) {
+      const q = [finalMatch.feederTopId];
+      while (q.length > 0) {
+        const id = q.shift();
+        if (!id || leftMatchIds.has(id)) continue;
+        leftMatchIds.add(id);
+        const m = matchMap.get(id);
+        if (m) {
+          if (m.feederTopId) q.push(m.feederTopId);
+          if (m.feederBotId) q.push(m.feederBotId);
+        }
+      }
+    }
+
+    // 2. Trace ancestors from finalMatch.feederBotId -> Right Wing
+    if (finalMatch.feederBotId) {
+      const q = [finalMatch.feederBotId];
+      while (q.length > 0) {
+        const id = q.shift();
+        if (!id || rightMatchIds.has(id)) continue;
+        rightMatchIds.add(id);
+        const m = matchMap.get(id);
+        if (m) {
+          if (m.feederTopId) q.push(m.feederTopId);
+          if (m.feederBotId) q.push(m.feederBotId);
+        }
+      }
+    }
+
+    // 3. Fallback for any match not connected by feeder IDs (e.g. initial generation):
+    rounds.forEach(r => {
+      (r.matches || []).forEach(m => {
+        if (m.id === finalMatch.id || m.isBronzeMatch) return;
+        if (!leftMatchIds.has(m.id) && !rightMatchIds.has(m.id)) {
+          if (m.pairRange && Array.isArray(m.pairRange)) {
+            if (m.pairRange[1] < midPair) {
+              leftMatchIds.add(m.id);
+            } else if (m.pairRange[0] >= midPair) {
+              rightMatchIds.add(m.id);
+            }
+          }
+        }
+      });
+    });
+
+    return { finalMatch, leftMatchIds, rightMatchIds, midPair, totalPairs };
+  }
+
   function renderBracketView(roundsContainer, svgEl, rounds, isLiveView = false) {
     roundsContainer.innerHTML = '';
     svgEl.innerHTML = '';
@@ -2256,41 +2351,123 @@
     const t = isLiveView ? state.liveTournamentData : state.currentTournament;
     const bronzeMatch = getOrInitThirdPlaceMatch(t);
 
-    // Prepare column definitions (Standard 1-Sided Left-to-Right layout)
+    // Determine bracket layout mode
     const numRounds = (rounds || []).length;
-    const colDefs = (rounds || []).map((round, rIdx) => {
-      const isFinal = rIdx === numRounds - 1;
-      const matches = [...round.matches];
-      if (isFinal && bronzeMatch) {
-        matches.push(bronzeMatch);
+    const isZh = state.lang === 'zh';
+    const splitMode = isLiveView
+      ? (state.liveSplitViewMode || t?.settings?.splitView || 'standard')
+      : (t?.settings?.splitView || state.studioSplitViewMode || 'standard');
+
+    const treePart = partitionTournamentTree(rounds);
+    const canSplit = numRounds >= 2 && !!treePart;
+    const isSplitActive = canSplit && (splitMode === 'split' || splitMode === 'split_semi');
+
+    if (el.btnToggleSplit && !isLiveView) {
+      el.btnToggleSplit.classList.toggle('active', isSplitActive);
+    }
+    if (el.btnLiveToggleSplit && isLiveView) {
+      el.btnLiveToggleSplit.classList.toggle('active', isSplitActive);
+    }
+
+    let colDefs = [];
+
+    if (!isSplitActive || !treePart) {
+      // Standard 1-Sided Left-to-Right layout
+      colDefs = (rounds || []).map((round, rIdx) => {
+        const isFinal = rIdx === numRounds - 1;
+        const matches = [...round.matches];
+        if (isFinal && bronzeMatch) {
+          matches.push(bronzeMatch);
+        }
+        return {
+          side: 'left',
+          roundIdx: rIdx,
+          roundTitle: round.title,
+          matches,
+          isRight: false,
+          isCenter: isFinal
+        };
+      });
+    } else {
+      // Dual-Sided Split Layout (Symmetric wings converging to Center Final)
+      const leftCols = [];
+      const rightCols = [];
+
+      for (let rIdx = 0; rIdx <= numRounds - 2; rIdx++) {
+        const allRMatches = rounds[rIdx].matches || [];
+        const lMatches = allRMatches.filter(m => treePart.leftMatchIds.has(m.id));
+        const rMatches = allRMatches.filter(m => treePart.rightMatchIds.has(m.id));
+
+        const isSemi = (rIdx === numRounds - 2);
+        const leftTitle = isSemi
+          ? (isZh ? '半决赛 1' : 'Semifinal 1 (Kiri)')
+          : (isZh ? `${rounds[rIdx].title} (左)` : `${rounds[rIdx].title} (Kiri)`);
+        const rightTitle = isSemi
+          ? (isZh ? '半决赛 2' : 'Semifinal 2 (Kanan)')
+          : (isZh ? `${rounds[rIdx].title} (右)` : `${rounds[rIdx].title} (Kanan)`);
+
+        if (lMatches.length > 0) {
+          leftCols.push({
+            side: 'left',
+            roundIdx: rIdx,
+            roundTitle: leftTitle,
+            matches: lMatches,
+            isRight: false,
+            isCenter: false
+          });
+        }
+
+        if (rMatches.length > 0) {
+          rightCols.unshift({
+            side: 'right',
+            roundIdx: rIdx,
+            roundTitle: rightTitle,
+            matches: rMatches,
+            isRight: true,
+            isCenter: false
+          });
+        }
       }
-      return {
-        roundIdx: rIdx,
-        roundTitle: round.title,
-        matches,
-        isRight: false,
-        isCenter: isFinal
-      };
-    });
+
+      const finalMatches = bronzeMatch
+        ? [treePart.finalMatch, bronzeMatch]
+        : [treePart.finalMatch];
+
+      const centerCols = [
+        {
+          side: 'center',
+          roundIdx: numRounds - 1,
+          roundTitle: rounds[numRounds - 1].title,
+          matches: finalMatches,
+          isRight: false,
+          isCenter: true
+        }
+      ];
+
+      colDefs = [...leftCols, ...centerCols, ...rightCols];
+    }
 
     colDefs.forEach((colDef, cIdx) => {
       const { roundIdx: rIdx, roundTitle, matches } = colDef;
-      const isZh = state.lang === 'zh';
       let displayTitle = roundTitle;
       if (isZh) {
-        if (displayTitle === 'Championship Final') displayTitle = '总决赛';
+        if (displayTitle === 'Championship Final') displayTitle = '总决赛 👑';
         else if (displayTitle === 'Semifinals') displayTitle = '半决赛';
         else if (displayTitle === 'Quarterfinals') displayTitle = '四分之一决赛';
         else if (displayTitle === 'Round of 16') displayTitle = '16强赛';
         else if (displayTitle === 'Round of 32') displayTitle = '32强赛';
         else if (displayTitle === 'Round of 64') displayTitle = '64强赛';
         else if (/^Round\s+(\d+)$/i.test(displayTitle)) displayTitle = displayTitle.replace(/^Round\s+(\d+)$/i, '第 $1 轮');
+      } else if (displayTitle === 'Championship Final') {
+        displayTitle = 'Final 👑';
       }
 
       const col = document.createElement('div');
       col.className = 'round-column';
       col.dataset.round = rIdx + 1;
       if (colDef.isCenter) col.classList.add('center-final');
+      if (colDef.side === 'left') col.classList.add('split-wing-left');
+      if (colDef.side === 'right') col.classList.add('split-wing-right');
 
       col.innerHTML = `
         <div class="round-header">
@@ -2304,6 +2481,8 @@
       roundMatchPositions[rIdx] = roundMatchPositions[rIdx] || [];
 
       // 1. Calculate target center Y for each match based on leaf pair range
+      const midPair = treePart ? treePart.midPair : Math.max(1, Math.floor(Math.pow(2, numRounds - 2)));
+
       const items = matches.map((match) => {
         const origMIdx = match.isBronzeMatch ? 999 : rounds[rIdx].matches.findIndex(m => m.id === match.id);
         let targetY = 0;
@@ -2313,14 +2492,39 @@
           targetY = 80;
         } else if (match.isBronzeMatch) {
           // Bronze match: positioned directly below the Championship Final
-          const finalMatch = rounds[rIdx].matches[0];
           let finalTargetY = 0;
-          if (finalMatch && finalMatch.pairRange && Array.isArray(finalMatch.pairRange)) {
-            finalTargetY = ((finalMatch.pairRange[0] + finalMatch.pairRange[1]) / 2) * SLOT_HEIGHT;
+          if (isSplitActive) {
+            finalTargetY = ((midPair - 1) / 2) * SLOT_HEIGHT;
+          } else {
+            const finalMatch = rounds[rIdx].matches[0];
+            if (finalMatch && finalMatch.pairRange && Array.isArray(finalMatch.pairRange)) {
+              finalTargetY = ((finalMatch.pairRange[0] + finalMatch.pairRange[1]) / 2) * SLOT_HEIGHT;
+            }
           }
-          targetY = finalTargetY + MATCH_HEIGHT + 50;
+          targetY = finalTargetY + MATCH_HEIGHT + 40;
+        } else if (isSplitActive && colDef.side === 'center' && colDef.roundIdx === numRounds - 1) {
+          // Championship Final in Center: aligns symmetrically with Semifinals
+          targetY = ((midPair - 1) / 2) * SLOT_HEIGHT;
+        } else if (isSplitActive && colDef.side === 'right') {
+          // Right wing: offset pairRange by midPair so it mirrors the Left wing and starts from Y = 0
+          if (match.pairRange && Array.isArray(match.pairRange)) {
+            const adj0 = Math.max(0, match.pairRange[0] - midPair);
+            const adj1 = Math.max(0, match.pairRange[1] - midPair);
+            const centerPair = (adj0 + adj1) / 2;
+            targetY = centerPair * SLOT_HEIGHT;
+          } else {
+            targetY = origMIdx * (MATCH_HEIGHT + MIN_VERTICAL_GAP);
+          }
+        } else if (isSplitActive && colDef.side === 'left') {
+          // Left wing: starts from Y = 0
+          if (match.pairRange && Array.isArray(match.pairRange)) {
+            const centerPair = (match.pairRange[0] + match.pairRange[1]) / 2;
+            targetY = centerPair * SLOT_HEIGHT;
+          } else {
+            targetY = origMIdx * (MATCH_HEIGHT + MIN_VERTICAL_GAP);
+          }
         } else {
-          // Standard 1-sided bracket node
+          // Standard 1-sided layout
           if (match.pairRange && Array.isArray(match.pairRange)) {
             const centerPair = (match.pairRange[0] + match.pairRange[1]) / 2;
             targetY = centerPair * SLOT_HEIGHT;
@@ -5364,16 +5568,77 @@
         el.regPartnersDynamicContainer.innerHTML = '';
       }
 
-      // Render dynamic teammate cards helper
+      // Render dynamic teammate cards helper (Paged / Step-by-Step per Halaman)
       state.regTeammateCount = teammatesCount;
+      let activeTeammateIndex = 0;
+
       function renderTeammateCards(count) {
         state.regTeammateCount = count;
         if (!el.regPartnersDynamicContainer) return;
+
+        // Preserve already typed values if re-rendering (e.g. language toggle)
+        const existingValues = [];
+        const oldCards = el.regPartnersDynamicContainer.querySelectorAll('.teammate-card');
+        oldCards.forEach(c => {
+          existingValues.push({
+            name: c.querySelector('.reg-partner-name')?.value || '',
+            wecom: c.querySelector('.reg-partner-wecom')?.value || '',
+            dept: c.querySelector('.reg-partner-dept')?.value || ''
+          });
+        });
+
         el.regPartnersDynamicContainer.innerHTML = '';
         const isCurrentZh = state.lang === 'zh';
+        activeTeammateIndex = Math.min(activeTeammateIndex, Math.max(0, count - 1));
+
+        const pagedContainer = document.createElement('div');
+        pagedContainer.className = 'teammate-paged-container';
+
+        // 1. Top Step / Tabs Bar (Rendered when count > 1)
+        const tabButtons = [];
+        if (count > 1) {
+          const tabsHeader = document.createElement('div');
+          tabsHeader.className = 'teammate-tabs-header';
+
+          const tabsTrack = document.createElement('div');
+          tabsTrack.className = 'teammate-tabs-track';
+
+          for (let i = 0; i < count; i++) {
+            const tabBtn = document.createElement('button');
+            tabBtn.type = 'button';
+            tabBtn.className = `teammate-tab-btn ${i === activeTeammateIndex ? 'active' : ''}`;
+            tabBtn.setAttribute('data-teammate-idx', i);
+            tabBtn.setAttribute('title', isCurrentZh ? `切换至队员 #${i + 1}` : `Buka form Rekan #${i + 1}`);
+
+            tabBtn.innerHTML = `
+              <span class="teammate-tab-badge">${i + 1}</span>
+              <span class="teammate-tab-name">${isCurrentZh ? `队员 #${i + 1}` : `Rekan #${i + 1}`}</span>
+              <span class="teammate-tab-check hidden"><i class="fa-solid fa-check"></i></span>
+            `;
+
+            tabBtn.onclick = (e) => {
+              e.preventDefault();
+              goToTeammatePage(i);
+            };
+
+            tabsTrack.appendChild(tabBtn);
+            tabButtons.push(tabBtn);
+          }
+
+          tabsHeader.appendChild(tabsTrack);
+          pagedContainer.appendChild(tabsHeader);
+        }
+
+        // 2. Teammate Cards Wrapper
+        const cardsWrapper = document.createElement('div');
+        cardsWrapper.className = 'teammate-cards-wrapper';
+        const cardElements = [];
+
         for (let i = 0; i < count; i++) {
           const card = document.createElement('div');
-          card.className = 'teammate-card';
+          card.className = `teammate-card ${i === activeTeammateIndex ? 'active' : ''}`;
+          card.setAttribute('data-teammate-idx', i);
+
           const cardHeader = isCurrentZh ? `队员 #${i + 1} 信息` : `Data Rekan #${i + 1}`;
           const nameLabel = isCurrentZh ? `队员 #${i + 1} 完整姓名` : `Nama Lengkap Rekan #${i + 1}`;
           const namePh = isCurrentZh ? `请输入队员 #${i + 1} 完整姓名` : `Masukkan nama lengkap rekan #${i + 1}`;
@@ -5382,29 +5647,159 @@
           const deptLabel = isCurrentZh ? `队员 #${i + 1} 所属部门` : `Departemen (Dept) Rekan #${i + 1}`;
           const deptPh = isCurrentZh ? `例如：生产部、信息部、HR` : `Contoh: Produksi, IT, HR`;
 
+          const prevVal = existingValues[i] || {};
+
           card.innerHTML = `
             <div class="teammate-card-header">
-              <i class="fa-solid fa-user-plus"></i> ${cardHeader}
+              <div class="teammate-card-header-left">
+                <i class="fa-solid fa-user-plus"></i> <span>${cardHeader}</span>
+              </div>
+              ${count > 1 ? `<div class="teammate-step-badge">${i + 1} / ${count}</div>` : ''}
             </div>
             <div class="form-group" style="margin-bottom: 10px;">
               <label class="form-label" style="font-size: 11px;">${nameLabel} <span class="required">*</span></label>
-              <input type="text" class="input-modern reg-partner-name" placeholder="${namePh}" required />
+              <input type="text" class="input-modern reg-partner-name" placeholder="${namePh}" value="${escapeHTML(prevVal.name || '')}" />
             </div>
             <div class="form-group" style="margin-bottom: 10px;">
               <label class="form-label" style="font-size: 11px;">${wecomLabel} <span class="required">*</span></label>
-              <input type="text" class="input-modern reg-partner-wecom" placeholder="${wecomPh}" required />
+              <input type="text" class="input-modern reg-partner-wecom" placeholder="${wecomPh}" value="${escapeHTML(prevVal.wecom || '')}" />
             </div>
             <div class="form-group" style="margin-bottom: 0;">
               <label class="form-label" style="font-size: 11px;">${deptLabel}</label>
-              <input type="text" class="input-modern reg-partner-dept" placeholder="${deptPh}" />
+              <input type="text" class="input-modern reg-partner-dept" placeholder="${deptPh}" value="${escapeHTML(prevVal.dept || '')}" />
             </div>
           `;
-          el.regPartnersDynamicContainer.appendChild(card);
+
+          // Live validation checkmark listener for tab badge
+          const nameInput = card.querySelector('.reg-partner-name');
+          const wecomInput = card.querySelector('.reg-partner-wecom');
+          const updateCompletion = () => {
+            if (!tabButtons[i]) return;
+            const hasName = (nameInput.value || '').trim().length > 0;
+            const hasWecom = (wecomInput.value || '').trim().length > 0;
+            const isComplete = hasName && hasWecom;
+            tabButtons[i].classList.toggle('is-completed', isComplete);
+            const checkIcon = tabButtons[i].querySelector('.teammate-tab-check');
+            if (checkIcon) checkIcon.classList.toggle('hidden', !isComplete);
+          };
+
+          nameInput.addEventListener('input', updateCompletion);
+          wecomInput.addEventListener('input', updateCompletion);
+
+          // Initial check if values existed
+          if (prevVal.name || prevVal.wecom) {
+            updateCompletion();
+          }
+
+          cardsWrapper.appendChild(card);
+          cardElements.push(card);
         }
+        pagedContainer.appendChild(cardsWrapper);
+
+        // 3. Bottom Navigation Controls (Prev / Indicator / Next)
+        let navPrevBtn = null;
+        let navNextBtn = null;
+        let navIndicatorText = null;
+
+        if (count > 1) {
+          const navBar = document.createElement('div');
+          navBar.className = 'teammate-page-nav';
+
+          navPrevBtn = document.createElement('button');
+          navPrevBtn.type = 'button';
+          navPrevBtn.className = 'btn btn-secondary teammate-page-nav-btn teammate-nav-prev';
+          navPrevBtn.disabled = activeTeammateIndex === 0;
+          navPrevBtn.innerHTML = `<i class="fa-solid fa-chevron-left"></i> <span>${isCurrentZh ? '上一位' : 'Sebelumnya'}</span>`;
+          navPrevBtn.onclick = (e) => {
+            e.preventDefault();
+            if (activeTeammateIndex > 0) {
+              goToTeammatePage(activeTeammateIndex - 1);
+            }
+          };
+
+          const navCenter = document.createElement('div');
+          navCenter.className = 'teammate-page-nav-indicator';
+          navIndicatorText = document.createElement('span');
+          navIndicatorText.className = 'teammate-indicator-text';
+          navIndicatorText.textContent = isCurrentZh
+            ? `第 ${activeTeammateIndex + 1} / ${count} 位队员`
+            : `Rekan ${activeTeammateIndex + 1} dari ${count}`;
+          navCenter.appendChild(navIndicatorText);
+
+          navNextBtn = document.createElement('button');
+          navNextBtn.type = 'button';
+          navNextBtn.className = 'btn btn-primary teammate-page-nav-btn teammate-nav-next';
+          updateNextBtnState(activeTeammateIndex);
+          navNextBtn.onclick = (e) => {
+            e.preventDefault();
+            if (activeTeammateIndex < count - 1) {
+              goToTeammatePage(activeTeammateIndex + 1, true);
+            }
+          };
+
+          navBar.appendChild(navPrevBtn);
+          navBar.appendChild(navCenter);
+          navBar.appendChild(navNextBtn);
+          pagedContainer.appendChild(navBar);
+        }
+
+        function updateNextBtnState(idx) {
+          if (!navNextBtn) return;
+          if (idx >= count - 1) {
+            navNextBtn.className = 'btn btn-secondary teammate-page-nav-btn teammate-nav-next';
+            navNextBtn.disabled = true;
+            navNextBtn.style.opacity = '0.45';
+            navNextBtn.innerHTML = `<span>${isCurrentZh ? '已是最后一位' : 'Rekan Terakhir'}</span> <i class="fa-solid fa-check"></i>`;
+          } else {
+            navNextBtn.className = 'btn btn-primary teammate-page-nav-btn teammate-nav-next';
+            navNextBtn.disabled = false;
+            navNextBtn.style.opacity = '1';
+            navNextBtn.innerHTML = `<span>${isCurrentZh ? '下一位队员' : 'Rekan Berikutnya'}</span> <i class="fa-solid fa-chevron-right"></i>`;
+          }
+        }
+
+        function goToTeammatePage(targetIndex, shouldFocus = false) {
+          if (targetIndex < 0 || targetIndex >= count) return;
+          activeTeammateIndex = targetIndex;
+
+          cardElements.forEach((c, idx) => {
+            c.classList.toggle('active', idx === activeTeammateIndex);
+          });
+
+          tabButtons.forEach((t, idx) => {
+            t.classList.toggle('active', idx === activeTeammateIndex);
+          });
+
+          if (tabButtons[activeTeammateIndex]) {
+            tabButtons[activeTeammateIndex].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+          }
+
+          if (navPrevBtn) {
+            navPrevBtn.disabled = (activeTeammateIndex === 0);
+          }
+          updateNextBtnState(activeTeammateIndex);
+          if (navIndicatorText) {
+            navIndicatorText.textContent = isCurrentZh
+              ? `第 ${activeTeammateIndex + 1} / ${count} 位队员`
+              : `Rekan ${activeTeammateIndex + 1} dari ${count}`;
+          }
+
+          if (shouldFocus) {
+            const curInput = cardElements[activeTeammateIndex]?.querySelector('.reg-partner-name');
+            if (curInput) curInput.focus();
+          }
+        }
+
+        pagedContainer.goToTeammatePage = goToTeammatePage;
+        el.regPartnersDynamicContainer.appendChild(pagedContainer);
       }
 
       if (isTeamTournament) {
         renderTeammateCards(teammatesCount);
+      }
+
+      if (el.publicRegisterForm) {
+        el.publicRegisterForm.noValidate = true;
       }
 
       el.publicRegisterForm.onsubmit = async (e) => {
@@ -5418,6 +5813,7 @@
 
         if (!playerName) {
           showToast(isCurrentZh ? '请填写队长/主选手完整姓名！' : 'Mohon isi Nama Lengkap pemain utama!', 'warning');
+          if (el.regPlayerName) el.regPlayerName.focus();
           return;
         }
 
@@ -5434,6 +5830,7 @@
 
         const partners = [];
         if (isTeam && el.regPartnersDynamicContainer) {
+          const pagedContainer = el.regPartnersDynamicContainer.querySelector('.teammate-paged-container');
           const cards = el.regPartnersDynamicContainer.querySelectorAll('.teammate-card');
           for (let i = 0; i < cards.length; i++) {
             const card = cards[i];
@@ -5442,11 +5839,17 @@
             const pDept = (card.querySelector('.reg-partner-dept')?.value || '').trim();
 
             if (!pName) {
+              if (pagedContainer && pagedContainer.goToTeammatePage) {
+                pagedContainer.goToTeammatePage(i, true);
+              }
               showToast(isCurrentZh ? `请填写队员 #${i + 1} 的姓名！` : `Mohon isi Nama Lengkap untuk Rekan #${i + 1}!`, 'warning');
               card.querySelector('.reg-partner-name')?.focus();
               return;
             }
             if (!pWecom) {
+              if (pagedContainer && pagedContainer.goToTeammatePage) {
+                pagedContainer.goToTeammatePage(i);
+              }
               showToast(isCurrentZh ? `请填写队员 #${i + 1} 的企业微信 / 手机号！` : `Mohon isi No. WeCom untuk Rekan #${i + 1}!`, 'warning');
               card.querySelector('.reg-partner-wecom')?.focus();
               return;
@@ -5455,6 +5858,9 @@
             const cPWecom = cleanWecom(pWecom);
             const dupSelf = enteredWecoms.find(w => w.wecom === cPWecom);
             if (dupSelf) {
+              if (pagedContainer && pagedContainer.goToTeammatePage) {
+                pagedContainer.goToTeammatePage(i);
+              }
               showToast(isCurrentZh
                 ? `企业微信/手机号 [${pWecom}] 在本队中重复填写（${dupSelf.role} 与 队员 #${i + 1}）！每个成员必须使用独立号码。`
                 : `No. WeCom [${pWecom}] dimasukkan lebih dari sekali dalam satu tim (${dupSelf.role} dan Rekan #${i + 1})! Setiap anggota tim harus memiliki nomor unik.`, 'error');
@@ -7022,8 +7428,37 @@
     if (el.liveZoomText) el.liveZoomText.textContent = pct;
   }
 
-  function handleZoom(delta, canvasEl) {
-    state.zoomLevel = Math.max(0.4, Math.min(2.0, state.zoomLevel + delta));
+  function handleZoom(delta, canvasEl, focalPoint = null, containerEl = null) {
+    const prevZoom = state.zoomLevel;
+    const newZoom = Math.max(0.3, Math.min(2.5, Number((prevZoom + delta).toFixed(4))));
+    if (Math.abs(newZoom - prevZoom) < 0.001) return;
+
+    if (focalPoint && containerEl) {
+      const rect = containerEl.getBoundingClientRect();
+      const cx = focalPoint.x - rect.left;
+      const cy = focalPoint.y - rect.top;
+
+      // Coordinate on canvas under cursor before zoom
+      const canvasX = (cx - state.panX) / prevZoom;
+      const canvasY = (cy - state.panY) / prevZoom;
+
+      // Keep (canvasX, canvasY) directly under cursor after zoom
+      state.panX = Math.round(cx - canvasX * newZoom);
+      state.panY = Math.round(cy - canvasY * newZoom);
+    } else if (containerEl) {
+      // Zoom into viewport center for +/- buttons
+      const rect = containerEl.getBoundingClientRect();
+      const cx = rect.width / 2;
+      const cy = rect.height / 2;
+
+      const canvasX = (cx - state.panX) / prevZoom;
+      const canvasY = (cy - state.panY) / prevZoom;
+
+      state.panX = Math.round(cx - canvasX * newZoom);
+      state.panY = Math.round(cy - canvasY * newZoom);
+    }
+
+    state.zoomLevel = newZoom;
     applyCanvasTransform(canvasEl);
   }
 
@@ -7050,42 +7485,56 @@
       state.isDraggingSlot = false;
     });
 
-    // Touch Dragging & Pinch-Zoom for Tablets & Smartphones (Fixes locked bracket on tablets)
+    // Touch Dragging & Pinch-Zoom for Tablets & Smartphones
     let touchStartDist = 0;
     let initialZoom = 1;
+    let initialPanX = 0;
+    let initialPanY = 0;
 
     containerEl.addEventListener('touchstart', (e) => {
-      // Do not block dragging when touching card body; only block when touching interactive buttons/inputs or draggable slots
       if (e.target.closest('button, input, select, textarea, .canvas-controls, .corner-match-widget, .btn-slot-lock, .btn-slot-edit, [draggable="true"]')) return;
 
       if (e.touches.length === 1) {
-        // 1-finger panning
         state.isDraggingCanvas = true;
         state.dragStartX = e.touches[0].clientX - state.panX;
         state.dragStartY = e.touches[0].clientY - state.panY;
       } else if (e.touches.length === 2) {
-        // 2-finger pinch zoom
         state.isDraggingCanvas = false;
         const dx = e.touches[0].clientX - e.touches[1].clientX;
         const dy = e.touches[0].clientY - e.touches[1].clientY;
         touchStartDist = Math.hypot(dx, dy);
         initialZoom = state.zoomLevel;
+        initialPanX = state.panX;
+        initialPanY = state.panY;
       }
     }, { passive: false });
 
     containerEl.addEventListener('touchmove', (e) => {
       if (e.touches.length === 1 && state.isDraggingCanvas) {
-        e.preventDefault(); // Prevent page pull/scroll
+        e.preventDefault();
         state.panX = e.touches[0].clientX - state.dragStartX;
         state.panY = e.touches[0].clientY - state.dragStartY;
         applyCanvasTransform(canvasEl);
       } else if (e.touches.length === 2 && touchStartDist > 0) {
-        e.preventDefault(); // Prevent browser pinch zoom
+        e.preventDefault();
         const dx = e.touches[0].clientX - e.touches[1].clientX;
         const dy = e.touches[0].clientY - e.touches[1].clientY;
         const currentDist = Math.hypot(dx, dy);
         const scaleFactor = currentDist / touchStartDist;
-        state.zoomLevel = Math.max(0.3, Math.min(2.5, initialZoom * scaleFactor));
+        const newZoom = Math.max(0.3, Math.min(2.5, initialZoom * scaleFactor));
+
+        const midClientX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+        const midClientY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+        const rect = containerEl.getBoundingClientRect();
+        const cx = midClientX - rect.left;
+        const cy = midClientY - rect.top;
+
+        const canvasX = (cx - initialPanX) / initialZoom;
+        const canvasY = (cy - initialPanY) / initialZoom;
+
+        state.panX = Math.round(cx - canvasX * newZoom);
+        state.panY = Math.round(cy - canvasY * newZoom);
+        state.zoomLevel = newZoom;
         applyCanvasTransform(canvasEl);
       }
     }, { passive: false });
@@ -7101,11 +7550,11 @@
     window.addEventListener('touchend', endTouchDrag);
     window.addEventListener('touchcancel', endTouchDrag);
 
-    // Mouse wheel zoom
+    // Mouse wheel zoom based on cursor position
     containerEl.addEventListener('wheel', (e) => {
       e.preventDefault();
-      const zoomFactor = e.deltaY < 0 ? 0.08 : -0.08;
-      handleZoom(zoomFactor, canvasEl);
+      const zoomFactor = e.deltaY < 0 ? (0.12 * state.zoomLevel) : (-0.12 * state.zoomLevel);
+      handleZoom(zoomFactor, canvasEl, { x: e.clientX, y: e.clientY }, containerEl);
     }, { passive: false });
   }
 
@@ -7487,6 +7936,64 @@
       });
     }
 
+    if (el.settingBracketLayout) {
+      el.settingBracketLayout.addEventListener('change', () => {
+        if (state.currentTournament) {
+          const val = (el.settingBracketLayout.value === 'split' || el.settingBracketLayout.value === 'split_semi') ? 'split' : 'standard';
+          state.currentTournament.settings = state.currentTournament.settings || {};
+          state.currentTournament.settings.splitView = val;
+          saveTournamentState(false);
+          renderBracketStudio();
+          showToast(
+            val === 'standard'
+              ? (state.lang === 'zh' ? '已切换为标准单向对阵视图' : 'Tampilan bagan standar (1 sisi)')
+              : (state.lang === 'zh' ? '已切换为双翼对称视图' : 'Tampilan bagan split 2 sisi'),
+            'info'
+          );
+        }
+      });
+    }
+
+    if (el.btnToggleSplit) {
+      el.btnToggleSplit.addEventListener('click', () => {
+        if (!state.currentTournament) return;
+        const current = state.currentTournament.settings?.splitView || 'standard';
+        const isSplit = (current === 'split' || current === 'split_semi');
+        const next = isSplit ? 'standard' : 'split';
+        state.currentTournament.settings = state.currentTournament.settings || {};
+        state.currentTournament.settings.splitView = next;
+        if (el.settingBracketLayout) {
+          el.settingBracketLayout.value = next;
+        }
+        saveTournamentState(false);
+        renderBracketStudio();
+        showToast(
+          next === 'standard'
+            ? (state.lang === 'zh' ? '视图: 标准单向 (1 Sisi)' : 'Layout: Standar (1 Sisi)')
+            : (state.lang === 'zh' ? '视图: 双翼对称 (Split View)' : 'Layout: Split 2 Sisi (Split View)'),
+          'info'
+        );
+      });
+    }
+
+    if (el.btnLiveToggleSplit) {
+      el.btnLiveToggleSplit.addEventListener('click', () => {
+        const t = state.currentTournament || state.liveTournamentData;
+        if (!t) return;
+        const current = state.liveSplitViewMode || t.settings?.splitView || 'standard';
+        const isSplit = (current === 'split' || current === 'split_semi');
+        const next = isSplit ? 'standard' : 'split';
+        state.liveSplitViewMode = next;
+        renderBracketView(el.liveRoundsContainer, el.liveSvg, t.rounds || [], true);
+        showToast(
+          next === 'standard'
+            ? (state.lang === 'zh' ? '观众大屏: 标准单向' : 'Live Spectator: Layout Standar')
+            : (state.lang === 'zh' ? '观众大屏: 双翼对称 (Split View)' : 'Live Spectator: Split 2 Sisi (Split View)'),
+          'info'
+        );
+      });
+    }
+
     el.btnResetScores.addEventListener('click', () => {
       openConfirmModal(
         'Reset Match Scores?',
@@ -7521,8 +8028,8 @@
     setupCanvasDrag(el.canvasContainer, el.bracketCanvas);
     setupCanvasDrag(el.liveCanvasContainer, el.liveCanvas);
 
-    el.btnZoomIn.addEventListener('click', () => handleZoom(0.15, el.bracketCanvas));
-    el.btnZoomOut.addEventListener('click', () => handleZoom(-0.15, el.bracketCanvas));
+    el.btnZoomIn.addEventListener('click', () => handleZoom(0.15, el.bracketCanvas, null, el.canvasContainer));
+    el.btnZoomOut.addEventListener('click', () => handleZoom(-0.15, el.bracketCanvas, null, el.canvasContainer));
     el.btnZoomReset.addEventListener('click', () => {
       state.zoomLevel = 1.0;
       state.panX = 40;
@@ -7530,17 +8037,41 @@
       applyCanvasTransform(el.bracketCanvas);
     });
     el.btnCenterBracket.addEventListener('click', () => {
-      state.panX = 60;
-      state.panY = 60;
+      const t = state.currentTournament;
+      const numRounds = (t?.rounds || []).length;
+      const splitMode = t?.settings?.splitView || 'standard';
+      const isSplit = (splitMode === 'split' || splitMode === 'split_semi') && numRounds >= 2;
+      if (isSplit && el.canvasContainer) {
+        const cW = el.canvasContainer.clientWidth || 1000;
+        const totalCols = 2 * numRounds - 1;
+        const bracketW = totalCols * 320 - 80;
+        state.panX = Math.max(40, Math.round((cW - bracketW * state.zoomLevel) / 2));
+        state.panY = 60;
+      } else {
+        state.panX = 60;
+        state.panY = 60;
+      }
       applyCanvasTransform(el.bracketCanvas);
     });
 
     // Live Canvas Controls
-    el.btnLiveZoomIn.addEventListener('click', () => handleZoom(0.15, el.liveCanvas));
-    el.btnLiveZoomOut.addEventListener('click', () => handleZoom(-0.15, el.liveCanvas));
+    el.btnLiveZoomIn.addEventListener('click', () => handleZoom(0.15, el.liveCanvas, null, el.liveCanvasContainer));
+    el.btnLiveZoomOut.addEventListener('click', () => handleZoom(-0.15, el.liveCanvas, null, el.liveCanvasContainer));
     el.btnLiveCenter.addEventListener('click', () => {
-      state.panX = 60;
-      state.panY = 60;
+      const t = state.liveTournamentData || state.currentTournament;
+      const numRounds = (t?.rounds || []).length;
+      const splitMode = state.liveSplitViewMode || t?.settings?.splitView || 'standard';
+      const isSplit = (splitMode === 'split' || splitMode === 'split_semi') && numRounds >= 2;
+      if (isSplit && el.liveCanvasContainer) {
+        const cW = el.liveCanvasContainer.clientWidth || 1000;
+        const totalCols = 2 * numRounds - 1;
+        const bracketW = totalCols * 320 - 80;
+        state.panX = Math.max(40, Math.round((cW - bracketW * state.zoomLevel) / 2));
+        state.panY = 60;
+      } else {
+        state.panX = 60;
+        state.panY = 60;
+      }
       applyCanvasTransform(el.liveCanvas);
     });
 

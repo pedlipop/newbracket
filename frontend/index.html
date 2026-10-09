@@ -321,6 +321,14 @@
               <small class="form-hint" data-i18n="hint_format_locked">Format is locked during active bracket generation.</small>
             </div>
             <div class="form-group">
+              <label data-i18n="label_bracket_layout"><i class="fa-solid fa-table-columns" style="color:var(--primary); margin-right:4px;"></i> Layout Bagan Pertandingan</label>
+              <select id="setting-bracket-layout" class="input-modern select-modern" style="width:100%;">
+                <option value="standard" data-i18n="opt_layout_standard">Standar (1-Sisi Kiri ke Kanan)</option>
+                <option value="split" data-i18n="opt_layout_split">Bagan 2 Sisi (Split View Simetris)</option>
+              </select>
+              <small class="form-hint" data-i18n="hint_bracket_layout">Membagi bagan ke dua sisi simetris (sayap kiri & kanan) yang bertemu di Final tengah.</small>
+            </div>
+            <div class="form-group">
               <label class="toggle-label">
                 <input type="checkbox" id="setting-bronze-match">
                 <span data-i18n="label_bronze_match">Include 3rd Place (Bronze) Match</span>
@@ -441,6 +449,10 @@
           </button>
           <button id="btn-center-bracket" class="canvas-control-btn" title="Center Bracket">
             <i class="fa-solid fa-crosshairs"></i>
+          </button>
+          <div class="control-separator"></div>
+          <button id="btn-toggle-split" class="canvas-control-btn" title="Toggle Split View / Bagan 2 Sisi">
+            <i class="fa-solid fa-arrows-split-up-and-left"></i>
           </button>
         </div>
 
@@ -666,6 +678,8 @@
         <span id="live-zoom-text" class="zoom-display">100%</span>
         <button id="btn-live-zoom-out" class="canvas-control-btn"><i class="fa-solid fa-minus"></i></button>
         <button id="btn-live-center" class="canvas-control-btn"><i class="fa-solid fa-crosshairs"></i></button>
+        <div class="control-separator"></div>
+        <button id="btn-live-toggle-split" class="canvas-control-btn" title="Toggle Split View / Bagan 2 Sisi"><i class="fa-solid fa-arrows-split-up-and-left"></i></button>
       </div>
 
       <!-- Hidden Bracket Live Overlay -->
@@ -783,7 +797,7 @@
             </a>
           </div>
 
-          <form id="public-register-form" class="register-card-body">
+          <form id="public-register-form" class="register-card-body" novalidate>
             <div class="form-group hidden" id="reg-team-name-group">
               <label for="reg-team-name" data-i18n="reg_team_name_label">Nama Tim (Opsional - jika kosong otomatis TIM [Nama Depan])</label>
               <input type="text" id="reg-team-name" data-i18n-ph="reg_team_name_ph" placeholder="Contoh: Garuda Team (Opsional)">
