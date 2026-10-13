@@ -1389,11 +1389,21 @@
 
     // Disable auto-seed & reset-seeds when bracket is locked
     const isBracketLocked = !!t.isLocked;
+    const hasPlacedInBracket = (t.rounds || []).some(r =>
+      (r.matches || []).some(m =>
+        (m.p1 && m.p1.id && !m.p1.isPlaceholder && !m.p1.isUnseeded) ||
+        (m.p2 && m.p2.id && !m.p2.isPlaceholder && !m.p2.isUnseeded)
+      )
+    );
     if (el.btnAutoSeed) {
       el.btnAutoSeed.disabled = isBracketLocked;
-      el.btnAutoSeed.style.opacity = isBracketLocked ? '0.5' : '1';
+      el.btnAutoSeed.style.opacity = isBracketLocked ? '0.5' : (hasPlacedInBracket ? '0.8' : '1');
       el.btnAutoSeed.style.cursor = isBracketLocked ? 'not-allowed' : 'pointer';
-      el.btnAutoSeed.title = isBracketLocked ? 'Auto-seed dinonaktifkan saat bagan dikunci' : 'Tempatkan peserta sesuai urutan seed standar';
+      el.btnAutoSeed.title = isBracketLocked
+        ? 'Auto-seed dinonaktifkan saat bagan dikunci'
+        : (hasPlacedInBracket
+            ? 'Bagan sudah terisi. Gunakan tombol Reset Seed terlebih dahulu jika ingin mengundi ulang'
+            : 'Undi peserta ke bagan kosong secara acak (Auto-Seed)');
     }
     if (el.btnResetBracketSeeds) {
       el.btnResetBracketSeeds.disabled = isBracketLocked;
@@ -5101,7 +5111,39 @@
   }
 
   function handleAutoSeed() {
-    performSeeding(false);
+    const t = state.currentTournament;
+    if (!t) return;
+    const isZh = state.lang === 'zh';
+
+    if (t.isLocked || t.status === 'in_progress') {
+      showToast(isZh ? '比赛进行中或对阵图已锁定，无法重新抽签！' : 'Turnamen sedang berjalan atau bagan dikunci! Buka kunci terlebih dahulu untuk melakukan auto-seed.', 'warning');
+      return;
+    }
+
+    if (!t.participants || t.participants.length < 1) {
+      showToast(isZh ? '暂无参赛选手，请先添加选手！' : 'Belum ada peserta terdaftar. Tambahkan peserta terlebih dahulu untuk melakukan Auto-Seed!', 'warning');
+      return;
+    }
+
+    // Auto-Seed hanya berfungsi ketika bracket sedang kosong
+    const hasPlaced = (t.rounds || []).some(r =>
+      (r.matches || []).some(m =>
+        (m.p1 && m.p1.id && !m.p1.isPlaceholder && !m.p1.isUnseeded) ||
+        (m.p2 && m.p2.id && !m.p2.isPlaceholder && !m.p2.isUnseeded)
+      )
+    );
+
+    if (hasPlaced) {
+      showToast(
+        isZh
+          ? '对阵图已有队伍！自动抽签（Auto-Seed）仅在对阵图为空时生效。请先点击“重置签位”清空对阵图。'
+          : 'Bagan sudah terisi! Auto-Seed hanya berfungsi ketika bagan sedang kosong. Silakan klik tombol "Reset Seed" terlebih dahulu jika ingin mengundi ulang.',
+        'warning'
+      );
+      return;
+    }
+
+    performSeeding(true);
   }
 
   function handleResetSeeds() {
@@ -5256,11 +5298,12 @@
     });
 
     sanitizeBracketDuplicates(t);
-    addTournamentLog(t, 'slot', isRandom ? '🎲 Bagan diacak secara acak (Random Seeding).' : '✨ Bagan diatur sesuai seed standar (Auto-Seed).');
+    addTournamentLog(t, 'slot', '🎲 Bagan diundi secara otomatis (Auto-Seed).');
     saveTournamentState(true);
     renderParticipantsDrawer();
     renderBracketStudio();
-    showToast(isRandom ? '🎲 Bagan berhasil diacak secara random! (Slot terkunci tetap aman)' : '✨ Auto-Seed standar selesai diterapkan!', 'success');
+    const isZh = state.lang === 'zh';
+    showToast(isZh ? '🎲 自动抽签成功，对阵图已完成随机编排！' : '🎲 Auto-Seed berhasil! Bagan telah diundi secara acak.', 'success');
   }
 
   // CSV Parsing Engine
