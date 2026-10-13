@@ -72,7 +72,7 @@
       nav_themes: 'Themes',
       drawer_participants: 'Participants',
       btn_auto_seed: 'Auto-Seed',
-      btn_random_seed: 'Random Seed',
+      btn_reset_seeds: 'Reset Seed',
       btn_bulk_add: 'Bulk Add',
       ph_add_participant: 'Add team/player name...',
       drag_hint: 'Drag any participant onto a bracket slot to assign or swap seeds!',
@@ -81,7 +81,24 @@
       ph_setting_game: 'e.g. Valorant, MLBB, Tekken 8',
       label_bracket_format: 'Bracket Format',
       opt_single_elim: 'Single Elimination',
+      opt_round_robin: 'Round Robin (Setengah Kompetisi)',
+      opt_round_robin_elim: 'Round Robin + Single Elimination (Grup & Gugur)',
       opt_double_elim: 'Double Elimination',
+      rr_config_title: 'Pengaturan Babak Grup (Round Robin)',
+      label_rr_group_count: 'Jumlah Grup',
+      label_rr_advancing: 'Tim Lolos per Grup (Playoff)',
+      btn_convert_knockout: 'Konversi ke Babak Gugur',
+      modal_convert_title: 'Konversi ke Babak Gugur',
+      modal_convert_sub: 'Loloskan tim terbaik dari setiap grup ke bagan Single Elimination.',
+      label_qualifying_teams: 'Tim yang Lolos dari Klasemen:',
+      label_seeding_method: 'Skema Pertemuan Babak Gugur:',
+      opt_seed_cross: 'Silang Grup (Juara Grup A vs Runner-up Grup B, dsb.)',
+      opt_seed_rank: 'Sesuai Peringkat Poin Tertinggi (Seed 1 vs Terendah)',
+      hint_seeding_method: 'Skema silang mencegah tim dari grup yang sama bertemu langsung di babak pertama.',
+      btn_confirm_generate_bracket: 'Buat Bagan Babak Gugur',
+      stage_round_robin: 'Babak Grup (Round Robin)',
+      stage_elimination: 'Babak Gugur (Single Elimination)',
+      btn_direct_draw: 'Hasil Seri / Imbang (Draw)',
       hint_format_locked: 'Format is locked during active bracket generation.',
       label_bracket_layout: 'Layout Bagan Pertandingan',
       opt_layout_standard: 'Standar (1-Sisi Kiri ke Kanan)',
@@ -161,7 +178,10 @@
       label_tourn_format: 'Format',
       label_tourn_size: 'Initial Participants',
       label_tourn_doubles: 'Mode Tim / Turnamen Berkelompok',
-      btn_cancel: 'Cancel',
+      btn_cancel: 'Batal',
+      col_partner_name: 'Nama Rekan',
+      col_partner_dept: 'Departemen / Divisi',
+      col_partner_wecom: 'WeCom / Kontak',
       btn_create_tournament: 'Create Tournament',
       modal_qr_title: 'Participant Registration QR',
       modal_qr_instructions: 'Scan this QR code with a phone to register participants directly into the tournament.',
@@ -190,6 +210,7 @@
       reg_panel_teams_title: 'Tim Terdaftar',
       reg_panel_privacy_note: 'Hanya Nama Tim',
       ph_search_registered_teams: 'Cari nama tim...',
+      ph_search_live_teams: 'Cari nama tim, pemain, atau no WeCom...',
       empty_registered_teams: 'Belum ada tim yang terdaftar.',
       status_registered: 'Terdaftar',
       label_qr_deadline: 'Batas Waktu Otomatis Ditutup:',
@@ -211,6 +232,8 @@
       label_score_points: 'Skor / Poin',
       btn_direct_win: 'Menang Langsung 👑',
       btn_reset_match: 'Reset Skor Pertandingan',
+      btn_lock_matchup: 'Kunci Matchup',
+      btn_unlock_matchup: 'Buka Kunci Matchup',
       btn_save_score: 'Simpan Skor Pertandingan',
       label_match_note: 'Catatan Pertandingan (Opsional)',
       nav_logs: 'Log Bagan',
@@ -228,13 +251,14 @@
       btn_import_participants: 'Import Peserta',
       modal_search_title: 'Cari Pertandingan (Match)',
       modal_search_sub: 'Cari tim, pemain, ronde, atau status untuk langsung lompat ke match',
-      search_match_ph: 'Ketik nama tim / pemain / nomor match...',
+      search_match_ph: 'Ketik nama tim / pemain / no WeCom / nomor match...',
       status_next_up: 'Akan Bermain',
       btn_quick_save_status: 'Simpan Status',
       nav_reports: 'Laporan',
       btn_participant_report: 'Laporan Peserta',
-      btn_full_report: 'Laporan Pendaftar Link',
+      btn_full_report: 'Laporan Pendaftar',
       btn_back_to_bracket: 'Kembali ke Bagan',
+      btn_close: 'Tutup',
       report_title: 'Laporan Pendaftar Turnamen',
       report_stat_teams: 'Total Pendaftar / Tim',
       report_stat_athletes: 'Total Atlet / Pemain',
@@ -324,7 +348,7 @@
       nav_themes: '主题风格',
       drawer_participants: '参赛人员',
       btn_auto_seed: '自动排序',
-      btn_random_seed: '随机抽签',
+      btn_reset_seeds: '重置签位',
       btn_bulk_add: '批量导入',
       ph_add_participant: '输入队伍或选手姓名...',
       drag_hint: '拖拽选手到对阵槽位即可分配或调换种子位置！',
@@ -333,7 +357,24 @@
       ph_setting_game: '例如：英雄联盟、羽毛球、乒乓球',
       label_bracket_format: '赛制结构',
       opt_single_elim: '单败淘汰制 (Single Elimination)',
+      opt_round_robin: '单循环赛制 (Round Robin)',
+      opt_round_robin_elim: '小组循环 + 单败淘汰 (Grup & Gugur)',
       opt_double_elim: '双败淘汰制 (Double Elimination)',
+      rr_config_title: '小组赛设置 (Round Robin)',
+      label_rr_group_count: '小组数量',
+      label_rr_advancing: '每组晋级名额 (淘汰赛)',
+      btn_convert_knockout: '晋级生成淘汰赛对阵',
+      modal_convert_title: '晋级生成单败淘汰赛',
+      modal_convert_sub: '根据小组赛积分排名，自动生成单败淘汰赛（Playoffs）对阵图。',
+      label_qualifying_teams: '小组积分晋级队伍：',
+      label_seeding_method: '淘汰赛首轮对阵方式：',
+      opt_seed_cross: '小组交叉对阵 (A组第一 vs B组第二)',
+      opt_seed_rank: '全场积分顺位对阵',
+      hint_seeding_method: '交叉对阵规则可避免同组队伍在首轮过早相遇。',
+      btn_confirm_generate_bracket: '确认生成淘汰赛对阵',
+      stage_round_robin: '小组循环赛 (Round Robin)',
+      stage_elimination: '单败淘汰赛 (Single Elimination)',
+      btn_direct_draw: '平局 / 和局 (Draw)',
       hint_format_locked: '对阵生成后赛制已锁定。',
       label_bronze_match: '包含季军赛（争夺第三名）',
       label_hide_live_bracket: '在观众大屏隐藏对阵图（模糊处理）',
@@ -409,6 +450,9 @@
       label_tourn_size: '初始队伍规模',
       label_tourn_doubles: '团队 / 多人赛模式（每队多名选手）',
       btn_cancel: '取消',
+      col_partner_name: '队友姓名',
+      col_partner_dept: '部门 / 班组',
+      col_partner_wecom: '微信号 / 联系方式',
       btn_create_tournament: '创建比赛',
       modal_qr_title: '选手扫码报名二维码',
       modal_qr_instructions: '使用手机扫码即可直接录入选手信息并加入对阵图。',
@@ -437,6 +481,7 @@
       reg_panel_teams_title: '已报名战队',
       reg_panel_privacy_note: '仅展示战队名称',
       ph_search_registered_teams: '搜索战队名称...',
+      ph_search_live_teams: '搜索战队、选手或企微号...',
       empty_registered_teams: '暂无已报名的战队。',
       status_registered: '已报名',
       label_qr_deadline: '报名截止时间设置：',
@@ -458,6 +503,8 @@
       label_score_points: '比分 / 得分',
       btn_direct_win: '判定获胜 👑',
       btn_reset_match: '重置本场比分',
+      btn_lock_matchup: '锁定本场',
+      btn_unlock_matchup: '解锁本场',
       btn_save_score: '保存比分与晋级',
       modal_confirm_title: '请确认操作',
       btn_confirm: '确认',
@@ -472,13 +519,14 @@
       btn_import_participants: '确认导入名单',
       modal_search_title: '搜索对战比赛',
       modal_search_sub: '可搜索选手、队伍名称、轮次或比赛状态快速定位',
-      search_match_ph: '输入战队名称、选手姓名或场次...',
+      search_match_ph: '输入战队、选手、企微号或比赛场次...',
       status_next_up: '即将开赛',
       btn_quick_save_status: '保存状态',
       nav_reports: '报名报表',
       btn_participant_report: '选手名单',
       btn_full_report: '报名名单报表',
       btn_back_to_bracket: '返回对阵图',
+      btn_close: '关闭',
       report_title: '赛事选手报名报表',
       report_stat_teams: '报名总数 / 队伍',
       report_stat_athletes: '参赛选手数',
@@ -583,6 +631,9 @@
       setupStudioUI();
       renderParticipantsDrawer();
       renderBracketStudio();
+      if (el.studioReportView && !el.studioReportView.classList.contains('hidden')) {
+        renderParticipantReports();
+      }
     } else if (state.currentView === 'live' && state.currentTournament) {
       el.liveTournamentName.textContent = state.currentTournament.name;
       el.liveGameBadge.textContent = isZh ? `${state.currentTournament.game || '电竞'} • 官方实时观赛` : `${state.currentTournament.game || 'Esports'} • Live Spectator View`;
@@ -637,7 +688,7 @@
     el.btnFloatingDrawerToggle = document.getElementById('btn-floating-drawer-toggle');
     el.participantCountBadge = document.getElementById('participant-count-badge');
     el.btnAutoSeed = document.getElementById('btn-auto-seed');
-    el.btnRandomSeed = document.getElementById('btn-random-seed');
+    el.btnResetBracketSeeds = document.getElementById('btn-reset-bracket-seeds');
     el.btnBulkAdd = document.getElementById('btn-bulk-add');
     el.addParticipantForm = document.getElementById('add-participant-form');
     el.newParticipantInput = document.getElementById('new-participant-input');
@@ -697,8 +748,14 @@
     el.btnAddEditPartner = document.getElementById('btn-add-edit-partner');
     el.editReportPartnersContainer = document.getElementById('edit-report-partners-container');
 
-    // Canvas
+    // Canvas & Stage Switcher
     el.canvasContainer = document.getElementById('canvas-container');
+    el.studioStageBar = document.getElementById('studio-stage-bar');
+    el.tabStageRr = document.getElementById('tab-stage-rr');
+    el.tabStageElim = document.getElementById('tab-stage-elim');
+    el.stageElimBadge = document.getElementById('stage-elim-badge');
+    el.btnStageConvertKnockout = document.getElementById('btn-stage-convert-knockout');
+    el.studioRoundRobinView = document.getElementById('studio-round-robin-view');
     el.bracketCanvas = document.getElementById('bracket-canvas');
     el.bracketSvg = document.getElementById('bracket-svg');
     el.bracketRoundsContainer = document.getElementById('bracket-rounds-container');
@@ -711,6 +768,10 @@
 
     // Live View
     el.liveCanvasContainer = document.getElementById('live-canvas-container');
+    el.liveStageBar = document.getElementById('live-stage-bar');
+    el.tabLiveStageRr = document.getElementById('tab-live-stage-rr');
+    el.tabLiveStageElim = document.getElementById('tab-live-stage-elim');
+    el.liveRoundRobinView = document.getElementById('live-round-robin-view');
     el.liveCanvas = document.getElementById('live-canvas');
     el.liveSvg = document.getElementById('live-svg');
     el.liveRoundsContainer = document.getElementById('live-rounds-container');
@@ -742,6 +803,11 @@
     // Modals
     el.modalCreateTournament = document.getElementById('modal-create-tournament');
     el.formCreateTournament = document.getElementById('form-create-tournament');
+    el.createType = document.getElementById('create-type');
+    el.createRrConfigBox = document.getElementById('create-rr-config-box');
+    el.createRrGroups = document.getElementById('create-rr-groups');
+    el.createRrAdvancing = document.getElementById('create-rr-advancing');
+
     el.modalQrCode = document.getElementById('modal-qr-code');
     el.qrCodeDisplay = document.getElementById('qr-code-display');
     el.qrUrlText = document.getElementById('qr-url-text');
@@ -762,11 +828,24 @@
     el.modalP2Score = document.getElementById('modal-p2-score');
     el.btnDirectWinP2 = document.getElementById('btn-direct-win-p2');
     el.cardMatchP2 = document.getElementById('match-card-p2');
+    el.rrDrawControlBox = document.getElementById('rr-draw-control-box');
+    el.btnDirectDraw = document.getElementById('btn-direct-draw');
     el.btnSaveMatchScore = document.getElementById('btn-save-match-score');
     el.btnClearMatchResult = document.getElementById('btn-clear-match-result');
+    el.btnToggleMatchLock = document.getElementById('btn-toggle-match-lock');
+    el.matchLockBtnText = document.getElementById('match-lock-btn-text');
+    el.btnToggleModalP1Lock = document.getElementById('btn-toggle-modal-p1-lock');
+    el.btnToggleModalP2Lock = document.getElementById('btn-toggle-modal-p2-lock');
     el.modalMatchNote = document.getElementById('modal-match-note');
     el.modalMatchWaitingNotice = document.getElementById('modal-match-waiting-notice');
     el.modalMatchWaitingText = document.getElementById('modal-match-waiting-text');
+
+    // Convert to Knockout Modal
+    el.modalConvertKnockout = document.getElementById('modal-convert-knockout');
+    el.convertQualifyingList = document.getElementById('convert-qualifying-list');
+    el.convertSeedingMethod = document.getElementById('convert-seeding-method');
+    el.convertPreviewMatchups = document.getElementById('convert-preview-matchups');
+    el.btnConfirmConvertKnockout = document.getElementById('btn-confirm-convert-knockout');
 
     // Drawer Logs Elements
     el.railBtnLogs = document.getElementById('rail-btn-logs');
@@ -956,6 +1035,8 @@
   function switchView(viewName) {
     hideGlobalTooltip();
     hideFloatingTeamPopover();
+    closeStudioReportView();
+    closeQualifiersDrawer();
     state.currentView = viewName;
     if (el.portalView) el.portalView.classList.add('hidden');
     if (el.dashboardView) el.dashboardView.classList.add('hidden');
@@ -1266,6 +1347,8 @@
   // ==================== STUDIO VIEW ====================
   async function loadTournamentStudio(tournamentId) {
     switchView('studio');
+    closeStudioReportView();
+    closeQualifiersDrawer();
     try {
       const res = await fetch(`/api/tournaments/${tournamentId}`);
       if (!res.ok) throw new Error('Tournament not found');
@@ -1304,19 +1387,19 @@
       el.btnToggleLock.querySelector('i').className = 'fa-solid fa-lock';
     }
 
-    // Disable auto-seed & random-seed once bracket has started or is locked
-    const isSeedingLocked = t.isLocked || t.status === 'in_progress';
+    // Disable auto-seed & reset-seeds when bracket is locked
+    const isBracketLocked = !!t.isLocked;
     if (el.btnAutoSeed) {
-      el.btnAutoSeed.disabled = isSeedingLocked;
-      el.btnAutoSeed.style.opacity = isSeedingLocked ? '0.5' : '1';
-      el.btnAutoSeed.style.cursor = isSeedingLocked ? 'not-allowed' : 'pointer';
-      el.btnAutoSeed.title = isSeedingLocked ? 'Auto-seed dinonaktifkan saat turnamen berjalan' : 'Tempatkan peserta sesuai urutan seed standar';
+      el.btnAutoSeed.disabled = isBracketLocked;
+      el.btnAutoSeed.style.opacity = isBracketLocked ? '0.5' : '1';
+      el.btnAutoSeed.style.cursor = isBracketLocked ? 'not-allowed' : 'pointer';
+      el.btnAutoSeed.title = isBracketLocked ? 'Auto-seed dinonaktifkan saat bagan dikunci' : 'Tempatkan peserta sesuai urutan seed standar';
     }
-    if (el.btnRandomSeed) {
-      el.btnRandomSeed.disabled = isSeedingLocked;
-      el.btnRandomSeed.style.opacity = isSeedingLocked ? '0.5' : '1';
-      el.btnRandomSeed.style.cursor = isSeedingLocked ? 'not-allowed' : 'pointer';
-      el.btnRandomSeed.title = isSeedingLocked ? 'Random seed dinonaktifkan saat turnamen berjalan' : 'Acak penempatan tim secara random';
+    if (el.btnResetBracketSeeds) {
+      el.btnResetBracketSeeds.disabled = isBracketLocked;
+      el.btnResetBracketSeeds.style.opacity = isBracketLocked ? '0.5' : '1';
+      el.btnResetBracketSeeds.style.cursor = isBracketLocked ? 'not-allowed' : 'pointer';
+      el.btnResetBracketSeeds.title = isBracketLocked ? 'Buka kunci (Unlock) bagan terlebih dahulu untuk mereset seed' : 'Reset penempatan seed di bracket (daftar tim tetap tersimpan)';
     }
 
     // Live Focus functionality is always active by default
@@ -1556,15 +1639,23 @@
   function enrichTournamentMatchSlots(t) {
     if (!t || !t.rounds || !t.participants || t.participants.length === 0) return;
     const pMap = new Map();
-    t.participants.forEach(p => {
-      if (p.id) pMap.set(p.id, p);
-      if (p.name) pMap.set(p.name, p);
+    t.participants.forEach((p, idx) => {
+      const teamNumber = (p.seed !== undefined && p.seed !== null && p.seed !== '') ? p.seed : (idx + 1);
+      if (p.seed === undefined || p.seed === null || p.seed === '') {
+        p.seed = teamNumber;
+      }
+      const entry = { p, teamNumber };
+      if (p.id) pMap.set(p.id, entry);
+      if (p.name) pMap.set(p.name, entry);
     });
 
     const enrichSlot = (slotObj) => {
       if (!slotObj || !slotObj.id || slotObj.isPlaceholder || slotObj.isUnseeded) return;
-      const orig = pMap.get(slotObj.id) || (slotObj.name ? pMap.get(slotObj.name) : null);
-      if (!orig) return;
+      const entry = pMap.get(slotObj.id) || (slotObj.name ? pMap.get(slotObj.name) : null);
+      if (!entry) return;
+      const { p: orig, teamNumber } = entry;
+      // Guarantee synchronized seed number between bracket slot and participant panel
+      slotObj.seed = teamNumber;
       if (!slotObj.playerName && orig.playerName) slotObj.playerName = orig.playerName;
       if (!slotObj.dept && orig.dept) slotObj.dept = orig.dept;
       if (!slotObj.wecom && (orig.wecom || orig.contact)) slotObj.wecom = orig.wecom || orig.contact;
@@ -1587,6 +1678,46 @@
       enrichSlot(t.thirdPlaceMatch.p1);
       enrichSlot(t.thirdPlaceMatch.p2);
     }
+  }
+
+  function participantMatchesQuery(p, query) {
+    if (!p) return false;
+    if (!query) return true;
+    const q = query.toLowerCase().trim();
+    if (!q) return true;
+    const qClean = q.replace(/[\s\-\+]/g, '');
+
+    // 1. Match seed / team number (e.g. "1", "#1", "tim 1")
+    if (p.seed !== undefined && p.seed !== null && p.seed !== '') {
+      const sStr = String(p.seed).trim().toLowerCase();
+      if (sStr === q || `#${sStr}` === q || `tim ${sStr}` === q || `tim #${sStr}` === q) return true;
+    }
+
+    // 2. Match names & department
+    if ((p.name || '').toLowerCase().includes(q)) return true;
+    if ((p.teamName || '').toLowerCase().includes(q)) return true;
+    if ((p.playerName || '').toLowerCase().includes(q)) return true;
+    if ((p.dept || '').toLowerCase().includes(q)) return true;
+
+    // 3. Match captain / primary WeCom
+    const pWecom = (p.wecom || p.contact || '').toString().toLowerCase();
+    const pWecomClean = pWecom.replace(/[\s\-\+]/g, '');
+    if (pWecom && (pWecom.includes(q) || (qClean && pWecomClean.includes(qClean)))) return true;
+
+    // 4. Match teammates / partners (names, dept, and WeCom numbers)
+    const partnersList = Array.isArray(p.partners) && p.partners.length > 0
+      ? p.partners
+      : (p.partner && p.partner.name ? [p.partner] : []);
+
+    for (const part of partnersList) {
+      if ((part.name || '').toLowerCase().includes(q)) return true;
+      if ((part.dept || '').toLowerCase().includes(q)) return true;
+      const partW = (part.wecom || '').toString().toLowerCase();
+      const partWClean = partW.replace(/[\s\-\+]/g, '');
+      if (partW && (partW.includes(q) || (qClean && partWClean.includes(qClean)))) return true;
+    }
+
+    return false;
   }
 
   function showGlobalTooltip() {
@@ -1624,16 +1755,12 @@
       });
     });
 
-    // 1. Filter by search query
+    // 1. Filter by search query (names, seed, or WeCom)
     const query = (state.drawerParticipants.search || '').trim().toLowerCase();
     const indexedParticipants = participants.map((p, idx) => ({ p, idx }));
     const filtered = query
       ? indexedParticipants.filter(({ p, idx }) => {
-        const nameMatch = (p.name || '').toLowerCase().includes(query);
-        const playerMatch = (p.playerName || '').toLowerCase().includes(query);
-        const deptMatch = (p.dept || '').toLowerCase().includes(query);
-        const seedMatch = String(idx + 1) === query || `#${idx + 1}` === query;
-        return nameMatch || playerMatch || deptMatch || seedMatch;
+        return participantMatchesQuery(p, query) || String(idx + 1) === query || `#${idx + 1}` === query;
       })
       : indexedParticipants;
 
@@ -1685,10 +1812,11 @@
         ? `<button type="button" class="team-partner-tag team-partner-btn" data-id="${p.id}" title="${state.lang === 'zh' ? `点击查看 ${teamSize} 名队员详情` : `Klik untuk lihat detail ${teamSize} pemain`}">${teamSize}P <i class="fa-solid fa-circle-info" style="font-size:10px; margin-left:2px; opacity:0.85;"></i></button>`
         : (hasInfo ? `<button type="button" class="btn-participant-info" data-id="${p.id}" title="${state.lang === 'zh' ? '点击查看登记详情' : 'Klik untuk lihat detail pendaftaran'}"><i class="fa-solid fa-circle-info"></i></button>` : '');
 
+      const teamNumber = (p.seed !== undefined && p.seed !== null && p.seed !== '') ? p.seed : (idx + 1);
       return `
         <div class="participant-item ${!hasInfo ? 'is-empty-slot' : ''}" draggable="${canDrag}" data-id="${p.id}" data-idx="${idx}">
           <i class="fa-solid fa-grip-vertical participant-drag-grip" style="${!hasInfo ? 'opacity:0.25; cursor:not-allowed;' : ''}"></i>
-          <span class="participant-seed">${idx + 1}</span>
+          <span class="participant-seed">${teamNumber}</span>
           <span class="participant-name ${!t.isLocked ? 'editable' : ''}" title="${hasInfo ? escapeHTML(p.name) : 'Slot Kosong (Isi nama terlebih dahulu untuk dapat memindahkannya ke bagan)'}">
             ${hasInfo ? escapeHTML(p.name) : '<span style="opacity:0.4; font-style:italic;">(Slot Kosong)</span>'}
           </span>
@@ -2660,8 +2788,9 @@
       const emptyPlaceholder = isZh ? '(空位)' : '(Slot Kosong)';
       const tbdPlaceholder = isZh ? '待定' : 'TBD';
       const displayName = isEmpty
-        ? (isFeeder ? (p?.name || tbdPlaceholder) : '')
+        ? (isFeeder ? (p?.name || tbdPlaceholder) : emptyPlaceholder)
         : (rawName || emptyPlaceholder);
+      const slotSeed = (p?.seed !== undefined && p?.seed !== null && p?.seed !== '') ? p.seed : '';
 
       const partnersList = Array.isArray(p?.partners) && p.partners.length > 0
         ? p.partners
@@ -2671,8 +2800,8 @@
 
       const editBtnTitle = isZh ? '编辑选手姓名' : 'Edit Nama Peserta';
       const lockBtnTitle = isZh
-        ? (isSlotLocked ? '槽位已锁定（点击解锁）' : '锁定槽位（防止随机抽签打乱）')
-        : (isSlotLocked ? 'Slot Terkunci (klik untuk buka)' : 'Kunci Slot (klik agar tidak terpengaruh acak/random)');
+        ? (isSlotLocked ? '槽位已锁定（点击解锁）' : '锁定槽位（防止位置调换）')
+        : (isSlotLocked ? 'Slot Terkunci (klik untuk buka)' : 'Kunci Slot (klik agar posisi tidak dapat ditukar)');
 
       const editBtnHtml = (!isLiveView && !t?.isLocked && !isFeeder && !match.isBronzeMatch)
         ? `<button type="button" class="btn-slot-edit" data-slot="${slot}" data-round="${rIdx}" data-match="${mIdx}" title="${editBtnTitle}">
@@ -2695,9 +2824,9 @@
 
       return `
         <div class="match-team-row ${pClass} ${isEmpty ? 'is-empty' : ''} ${(!isLiveView && isSlotLocked) ? 'slot-locked' : ''}" data-slot="${slot}" data-round="${rIdx}" data-match="${mIdx}">
-          <span class="team-seed">${!isEmpty ? (p?.seed || '') : ''}</span>
-          <span class="team-name-text ${isFeeder ? 'is-feeder-text' : ''} ${isEmpty ? 'empty-slot' : ''} ${(!isLiveView && !t?.isLocked && !isFeeder) ? 'editable' : ''}" title="${escapeHTML(rawName || (isEmpty ? '' : emptyPlaceholder))}${(!isLiveView && !t?.isLocked && !isFeeder) ? (isZh ? ' (双击可编辑)' : ' (Dobel klik untuk edit)') : ''}">
-            ${isUnnamed ? `<span style="opacity:0.4; font-style:italic;">${emptyPlaceholder}</span>` : escapeHTML(displayName)}
+          <span class="team-seed">${slotSeed}</span>
+          <span class="team-name-text ${isFeeder ? 'is-feeder-text' : ''} ${isEmpty ? 'empty-slot' : ''} ${(!isLiveView && !t?.isLocked && !isFeeder) ? 'editable' : ''}" title="${escapeHTML(rawName || displayName)}${(!isLiveView && !t?.isLocked && !isFeeder) ? (isZh ? ' (双击可编辑)' : ' (Dobel klik untuk edit)') : ''}">
+            ${isEmpty ? `<span style="opacity:0.45; font-style:italic;">${escapeHTML(displayName)}</span>` : (isUnnamed ? `<span style="opacity:0.4; font-style:italic;">${emptyPlaceholder}</span>` : escapeHTML(displayName))}
           </span>
           ${detailBtnHtml}
           <div class="slot-actions-cell" style="display:flex; align-items:center; gap:4px; margin-left:auto;">
@@ -2774,7 +2903,9 @@
         const slot = row.dataset.slot;
         const isFeeder = !!(slot === 'p1' ? match.feederTopId : match.feederBotId);
         const p = slot === 'p1' ? p1 : p2;
-        const canDrag = !match.isBronzeMatch && !isFeeder && !!(p && p.id && !p.isPlaceholder && !p.isUnseeded && p.name && p.name.trim());
+        const isSlotLocked = !!(slot === 'p1' ? match.p1Locked : match.p2Locked);
+        const isMatchPlayed = match.status === 'completed' || ((match.score1 !== '' && match.score1 > 0) || (match.score2 !== '' && match.score2 > 0)) || !!match.winnerId;
+        const canDrag = !match.isBronzeMatch && !isFeeder && !isSlotLocked && !isMatchPlayed && !!(p && p.id && !p.isPlaceholder && !p.isUnseeded && p.name && p.name.trim());
 
         if (canDrag) {
           row.setAttribute('draggable', 'true');
@@ -2881,6 +3012,7 @@
     state.draggedParticipant = {
       id: this.dataset.id,
       index: parseInt(this.dataset.idx, 10),
+      seed: (participant.seed !== undefined && participant.seed !== null && participant.seed !== '') ? participant.seed : (parseInt(this.dataset.idx, 10) + 1),
       name: participant.name.trim()
     };
     state.draggedSlot = null;
@@ -3089,13 +3221,30 @@
     const targetSlot = this.dataset.slot;
 
     const t = state.currentTournament;
-    if (!t || t.isLocked) return;
+    if (!t) return;
+    if (t.isLocked) {
+      showToast('Bagan sedang dikunci! Buka kunci (Unlock) bracket terlebih dahulu untuk menggeser atau menukar peserta.', 'warning');
+      return;
+    }
 
     const roundData = t.rounds[targetRound];
     if (!roundData || !roundData.matches[targetMatch]) return;
     const match = roundData.matches[targetMatch];
 
     if (state.draggedParticipant) {
+      // Check target slot lock & match status
+      const isTargetSlotLocked = !!(targetSlot === 'p1' ? match.p1Locked : match.p2Locked);
+      if (isTargetSlotLocked) {
+        showToast('Slot tujuan sedang terkunci! Buka kunci slot terlebih dahulu untuk menempatkan peserta.', 'warning');
+        return;
+      }
+
+      const isTargetMatchPlayed = match.status === 'completed' || ((match.score1 !== '' && match.score1 > 0) || (match.score2 !== '' && match.score2 > 0)) || !!match.winnerId;
+      if (isTargetMatchPlayed) {
+        showToast('Pertandingan tujuan sudah memiliki hasil/skor! Tidak dapat menempatkan peserta.', 'warning');
+        return;
+      }
+
       // Assign dragged participant to this match slot
       const participant = t.participants.find(p => p.id === state.draggedParticipant.id);
       if (!participant || !participant.name || !participant.name.trim()) {
@@ -3116,10 +3265,13 @@
             : `Anda sedang menempatkan peserta <b>${escapeHTML(participant.name.trim())}</b> ke slot lanjutan play-in.<br><br>• Peserta akan tetap tercatat di babak play-in (${feeder.id.toUpperCase()}).<br>• Pertandingan play-in otomatis berstatus Selesai dengan peserta ini Menang.<br><br>Apakah Anda yakin?`;
 
           openConfirmModal(confirmTitle, confirmMsg, () => {
+            const teamNumber = (participant.seed !== undefined && participant.seed !== null && participant.seed !== '')
+              ? participant.seed
+              : (state.draggedParticipant.seed || (state.draggedParticipant.index + 1));
             const fullP = {
               ...participant,
               name: participant.name.trim(),
-              seed: state.draggedParticipant.index + 1,
+              seed: teamNumber,
               isPlaceholder: false,
               isUnseeded: false
             };
@@ -3164,10 +3316,13 @@
         });
       });
 
+      const teamNumber = (participant.seed !== undefined && participant.seed !== null && participant.seed !== '')
+        ? participant.seed
+        : (state.draggedParticipant.seed || (state.draggedParticipant.index + 1));
       match[targetSlot] = {
         id: participant.id,
         name: participant.name.trim(),
-        seed: state.draggedParticipant.index + 1
+        seed: teamNumber
       };
       sanitizeBracketDuplicates(t);
       addTournamentLog(t, 'slot', `R${targetRound + 1} M${targetMatch + 1} (${targetSlot.toUpperCase()}): Peserta "${participant.name.trim()}" ditempatkan.`);
@@ -3183,6 +3338,31 @@
       if (!srcMatch) return;
       const draggedP = srcMatch[srcSlot];
       if (!draggedP || !draggedP.id || draggedP.isPlaceholder || draggedP.isUnseeded) return;
+
+      // Lock & Played validations
+      const isSrcSlotLocked = !!(srcSlot === 'p1' ? srcMatch.p1Locked : srcMatch.p2Locked);
+      if (isSrcSlotLocked) {
+        showToast('Slot asal sedang terkunci! Buka kunci slot terlebih dahulu untuk memindahkan tim.', 'warning');
+        return;
+      }
+
+      const isTargetSlotLocked = !!(targetSlot === 'p1' ? match.p1Locked : match.p2Locked);
+      if (isTargetSlotLocked) {
+        showToast('Slot tujuan sedang terkunci! Buka kunci slot terlebih dahulu untuk menukar posisi.', 'warning');
+        return;
+      }
+
+      const isSrcMatchPlayed = srcMatch.status === 'completed' || ((srcMatch.score1 !== '' && srcMatch.score1 > 0) || (srcMatch.score2 !== '' && srcMatch.score2 > 0)) || !!srcMatch.winnerId;
+      if (isSrcMatchPlayed) {
+        showToast('Hanya dapat menukar posisi tim yang belum bertanding atau belum ada skor!', 'warning');
+        return;
+      }
+
+      const isTargetMatchPlayed = match.status === 'completed' || ((match.score1 !== '' && match.score1 > 0) || (match.score2 !== '' && match.score2 > 0)) || !!match.winnerId;
+      if (isTargetMatchPlayed) {
+        showToast('Pertandingan tujuan sudah berlangsung atau memiliki skor! Hanya dapat menukar dengan tim yang belum bermain.', 'warning');
+        return;
+      }
 
       const isTargetSlotFeeder = !!(targetSlot === 'p1' ? match.feederTopId : match.feederBotId);
       const targetFeederId = targetSlot === 'p1' ? match.feederTopId : match.feederBotId;
@@ -3204,7 +3384,7 @@
         return;
       }
 
-      // Swap slots between two matches
+      // Swap slots between two matches, maintaining each team's own synchronized seed number
       const temp = srcMatch[srcSlot];
       srcMatch[srcSlot] = match[targetSlot];
       match[targetSlot] = temp;
@@ -3354,7 +3534,78 @@
       el.modalMatchNote.value = match.note || '';
     }
 
+    updateMatchControlLockUI(match);
     openModal(el.modalMatchControl);
+  }
+
+  function updateMatchControlLockUI(match) {
+    if (!match) return;
+    const isZh = state.lang === 'zh';
+    const p1Locked = !!match.p1Locked;
+    const p2Locked = !!match.p2Locked;
+    const isBothLocked = p1Locked && p2Locked;
+
+    if (el.btnToggleModalP1Lock) {
+      el.btnToggleModalP1Lock.classList.toggle('locked', p1Locked);
+      el.btnToggleModalP1Lock.innerHTML = `<i class="fa-solid ${p1Locked ? 'fa-lock' : 'fa-lock-open'}"></i>`;
+      el.btnToggleModalP1Lock.title = p1Locked
+        ? (isZh ? 'Slot 1 锁定 (点击解锁)' : 'Slot 1 Terkunci (Klik untuk buka)')
+        : (isZh ? 'Slot 1 未锁定 (点击锁定)' : 'Slot 1 Terbuka (Klik untuk kunci)');
+    }
+    if (el.btnToggleModalP2Lock) {
+      el.btnToggleModalP2Lock.classList.toggle('locked', p2Locked);
+      el.btnToggleModalP2Lock.innerHTML = `<i class="fa-solid ${p2Locked ? 'fa-lock' : 'fa-lock-open'}"></i>`;
+      el.btnToggleModalP2Lock.title = p2Locked
+        ? (isZh ? 'Slot 2 锁定 (点击解锁)' : 'Slot 2 Terkunci (Klik untuk buka)')
+        : (isZh ? 'Slot 2 未锁定 (点击锁定)' : 'Slot 2 Terbuka (Klik untuk kunci)');
+    }
+    if (el.btnToggleMatchLock) {
+      el.btnToggleMatchLock.classList.toggle('locked', isBothLocked);
+      const icon = el.btnToggleMatchLock.querySelector('i');
+      if (icon) {
+        icon.className = `fa-solid ${isBothLocked ? 'fa-lock' : 'fa-lock-open'}`;
+      }
+      if (el.matchLockBtnText) {
+        el.matchLockBtnText.textContent = isBothLocked
+          ? (isZh ? '解锁本场' : 'Buka Kunci Matchup')
+          : (isZh ? '锁定本场' : 'Kunci Matchup');
+      }
+    }
+  }
+
+  function handleToggleModalP1Lock() {
+    if (!state.selectedMatchForEdit) return;
+    const { match } = state.selectedMatchForEdit;
+    match.p1Locked = !match.p1Locked;
+    updateMatchControlLockUI(match);
+    saveTournamentState(false);
+    renderBracketStudio();
+    const isZh = state.lang === 'zh';
+    showToast(match.p1Locked ? (isZh ? '🔒 Slot 1 已锁定' : '🔒 Slot 1 terkunci') : (isZh ? '🔓 Slot 1 已解锁' : '🔓 Slot 1 dibuka'), 'info');
+  }
+
+  function handleToggleModalP2Lock() {
+    if (!state.selectedMatchForEdit) return;
+    const { match } = state.selectedMatchForEdit;
+    match.p2Locked = !match.p2Locked;
+    updateMatchControlLockUI(match);
+    saveTournamentState(false);
+    renderBracketStudio();
+    const isZh = state.lang === 'zh';
+    showToast(match.p2Locked ? (isZh ? '🔒 Slot 2 已锁定' : '🔒 Slot 2 terkunci') : (isZh ? '🔓 Slot 2 已解锁' : '🔓 Slot 2 dibuka'), 'info');
+  }
+
+  function handleToggleMatchLockFromModal() {
+    if (!state.selectedMatchForEdit) return;
+    const { match } = state.selectedMatchForEdit;
+    const targetLock = !(match.p1Locked && match.p2Locked);
+    match.p1Locked = targetLock;
+    match.p2Locked = targetLock;
+    updateMatchControlLockUI(match);
+    saveTournamentState(false);
+    renderBracketStudio();
+    const isZh = state.lang === 'zh';
+    showToast(targetLock ? (isZh ? '🔒 Matchup 对阵已锁定' : '🔒 Matchup berhasil dikunci') : (isZh ? '🔓 Matchup 对阵已解锁' : '🔓 Matchup berhasil dibuka kuncinya'), 'info');
   }
 
   function handleSaveMatchScores() {
@@ -3856,7 +4107,7 @@
   // ==================== PARTICIPANT REPORTS VIEW (NO BRACKET) ====================
   function openStudioReportView(tournamentId) {
     if (tournamentId && (!state.currentTournament || state.currentTournament.id !== tournamentId)) {
-      loadTournament(tournamentId, () => {
+      loadTournamentStudio(tournamentId).then(() => {
         showStudioReportViewUI();
       });
       return;
@@ -3943,15 +4194,7 @@
       if (filterType === 'unseeded' && isSeeded) return false;
 
       if (!query) return true;
-
-      const nameMatch = (p.name || '').toLowerCase().includes(query);
-      const playerMatch = (p.playerName || '').toLowerCase().includes(query);
-      const teamMatch = (p.teamName || '').toLowerCase().includes(query);
-      const deptMatch = (p.dept || '').toLowerCase().includes(query);
-      const wecomMatch = (p.wecom || '').toLowerCase().includes(query);
-      const partnersMatch = Array.isArray(p.partners) && p.partners.some(part => (part.name || '').toLowerCase().includes(query) || (part.dept || '').toLowerCase().includes(query));
-
-      return nameMatch || playerMatch || teamMatch || deptMatch || wecomMatch || partnersMatch;
+      return participantMatchesQuery(p, query);
     });
 
     if (!el.reportTableBody) return;
@@ -4040,10 +4283,11 @@
         ? `<span class="badge-bracket-seeded"><i class="fa-solid fa-check"></i> ${isZh ? '已在对阵图' : 'Masuk Bagan'}</span>`
         : `<span class="badge-bracket-unseeded"><i class="fa-solid fa-hourglass-half"></i> ${isZh ? '未入对阵' : 'Belum Masuk'}</span>`;
 
-      const rowNum = startIndex + idx + 1;
+      const origIndex = participants.findIndex(item => item.id === p.id);
+      const teamNumber = (p.seed !== undefined && p.seed !== null && p.seed !== '') ? p.seed : (origIndex !== -1 ? origIndex + 1 : startIndex + idx + 1);
       return `
         <tr>
-          <td style="color:var(--text-muted); font-weight:700;">${rowNum}</td>
+          <td style="color:var(--text-muted); font-weight:700;">${teamNumber}</td>
           <td style="font-weight:700; color:var(--text-main);">${escapeHTML(teamNameDisplay)}</td>
           <td>${escapeHTML(captainNameDisplay)}</td>
           <td><span style="background:rgba(255,255,255,0.06); padding:2px 6px; border-radius:4px; font-size:0.78rem;">${escapeHTML(p.dept || '-')}</span></td>
@@ -4101,7 +4345,9 @@
   function renderEditPartnersList() {
     if (!el.editReportPartnersContainer) return;
     const isZh = state.lang === 'zh';
+    const headerEl = document.getElementById('edit-partners-table-header');
     if (activeEditPartners.length === 0) {
+      if (headerEl) headerEl.style.display = 'none';
       el.editReportPartnersContainer.innerHTML = `
         <div style="font-size:0.78rem; color:var(--text-muted); font-style:italic; padding:6px 0;">
           ${isZh ? '暂无其他队友（单人比赛）。点击“+ 添加队友”添加成员。' : 'Tidak ada rekan tambahan (peserta tunggal/single). Klik "+ Tambah Rekan" untuk menambahkan.'}
@@ -4110,12 +4356,14 @@
       return;
     }
 
+    if (headerEl) headerEl.style.display = 'grid';
+
     el.editReportPartnersContainer.innerHTML = activeEditPartners.map((partner, idx) => `
       <div class="edit-partner-card" data-idx="${idx}">
-        <span style="font-weight:700; font-size:0.78rem; color:var(--text-muted); min-width:20px;">#${idx + 1}</span>
-        <input type="text" class="edit-partner-name" value="${escapeHTML(partner.name || '')}" placeholder="${isZh ? '队友姓名...' : 'Nama Rekan...'}" style="flex:2;" required>
-        <input type="text" class="edit-partner-dept" value="${escapeHTML(partner.dept || '')}" placeholder="${isZh ? '部门...' : 'Dept...'}" style="flex:1.5;">
-        <input type="text" class="edit-partner-wecom" value="${escapeHTML(partner.wecom || '')}" placeholder="${isZh ? '微信号/联系...' : 'WeCom...'}" style="flex:1.5;">
+        <span class="edit-partner-num">#${idx + 1}</span>
+        <input type="text" class="edit-partner-name" value="${escapeHTML(partner.name || '')}" placeholder="${isZh ? '姓名...' : 'Nama Rekan...'}" required>
+        <input type="text" class="edit-partner-dept" value="${escapeHTML(partner.dept || '')}" placeholder="${isZh ? '部门...' : 'Dept/Divisi...'}">
+        <input type="text" class="edit-partner-wecom" value="${escapeHTML(partner.wecom || '')}" placeholder="${isZh ? '微信号/手机...' : 'No. WeCom/Kontak...'}">
         <button type="button" class="btn-remove-edit-partner" data-idx="${idx}" title="${isZh ? '删除队友' : 'Hapus Rekan'}">
           <i class="fa-solid fa-trash-can"></i>
         </button>
@@ -4578,7 +4826,7 @@
       const res = await fetch(`/api/tournaments/${t.id}/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name })
+        body: JSON.stringify({ name, isAdmin: true })
       });
       const data = await res.json();
       if (data.success) {
@@ -4856,8 +5104,41 @@
     performSeeding(false);
   }
 
-  function handleRandomSeed() {
-    performSeeding(true);
+  function handleResetSeeds() {
+    const t = state.currentTournament;
+    if (!t) return;
+    if (t.isLocked) {
+      showToast('Bagan sedang dikunci! Buka kunci (Unlock) bagan terlebih dahulu untuk mereset seed.', 'warning');
+      return;
+    }
+    const isZh = state.lang === 'zh';
+    openConfirmModal(
+      isZh ? '重置对阵图签位？' : 'Reset Penempatan Bagan (Reset Seed)?',
+      isZh
+        ? '是否确定清空对阵图中的所有队伍签位？<b>队伍列表中的参赛者将完整保留</b>，所有队伍将恢复为未抽签状态。'
+        : 'Apakah Anda yakin ingin mengosongkan seluruh penempatan tim di bagan pertandingan? <b>Daftar tim/peserta tetap tersimpan</b> dan kembali ke status belum terundi.',
+      () => {
+        t.rounds = generateBracketTree(t.participants, null, false);
+        if (t.thirdPlaceMatch) {
+          t.thirdPlaceMatch = null;
+          if (t.settings?.thirdPlaceMatch) getOrInitThirdPlaceMatch(t);
+        }
+        t.winner = null;
+        t.status = 'setup';
+        // Clear slot lock flags
+        (t.rounds || []).forEach(r => {
+          (r.matches || []).forEach(m => {
+            delete m.p1Locked;
+            delete m.p2Locked;
+          });
+        });
+        addTournamentLog(t, 'slot', '🔄 Seluruh penempatan seed bagan di-reset (daftar tim tetap utuh).');
+        saveTournamentState(true);
+        renderParticipantsDrawer();
+        renderBracketStudio();
+        showToast(isZh ? '对阵图签位已重置，队伍列表完整保留！' : 'Bagan berhasil di-reset! Semua tim kembali ke daftar peserta.', 'success');
+      }
+    );
   }
 
   function handleToggleSlotLock(rIdx, mIdx, slot) {
@@ -4872,12 +5153,12 @@
       match.p1Locked = !match.p1Locked;
       const isLocked = match.p1Locked;
       const pName = match.p1?.name && !match.p1.isPlaceholder ? match.p1.name : 'Slot 1';
-      showToast(isLocked ? `🔒 ${pName} terkunci! (Aman dari Random Seed)` : `🔓 Slot 1 dibuka`, 'info');
+      showToast(isLocked ? `🔒 ${pName} terkunci (posisi tidak dapat digeser/ditukar)` : `🔓 ${pName} dibuka (posisi dapat ditukar)`, 'info');
     } else {
       match.p2Locked = !match.p2Locked;
       const isLocked = match.p2Locked;
       const pName = match.p2?.name && !match.p2.isPlaceholder ? match.p2.name : 'Slot 2';
-      showToast(isLocked ? `🔒 ${pName} terkunci! (Aman dari Random Seed)` : `🔓 Slot 2 dibuka`, 'info');
+      showToast(isLocked ? `🔒 ${pName} terkunci (posisi tidak dapat digeser/ditukar)` : `🔓 ${pName} dibuka (posisi dapat ditukar)`, 'info');
     }
 
     saveTournamentState(false);
@@ -4952,7 +5233,12 @@
 
       const match = t.rounds[s.roundIdx].matches[s.matchIdx];
       if (pIdx < pool.length) {
-        const assigned = { ...pool[pIdx], seed: s.canonicalSeed !== 9999 ? s.canonicalSeed : (pIdx + 1), isPlaceholder: false, isUnseeded: false };
+        const pObj = pool[pIdx];
+        const origIdx = (t.participants || []).findIndex(item => item.id === pObj.id);
+        const teamNumber = (pObj.seed !== undefined && pObj.seed !== null && pObj.seed !== '')
+          ? pObj.seed
+          : (origIdx !== -1 ? origIdx + 1 : (pIdx + 1));
+        const assigned = { ...pObj, seed: teamNumber, isPlaceholder: false, isUnseeded: false };
         if (s.slot === 'p1') {
           match.p1 = assigned;
         } else {
@@ -5201,7 +5487,9 @@
           hideLiveBracket: !!(t.settings && t.settings.hideLiveBracket) || !!t.hideLiveBracket,
           registrationDeadline: t.registrationDeadline || null,
           autoLockAt: t.autoLockAt || null,
-          isRegistrationClosed: !!t.isRegistrationClosed
+          isRegistrationClosed: !!t.isRegistrationClosed,
+          stage: t.stage,
+          roundRobin: t.roundRobin
         })
       });
       const data = await res.json();
@@ -5346,6 +5634,29 @@
     }
   }
 
+  function locateParticipantInBracket(participantIdOrName) {
+    const t = state.currentTournament || state.liveTournamentData;
+    if (!t || !t.rounds || !participantIdOrName) return;
+    const target = String(participantIdOrName).trim().toLowerCase();
+    for (let rIdx = 0; rIdx < t.rounds.length; rIdx++) {
+      const round = t.rounds[rIdx];
+      for (let mIdx = 0; mIdx < (round.matches || []).length; mIdx++) {
+        const m = round.matches[mIdx];
+        const p1Id = (m.p1?.id || '').toLowerCase();
+        const p1Name = (m.p1?.name || '').toLowerCase();
+        const p1Team = (m.p1?.teamName || '').toLowerCase();
+        const p2Id = (m.p2?.id || '').toLowerCase();
+        const p2Name = (m.p2?.name || '').toLowerCase();
+        const p2Team = (m.p2?.teamName || '').toLowerCase();
+
+        if (p1Id === target || p1Name === target || p1Team === target || p2Id === target || p2Name === target || p2Team === target) {
+          focusMatchNode(rIdx, mIdx);
+          return;
+        }
+      }
+    }
+  }
+
   // ==================== LIVE SPECTATOR: REGISTERED TEAMS MODAL ====================
   function openLiveRegisteredTeamsModal(t) {
     if (!el.modalLiveRegisteredTeams) return;
@@ -5353,7 +5664,8 @@
     const participants = getRealParticipants(t.participants);
 
     if (el.liveTeamsModalSubtitle) {
-      el.liveTeamsModalSubtitle.textContent = isZh ? `总计：${participants.length} 支战队/选手` : `Total: ${participants.length} Tim / Peserta`;
+      const tournTitle = t.name ? ` • ${t.name}` : '';
+      el.liveTeamsModalSubtitle.textContent = isZh ? `总计：${participants.length} 支战队/选手${tournTitle}` : `Total: ${participants.length} Tim / Peserta${tournTitle}`;
     }
     if (el.liveTeamsSummaryText) {
       el.liveTeamsSummaryText.textContent = t.name || '';
@@ -5363,16 +5675,13 @@
       if (!el.liveTeamsListContainer) return;
       el.liveTeamsListContainer.innerHTML = '';
       const query = filter.toLowerCase().trim();
-      const filtered = participants.filter(p => {
-        const name = (p.teamName || p.name || p.playerName || '').toLowerCase();
-        return !query || name.includes(query);
-      });
+      const filtered = participants.filter(p => participantMatchesQuery(p, query));
 
       if (filtered.length === 0) {
         el.liveTeamsListContainer.innerHTML = `
           <div style="text-align: center; padding: 24px 10px; color: var(--text-muted); font-size: 12px;">
             <i class="fa-solid fa-users-slash" style="font-size: 24px; margin-bottom: 8px; opacity: 0.4; display:block;"></i>
-            ${isZh ? '暂无匹配的战队' : (participants.length === 0 ? 'Belum ada tim yang terdaftar.' : 'Tidak ada tim yang cocok dengan pencarian.')}
+            ${isZh ? '暂无匹配的战队或选手' : (participants.length === 0 ? 'Belum ada tim yang terdaftar.' : 'Tidak ada tim atau peserta yang cocok dengan pencarian.')}
           </div>
         `;
         return;
@@ -5383,27 +5692,68 @@
         if (!teamName) return;
         const item = document.createElement('div');
         item.className = 'reg-team-item';
+        item.style.cursor = 'pointer';
+        item.title = isZh ? '点击在对阵图中定位该队伍' : 'Klik untuk melihat posisi tim ini di bagan';
+
+        const origIdx = (t.participants || []).findIndex(item => item.id === p.id);
+        const teamNumber = (p.seed !== undefined && p.seed !== null && p.seed !== '') ? p.seed : (origIdx !== -1 ? origIdx + 1 : idx + 1);
 
         let membersBadge = '';
-        const partnerCount = Array.isArray(p.partners) ? p.partners.length : (p.partner ? 1 : 0);
+        const partnersList = Array.isArray(p.partners) && p.partners.length > 0
+          ? p.partners
+          : (p.partner && p.partner.name ? [p.partner] : []);
+        const partnerCount = partnersList.length;
         if (partnerCount > 0) {
           const totalMembers = partnerCount + 1;
           membersBadge = `<span style="font-size: 10px; padding: 2px 7px; border-radius: 10px; background: rgba(0, 210, 255, 0.1); color: var(--primary); border: 1px solid rgba(0, 210, 255, 0.25); white-space: nowrap;"><i class="fa-solid fa-users" style="font-size: 9px; margin-right: 3px;"></i>${totalMembers}</span>`;
         }
 
+        const captainName = p.playerName || p.name || '';
+        const captainWecom = p.wecom || p.contact || '';
+        let metaHtml = '';
+        const metaParts = [];
+        if (captainName && captainName !== teamName) metaParts.push(`<i class="fa-solid fa-user" style="font-size:9px;"></i> ${escapeHTML(captainName)}`);
+        if (captainWecom) metaParts.push(`<i class="fa-solid fa-id-badge" style="font-size:9px;"></i> WeCom: ${escapeHTML(captainWecom)}`);
+        if (p.dept) metaParts.push(`<span style="opacity:0.8;">(${escapeHTML(p.dept)})</span>`);
+        
+        let partnerStr = '';
+        if (partnerCount > 0) {
+          partnerStr = `<div style="font-size:10px; color:var(--text-muted); opacity:0.85; margin-top:2px;">
+            <i class="fa-solid fa-user-group" style="font-size:9px;"></i> ${isZh ? '队员: ' : 'Rekan: '}${partnersList.map(m => `${escapeHTML(m.name)}${m.wecom ? ` [${escapeHTML(m.wecom)}]` : ''}`).join(', ')}
+          </div>`;
+        }
+
+        if (metaParts.length > 0 || partnerStr) {
+          metaHtml = `
+            <div style="font-size:11px; color:var(--text-muted); display:flex; gap:6px; flex-wrap:wrap; margin-top:2px;">
+              ${metaParts.join(' • ')}
+            </div>
+            ${partnerStr}
+          `;
+        }
+
         item.innerHTML = `
-          <div class="reg-team-item-left">
-            <span class="reg-team-item-num">#${idx + 1}</span>
+          <div class="reg-team-item-left" style="flex:1;">
+            <span class="reg-team-item-num">#${teamNumber}</span>
             <div style="width: 22px; height: 22px; border-radius: 4px; background: rgba(0, 210, 255, 0.12); display: flex; align-items: center; justify-content: center; color: var(--primary); font-size: 10px; flex-shrink: 0;">
               <i class="fa-solid fa-shield-cat"></i>
             </div>
-            <span class="reg-team-item-name" title="${escapeHTML(teamName)}">${escapeHTML(teamName)}</span>
+            <div style="display:flex; flex-direction:column; min-width:0;">
+              <span class="reg-team-item-name" title="${escapeHTML(teamName)}">${escapeHTML(teamName)}</span>
+              ${metaHtml}
+            </div>
           </div>
-          <div style="display:flex; align-items:center; gap:6px;">
+          <div style="display:flex; align-items:center; gap:6px; flex-shrink:0;">
             ${membersBadge}
             <span style="font-size: 10px; font-weight: 600; color: #10b981; background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.3); padding: 2px 6px; border-radius: 4px;">${isZh ? '已报名' : 'Terdaftar'}</span>
           </div>
         `;
+
+        item.addEventListener('click', () => {
+          closeModal(el.modalLiveRegisteredTeams);
+          locateParticipantInBracket(p.id || p.name);
+        });
+
         el.liveTeamsListContainer.appendChild(item);
       });
     };
@@ -5433,10 +5783,7 @@
       if (!el.registerTeamsList) return;
       el.registerTeamsList.innerHTML = '';
       const query = filter.toLowerCase().trim();
-      const filtered = participants.filter(p => {
-        const teamName = (p.teamName || p.name || p.playerName || '').toLowerCase();
-        return !query || teamName.includes(query);
-      });
+      const filtered = participants.filter(p => participantMatchesQuery(p, query));
 
       if (filtered.length === 0) {
         el.registerTeamsList.innerHTML = `
@@ -5452,11 +5799,14 @@
         // STRICT PRIVACY: ONLY Team Name is exposed, no personal contact data
         const teamName = p.teamName || p.name || p.playerName;
         if (!teamName) return;
+        const origIdx = (t.participants || []).findIndex(item => item.id === p.id);
+        const teamNumber = (p.seed !== undefined && p.seed !== null && p.seed !== '') ? p.seed : (origIdx !== -1 ? origIdx + 1 : idx + 1);
+
         const item = document.createElement('div');
         item.className = 'reg-team-item';
         item.innerHTML = `
           <div class="reg-team-item-left">
-            <span class="reg-team-item-num">#${idx + 1}</span>
+            <span class="reg-team-item-num">#${teamNumber}</span>
             <div style="width:20px; height:20px; border-radius:4px; background:rgba(0,210,255,0.12); display:flex; align-items:center; justify-content:center; color:var(--primary); font-size:10px; flex-shrink:0;">
               <i class="fa-solid fa-users"></i>
             </div>
@@ -7271,14 +7621,15 @@
 
   // ==================== MATCH SEARCH & QUICK JUMP ====================
   function openMatchSearchModal() {
-    if (!state.currentTournament || !state.currentTournament.rounds) {
+    const t = state.currentTournament || state.liveTournamentData;
+    if (!t || !t.rounds) {
       showToast('Bracket belum memiliki data match.', 'info');
       return;
     }
     state.activeSearchFilter = 'all';
     if (el.inputSearchMatch) el.inputSearchMatch.value = '';
     if (el.modalMatchSearch) {
-      el.modalMatchSearch.querySelectorAll('.filter-pill').forEach(pill => {
+      el.modalMatchSearch.querySelectorAll('.search-filter-btn, .filter-pill').forEach(pill => {
         pill.classList.toggle('active', pill.dataset.filter === 'all');
       });
     }
@@ -7288,10 +7639,12 @@
   }
 
   function renderMatchSearchResults() {
-    if (!el.matchSearchResults || !state.currentTournament) return;
-    const rounds = state.currentTournament.rounds || [];
+    const t = state.currentTournament || state.liveTournamentData;
+    if (!el.matchSearchResults || !t) return;
+    const rounds = t.rounds || [];
     const query = el.inputSearchMatch ? el.inputSearchMatch.value.trim().toLowerCase() : '';
     const filter = state.activeSearchFilter || 'all';
+    const isLive = state.currentView === 'live';
 
     const allMatches = [];
     rounds.forEach((r, rIdx) => {
@@ -7306,18 +7659,21 @@
       if (filter !== 'all' && status !== filter) return false;
 
       if (!query) return true;
-      const p1Name = (match.p1?.name || '').toLowerCase();
-      const p2Name = (match.p2?.name || '').toLowerCase();
       const rName = (roundTitle || '').toLowerCase();
       const mNum = `match ${item.mIdx + 1}`;
-      return p1Name.includes(query) || p2Name.includes(query) || rName.includes(query) || mNum.includes(query);
+      const mNumShort = `m${item.mIdx + 1}`;
+      if (rName.includes(query) || mNum.includes(query) || mNumShort === query) return true;
+
+      const p1Match = participantMatchesQuery(match.p1, query);
+      const p2Match = participantMatchesQuery(match.p2, query);
+      return p1Match || p2Match;
     });
 
     if (filtered.length === 0) {
       el.matchSearchResults.innerHTML = `
         <div style="text-align:center; padding: 28px; color: var(--text-muted); font-size: 13px;">
           <i class="fa-solid fa-filter-circle-xmark" style="font-size: 24px; margin-bottom: 8px; opacity:0.5; display:block;"></i>
-          Tidak ada match yang cocok dengan pencarian.
+          Tidak ada match atau tim yang cocok dengan pencarian "${escapeHTML(query)}".
         </div>
       `;
       return;
@@ -7330,31 +7686,61 @@
       const status = match.status || 'scheduled';
       const statusLabel = status.replace('_', ' ');
 
+      const formatTeamMeta = (p) => {
+        if (!p || p.isPlaceholder || p.isUnseeded) return '';
+        const metaBits = [];
+        if (p.playerName && p.playerName !== p.name) metaBits.push(p.playerName);
+        if (p.wecom) metaBits.push(`WeCom: ${p.wecom}`);
+        const partners = Array.isArray(p.partners) && p.partners.length > 0
+          ? p.partners
+          : (p.partner && p.partner.name ? [p.partner] : []);
+        if (partners.length > 0) {
+          const partnerNames = partners.map(x => x.name + (x.wecom ? ` [${x.wecom}]` : '')).join(', ');
+          metaBits.push(partnerNames);
+        }
+        return metaBits.length > 0 ? metaBits.join(' • ') : '';
+      };
+
+      const p1Meta = formatTeamMeta(p1);
+      const p2Meta = formatTeamMeta(p2);
+
       const noteTag = match.note
         ? `<span style="font-size:0.75rem; color:#f59e0b; margin-left:4px;" title="${escapeHTML(match.note)}"><i class="fa-solid fa-note-sticky"></i></span>`
         : '';
 
+      const manageBtnHtml = (!isLive && !t.isLocked)
+        ? `<div class="match-search-actions">
+            <button type="button" class="btn btn-sm btn-primary btn-search-manage-match" data-ridx="${rIdx}" data-midx="${mIdx}" title="Buka kontrol match dan input skor">
+              <i class="fa-solid fa-sliders"></i> Atur Match
+            </button>
+          </div>`
+        : '';
+
       return `
-        <div class="match-search-item" data-id="${match.id}" data-ridx="${rIdx}" data-midx="${mIdx}">
+        <div class="match-search-item" data-id="${match.id}" data-ridx="${rIdx}" data-midx="${mIdx}" style="cursor:pointer;" title="Klik untuk fokus ke match ini di bagan">
           <div class="match-search-header">
             <span style="display:flex; align-items:center;">${escapeHTML(roundTitle)} • Match #${mIdx + 1} ${noteTag}</span>
             <span class="status-indicator-pill ${status}">${statusLabel}</span>
           </div>
           <div class="match-search-teams">
             <div class="search-team-row ${match.winnerId === p1.id ? 'winner' : ''}">
-              <span class="team-name">${escapeHTML(p1.name)}</span>
+              <div style="display:flex; align-items:baseline; gap:6px; min-width:0; flex:1;">
+                ${p1.seed ? `<span class="queue-seed-pill sm" style="font-size:10px; font-weight:700;">#${p1.seed}</span>` : ''}
+                <span class="team-name" style="font-weight:600;">${escapeHTML(p1.name || 'TBD')}</span>
+                ${p1Meta ? `<span style="font-size:10px; color:var(--text-muted); opacity:0.85;">(${escapeHTML(p1Meta)})</span>` : ''}
+              </div>
               <span class="team-score">${match.score1 !== '' && match.score1 !== undefined ? match.score1 : '-'}</span>
             </div>
             <div class="search-team-row ${match.winnerId === p2.id ? 'winner' : ''}">
-              <span class="team-name">${escapeHTML(p2.name)}</span>
+              <div style="display:flex; align-items:baseline; gap:6px; min-width:0; flex:1;">
+                ${p2.seed ? `<span class="queue-seed-pill sm" style="font-size:10px; font-weight:700;">#${p2.seed}</span>` : ''}
+                <span class="team-name" style="font-weight:600;">${escapeHTML(p2.name || 'TBD')}</span>
+                ${p2Meta ? `<span style="font-size:10px; color:var(--text-muted); opacity:0.85;">(${escapeHTML(p2Meta)})</span>` : ''}
+              </div>
               <span class="team-score">${match.score2 !== '' && match.score2 !== undefined ? match.score2 : '-'}</span>
             </div>
           </div>
-          <div class="match-search-actions">
-            <button type="button" class="btn btn-sm btn-primary btn-search-manage-match" data-ridx="${rIdx}" data-midx="${mIdx}" title="Buka kontrol match dan input skor">
-              <i class="fa-solid fa-sliders"></i> Atur Match
-            </button>
-          </div>
+          ${manageBtnHtml}
         </div>
       `;
     }).join('');
@@ -7376,7 +7762,8 @@
         e.stopPropagation();
         const rIdx = parseInt(btn.dataset.ridx, 10);
         const mIdx = parseInt(btn.dataset.midx, 10);
-        const match = state.currentTournament?.rounds?.[rIdx]?.matches?.[mIdx];
+        const curT = state.currentTournament || state.liveTournamentData;
+        const match = curT?.rounds?.[rIdx]?.matches?.[mIdx];
         closeModal(el.modalMatchSearch);
         focusMatchNode(rIdx, mIdx);
         if (match) {
@@ -7387,7 +7774,7 @@
   }
 
   function focusMatchNode(rIdx, mIdx) {
-    const t = state.currentTournament;
+    const t = state.currentTournament || state.liveTournamentData;
     if (!t || !t.rounds || !t.rounds[rIdx] || !t.rounds[rIdx].matches[mIdx]) return;
     const match = t.rounds[rIdx].matches[mIdx];
     const isLive = state.currentView === 'live';
@@ -7887,10 +8274,10 @@
       el.btnDrawerFullReport.addEventListener('click', () => openStudioReportView());
     }
 
-    // Add Participant, Auto-Seed & Random Seed
+    // Add Participant, Auto-Seed & Reset Seed
     el.addParticipantForm.addEventListener('submit', handleAddParticipant);
     el.btnAutoSeed.addEventListener('click', handleAutoSeed);
-    if (el.btnRandomSeed) el.btnRandomSeed.addEventListener('click', handleRandomSeed);
+    if (el.btnResetBracketSeeds) el.btnResetBracketSeeds.addEventListener('click', handleResetSeeds);
     el.btnBulkAdd.addEventListener('click', () => openModal(el.modalBulkAdd));
     el.formBulkAdd.addEventListener('submit', handleBulkAdd);
 
@@ -8087,6 +8474,9 @@
     el.btnDirectWinP1.addEventListener('click', () => handleDirectWin('p1'));
     el.btnDirectWinP2.addEventListener('click', () => handleDirectWin('p2'));
     el.btnClearMatchResult.addEventListener('click', handleResetMatchResult);
+    if (el.btnToggleMatchLock) el.btnToggleMatchLock.addEventListener('click', handleToggleMatchLockFromModal);
+    if (el.btnToggleModalP1Lock) el.btnToggleModalP1Lock.addEventListener('click', handleToggleModalP1Lock);
+    if (el.btnToggleModalP2Lock) el.btnToggleModalP2Lock.addEventListener('click', handleToggleModalP2Lock);
 
     // Studio Reports View Listeners
     if (el.btnStudioOpenReport) {

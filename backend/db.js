@@ -153,6 +153,8 @@ export const db = {
       status: payload.status || 'setup',
       isLocked: false,
       maxParticipants: payload.maxParticipants || 8,
+      stage: payload.stage || (payload.type?.includes('round_robin') ? 'round_robin' : 'elimination'),
+      roundRobin: payload.roundRobin || null,
       participants,
       rounds: payload.rounds || [],
       lockedSeeds: [],
@@ -307,6 +309,7 @@ export const db = {
           if (existingSlot && existingSlot.id) {
             participant.id = existingSlot.id;
           }
+          participant.seed = emptySlotIdx + 1;
           t.participants[emptySlotIdx] = participant;
 
           // Update matching match slots in bracket tree
@@ -314,21 +317,23 @@ export const db = {
             t.rounds.forEach(r => {
               (r.matches || []).forEach(m => {
                 if (m.p1 && (m.p1.id === participant.id || m.p1.seed === emptySlotIdx + 1)) {
-                  m.p1 = { ...m.p1, ...participant, isPlaceholder: false, isUnseeded: false };
+                  m.p1 = { ...m.p1, ...participant, seed: participant.seed, isPlaceholder: false, isUnseeded: false };
                 }
                 if (m.p2 && (m.p2.id === participant.id || m.p2.seed === emptySlotIdx + 1)) {
-                  m.p2 = { ...m.p2, ...participant, isPlaceholder: false, isUnseeded: false };
+                  m.p2 = { ...m.p2, ...participant, seed: participant.seed, isPlaceholder: false, isUnseeded: false };
                 }
               });
             });
           }
         } else {
+          participant.seed = t.participants.length + 1;
           t.participants.push(participant);
           if (t.maxParticipants && t.participants.length > t.maxParticipants) {
             t.maxParticipants = t.participants.length;
           }
         }
       } else {
+        participant.seed = t.participants.length + 1;
         t.participants.push(participant);
         if (t.maxParticipants && t.participants.length > t.maxParticipants) {
           t.maxParticipants = t.participants.length;

@@ -33,8 +33,8 @@
       "name": "Ganda Campuran 混双",
       "game": "1",
       "type": "single_elimination",
-      "status": "completed",
-      "isLocked": true,
+      "status": "setup",
+      "isLocked": false,
       "maxParticipants": 8,
       "participants": [
         {
@@ -83,7 +83,7 @@
       "rounds": [
         {
           "roundNumber": 1,
-          "title": "半决赛",
+          "title": "Semifinals",
           "matches": [
             {
               "id": "r1_m1",
@@ -109,6 +109,31 @@
                 "isUnseeded": false
               },
               "p2": {
+                "id": "p_1789464071200_ibzf",
+                "name": "aw",
+                "playerName": "aw",
+                "teamName": "aw",
+                "isTeam": false,
+                "partners": [],
+                "registeredAt": "2026-09-15T09:21:11.200Z",
+                "seed": 4,
+                "isPlaceholder": false,
+                "isUnseeded": false
+              },
+              "score1": "",
+              "score2": "",
+              "winnerId": null,
+              "status": "scheduled"
+            },
+            {
+              "id": "r1_m2",
+              "round": 1,
+              "matchIndex": 1,
+              "pairRange": [
+                1,
+                1
+              ],
+              "p1": {
                 "id": "p_1789459286667_14n9",
                 "name": "dwa",
                 "teamName": "",
@@ -123,22 +148,7 @@
                 "isPlaceholder": false,
                 "isUnseeded": false
               },
-              "p1Locked": false,
-              "p2Locked": false,
-              "score1": 1,
-              "score2": 0,
-              "winnerId": "p_1789459278930_adt1",
-              "status": "completed"
-            },
-            {
-              "id": "r1_m2",
-              "round": 1,
-              "matchIndex": 1,
-              "pairRange": [
-                1,
-                1
-              ],
-              "p1": {
+              "p2": {
                 "id": "p_1789464054793_0g4o",
                 "name": "q",
                 "playerName": "q",
@@ -150,30 +160,16 @@
                 "isPlaceholder": false,
                 "isUnseeded": false
               },
-              "p2": {
-                "id": "p_1789464071200_ibzf",
-                "name": "aw",
-                "playerName": "aw",
-                "teamName": "aw",
-                "isTeam": false,
-                "partners": [],
-                "registeredAt": "2026-09-15T09:21:11.200Z",
-                "seed": 4,
-                "isPlaceholder": false,
-                "isUnseeded": false
-              },
-              "p1Locked": false,
-              "p2Locked": false,
-              "score1": 0,
-              "score2": 1,
-              "winnerId": "p_1789464071200_ibzf",
-              "status": "completed"
+              "score1": "",
+              "score2": "",
+              "winnerId": null,
+              "status": "scheduled"
             }
           ]
         },
         {
           "roundNumber": 2,
-          "title": "总决赛",
+          "title": "Championship Final",
           "matches": [
             {
               "id": "r2_m1",
@@ -186,31 +182,17 @@
               "feederTopId": "r1_m1",
               "feederBotId": "r1_m2",
               "p1": {
-                "id": "p_1789459278930_adt1",
-                "name": "dada",
-                "seed": 1,
-                "partners": [],
-                "partner": null,
-                "isPlaceholder": false,
-                "playerName": "dada",
-                "isTeam": false
+                "name": "Winner R1 M1",
+                "isPlaceholder": true
               },
               "p2": {
-                "id": "p_1789464071200_ibzf",
-                "name": "aw",
-                "seed": 4,
-                "partners": [],
-                "isPlaceholder": false,
-                "playerName": "aw",
-                "isTeam": false,
-                "teamName": "aw"
+                "name": "Winner R1 M2",
+                "isPlaceholder": true
               },
-              "p1Locked": false,
-              "p2Locked": false,
-              "score1": 1,
-              "score2": 0,
-              "winnerId": "p_1789459278930_adt1",
-              "status": "completed"
+              "score1": "",
+              "score2": "",
+              "winnerId": null,
+              "status": "scheduled"
             }
           ]
         }
@@ -227,7 +209,7 @@
         "hideLiveBracket": true
       },
       "createdAt": "2026-09-15T07:49:24.160Z",
-      "updatedAt": "2026-10-08T01:14:13.201Z",
+      "updatedAt": "2026-10-10T00:57:45.388Z",
       "isRegistrationClosed": false,
       "hideLiveBracket": true
     },
@@ -2014,7 +1996,7 @@
         "splitView": "split"
       },
       "createdAt": "2026-09-15T07:13:45.335Z",
-      "updatedAt": "2026-10-09T08:56:49.696Z",
+      "updatedAt": "2026-10-10T00:28:32.947Z",
       "isRegistrationClosed": false,
       "hideLiveBracket": true
     },

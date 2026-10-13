@@ -33,7 +33,7 @@
       </div>
 
       <div class="header-actions">
-        <button type="button" class="btn btn-ghost btn-sm btn-lang-toggle" title="Switch Language / 切换语言" style="gap: 6px; font-weight: 700; border: 1px solid var(--border-subtle); padding: 4px 10px; border-radius: var(--radius-sm);">
+        <button type="button" class="btn btn-ghost btn-sm btn-lang-toggle" title="Switch Language / 切换语言">
           <i class="fa-solid fa-globe"></i>
           <span class="lang-toggle-text">🇨🇳 中文</span>
         </button>
@@ -91,7 +91,7 @@
       </div>
 
       <div class="header-actions">
-        <button type="button" class="btn btn-ghost btn-sm btn-lang-toggle" title="Switch Language / 切换语言" style="gap: 6px; font-weight: 700; border: 1px solid var(--border-subtle); padding: 4px 10px; border-radius: var(--radius-sm);">
+        <button type="button" class="btn btn-ghost btn-sm btn-lang-toggle" title="Switch Language / 切换语言">
           <i class="fa-solid fa-globe"></i>
           <span class="lang-toggle-text">🇨🇳 中文</span>
         </button>
@@ -158,39 +158,39 @@
 
       <div class="studio-header-right">
         <!-- Lock / Unlock Bracket -->
-        <button id="btn-toggle-lock" class="btn btn-lock" title="Lock bracket to start matches and report scores">
+        <button id="btn-toggle-lock" class="btn btn-lock btn-sm" title="Lock bracket to start matches and report scores">
           <i class="fa-solid fa-lock"></i>
           <span id="lock-btn-text" data-i18n="studio_lock_btn">Lock Bracket</span>
         </button>
 
-        <!-- Language Toggle -->
-        <button type="button" class="btn btn-ghost btn-sm btn-lang-toggle" title="Switch Language / 切换语言" style="gap: 6px; font-weight: 700; border: 1px solid var(--border-subtle); padding: 4px 10px; border-radius: var(--radius-sm);">
-          <i class="fa-solid fa-globe"></i>
-          <span class="lang-toggle-text">🇨🇳 中文</span>
-        </button>
-
         <!-- Reports Button -->
-        <button type="button" id="btn-studio-open-report" class="btn btn-secondary btn-sm" title="Laporan Pendaftar Link (Full)" style="gap: 5px;">
+        <button type="button" id="btn-studio-open-report" class="btn btn-secondary btn-sm" title="Laporan Pendaftar Link (Full)">
           <i class="fa-solid fa-clipboard-user"></i>
-          <span data-i18n="btn_participant_report">Laporan</span>
+          <span data-i18n="btn_participant_report">Laporan Peserta</span>
         </button>
 
         <!-- Qualifiers Drawer Button -->
-        <button type="button" id="btn-studio-open-qualifiers" class="btn btn-secondary btn-sm" title="Daftar Tim/Peserta Lolos per Babak" style="gap: 5px;">
+        <button type="button" id="btn-studio-open-qualifiers" class="btn btn-secondary btn-sm" title="Daftar Tim/Peserta Lolos per Babak">
           <i class="fa-solid fa-ranking-star" style="color: #10b981;"></i>
           <span data-i18n="btn_qualifiers_drawer">Lolos Babak</span>
+        </button>
+
+        <!-- Language Toggle -->
+        <button type="button" class="btn btn-ghost btn-sm btn-lang-toggle" title="Switch Language / 切换语言">
+          <i class="fa-solid fa-globe"></i>
+          <span class="lang-toggle-text">🇨🇳 中文</span>
         </button>
 
         <div class="divider-vertical"></div>
 
         <!-- QR Code Registration Modal Trigger -->
-        <button id="btn-open-qr-modal" class="btn btn-secondary" title="Show QR code for player registration">
+        <button id="btn-open-qr-modal" class="btn btn-secondary btn-sm" title="Show QR code for player registration">
           <i class="fa-solid fa-qrcode"></i>
           <span data-i18n="studio_qr_btn">Player QR</span>
         </button>
 
         <!-- Public Live View -->
-        <a href="?view=live" id="btn-open-live-view" class="btn btn-outline" title="Open public live spectator bracket">
+        <a href="?view=live" id="btn-open-live-view" class="btn btn-outline btn-sm" title="Open public live spectator bracket">
           <i class="fa-solid fa-arrow-up-right-from-square"></i>
           <span data-i18n="studio_live_btn">Live Spectator</span>
           <span id="studio-live-hidden-indicator" class="live-hidden-indicator hidden" title="Bagan sedang disembunyikan di Live Spectator"><i class="fa-solid fa-eye-slash"></i> <span data-i18n="badge_hidden">Hidden</span></span>
@@ -240,19 +240,18 @@
             </button>
           </div>
 
-          <!-- Open Full Report Drawer/View Button -->
-          <button type="button" id="btn-drawer-full-report" class="btn btn-sm btn-secondary" style="width:100%; margin-bottom: 8px; gap: 6px; font-weight:600;" title="Buka Data Laporan Peserta Link Terdaftar">
-            <i class="fa-solid fa-clipboard-list"></i> <span data-i18n="btn_full_report">Laporan Pendaftar Link</span>
-          </button>
-
-          <div class="panel-actions-row" style="display:flex; gap:6px; flex-wrap:wrap;">
-            <button id="btn-auto-seed" class="btn btn-sm btn-primary" style="flex:1;" title="Tempatkan peserta sesuai urutan seed standar">
+          <!-- Participant Action Buttons Grid (Sama Rata 2x2: Auto-Seed, Reset Seed, Laporan Pendaftar, Bulk Add) -->
+          <div class="drawer-action-buttons-grid">
+            <button id="btn-auto-seed" class="btn btn-sm btn-primary" title="Tempatkan peserta sesuai urutan seed standar">
               <i class="fa-solid fa-wand-magic-sparkles"></i> <span data-i18n="btn_auto_seed">Auto-Seed</span>
             </button>
-            <button id="btn-random-seed" class="btn btn-sm btn-secondary" style="flex:1;" title="Acak penempatan tim secara random (slot terkunci tetap aman)">
-              <i class="fa-solid fa-shuffle"></i> <span data-i18n="btn_random_seed">Random Seed</span>
+            <button id="btn-reset-bracket-seeds" class="btn btn-sm btn-secondary" title="Reset penempatan seed di bracket (struktur bagan tetap utuh)">
+              <i class="fa-solid fa-rotate-left"></i> <span data-i18n="btn_reset_seeds">Reset Seed</span>
             </button>
-            <button id="btn-bulk-add" class="btn btn-sm btn-ghost" title="Bulk paste / upload CSV">
+            <button type="button" id="btn-drawer-full-report" class="btn btn-sm btn-secondary" title="Buka Data Laporan Peserta Link Terdaftar">
+              <i class="fa-solid fa-clipboard-list"></i> <span data-i18n="btn_full_report">Laporan Pendaftar</span>
+            </button>
+            <button id="btn-bulk-add" class="btn btn-sm btn-secondary" title="Bulk paste / upload CSV">
               <i class="fa-solid fa-list"></i> <span data-i18n="btn_bulk_add">Bulk Add</span>
             </button>
           </div>
@@ -316,6 +315,8 @@
               <label data-i18n="label_bracket_format">Bracket Format</label>
               <select id="setting-format-select" disabled>
                 <option value="single_elimination" data-i18n="opt_single_elim">Single Elimination</option>
+                <option value="round_robin" data-i18n="opt_round_robin">Round Robin (Setengah Kompetisi)</option>
+                <option value="round_robin_elimination" data-i18n="opt_round_robin_elim">Round Robin + Single Elimination (Grup & Gugur)</option>
                 <option value="double_elimination" data-i18n="opt_double_elim">Double Elimination</option>
               </select>
               <small class="form-hint" data-i18n="hint_format_locked">Format is locked during active bracket generation.</small>
@@ -434,6 +435,24 @@
           <span class="floating-search-hint"><kbd>Ctrl+F</kbd></span>
         </button>
 
+        <!-- Floating Stage Switcher (for Round Robin + Single Elimination) -->
+        <div id="studio-stage-bar" class="stage-nav-bar hidden">
+          <div class="stage-tabs-group">
+            <button type="button" id="tab-stage-rr" class="stage-tab-btn active">
+              <i class="fa-solid fa-table-cells"></i> <span data-i18n="stage_round_robin">Babak Grup (Round Robin)</span>
+            </button>
+            <button type="button" id="tab-stage-elim" class="stage-tab-btn">
+              <i class="fa-solid fa-trophy"></i> <span data-i18n="stage_elimination">Babak Gugur (Single Elimination)</span>
+              <span id="stage-elim-badge" class="badge badge-warning hidden" style="font-size: 10px; padding: 1px 6px;">Belum Dikonversi</span>
+            </button>
+          </div>
+          <div class="stage-actions-group">
+            <button type="button" id="btn-stage-convert-knockout" class="btn btn-sm btn-primary" title="Konversi tim peringkat teratas grup ke bagan single elimination">
+              <i class="fa-solid fa-bolt"></i> <span data-i18n="btn_convert_knockout">Konversi ke Babak Gugur</span>
+            </button>
+          </div>
+        </div>
+
         <!-- Floating Canvas Floating Toolbar (Zoom & Navigation) -->
         <div class="canvas-controls">
           <button id="btn-zoom-in" class="canvas-control-btn" title="Zoom In">
@@ -491,6 +510,11 @@
               <div class="widget-up-next-names" id="studio-up-next-names">Menunggu giliran</div>
             </div>
           </div>
+        </div>
+
+        <!-- Studio Round Robin View Container (Scrollable table and fixture cards) -->
+        <div id="studio-round-robin-view" class="round-robin-view-container hidden">
+          <!-- Rendered dynamically -->
         </div>
 
         <!-- The Draggable / Zoomable Transform Canvas -->
@@ -652,7 +676,7 @@
         </div>
 
         <!-- Language Toggle -->
-        <button type="button" class="btn btn-ghost btn-sm btn-lang-toggle" title="Switch Language / 切换语言" style="gap: 5px; font-weight: 700; border: 1px solid var(--border-subtle); padding: 4px 8px; border-radius: var(--radius-sm);">
+        <button type="button" class="btn btn-ghost btn-sm btn-lang-toggle" title="Switch Language / 切换语言">
           <i class="fa-solid fa-globe"></i>
           <span class="lang-toggle-text">🇨🇳 中文</span>
         </button>
@@ -673,6 +697,18 @@
     </header>
 
     <main class="live-canvas-container" id="live-canvas-container">
+      <!-- Live Stage Switcher -->
+      <div id="live-stage-bar" class="stage-nav-bar hidden">
+        <div class="stage-tabs-group">
+          <button type="button" id="tab-live-stage-rr" class="stage-tab-btn active">
+            <i class="fa-solid fa-table-cells"></i> <span data-i18n="stage_round_robin">Babak Grup (Klasemen)</span>
+          </button>
+          <button type="button" id="tab-live-stage-elim" class="stage-tab-btn">
+            <i class="fa-solid fa-trophy"></i> <span data-i18n="stage_elimination">Bagan Gugur (Playoff)</span>
+          </button>
+        </div>
+      </div>
+
       <div class="canvas-controls">
         <button id="btn-live-zoom-in" class="canvas-control-btn"><i class="fa-solid fa-plus"></i></button>
         <span id="live-zoom-text" class="zoom-display">100%</span>
@@ -755,6 +791,11 @@
         </div>
       </div>
 
+      <!-- Live Round Robin View Container -->
+      <div id="live-round-robin-view" class="round-robin-view-container live-rr-container hidden">
+        <!-- Rendered dynamically for spectators -->
+      </div>
+
       <div id="live-canvas" class="bracket-canvas">
         <svg id="live-svg" class="bracket-svg" xmlns="http://www.w3.org/2000/svg"></svg>
         <div id="live-rounds-container" class="bracket-rounds-container"></div>
@@ -770,7 +811,7 @@
           <div class="register-card-header">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
               <div class="register-badge" data-i18n="reg_badge">PARTICIPANT REGISTRATION</div>
-              <button type="button" class="btn btn-ghost btn-sm btn-lang-toggle" title="Switch Language / 切换语言" style="gap: 5px; font-weight: 700; border: 1px solid var(--border-subtle); padding: 3px 8px; border-radius: var(--radius-sm);">
+              <button type="button" class="btn btn-ghost btn-sm btn-lang-toggle" title="Switch Language / 切换语言">
                 <i class="fa-solid fa-globe"></i>
                 <span class="lang-toggle-text">🇨🇳 中文</span>
               </button>
@@ -927,6 +968,8 @@
             <label for="create-type" data-i18n="label_tourn_format">Format</label>
             <select id="create-type">
               <option value="single_elimination" data-i18n="opt_single_elim">Single Elimination</option>
+              <option value="round_robin" data-i18n="opt_round_robin">Round Robin (Setengah Kompetisi)</option>
+              <option value="round_robin_elimination" data-i18n="opt_round_robin_elim">Round Robin + Single Elimination (Grup & Gugur)</option>
               <option value="double_elimination" data-i18n="opt_double_elim">Double Elimination</option>
             </select>
           </div>
@@ -938,6 +981,37 @@
               <option value="16">16 Teams</option>
               <option value="32">32 Teams</option>
             </select>
+          </div>
+        </div>
+        <!-- Round Robin Configuration Box -->
+        <div id="create-rr-config-box" class="rr-config-box hidden" style="margin-bottom: 15px; padding: 12px; background: rgba(0, 210, 255, 0.05); border: 1px solid rgba(0, 210, 255, 0.2); border-radius: var(--radius-sm);">
+          <div style="font-weight: 700; font-size: 0.85rem; color: var(--primary); margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
+            <i class="fa-solid fa-table-cells"></i> <span data-i18n="rr_config_title">Pengaturan Babak Grup (Round Robin)</span>
+          </div>
+          <div class="form-row">
+            <div class="form-group half">
+              <label for="create-rr-groups" data-i18n="label_rr_group_count">Jumlah Grup</label>
+              <select id="create-rr-groups">
+                <option value="1">1 Grup (Semua Peserta 1 Grup)</option>
+                <option value="2" selected>2 Grup (Grup A & Grup B)</option>
+                <option value="3">3 Grup (Grup A, B, C)</option>
+                <option value="4">4 Grup (Grup A, B, C, D)</option>
+              </select>
+            </div>
+            <div class="form-group half">
+              <label for="create-rr-advancing" data-i18n="label_rr_advancing">Tim Lolos per Grup (Playoff)</label>
+              <select id="create-rr-advancing">
+                <option value="1">1 Tim (Hanya Juara 1)</option>
+                <option value="2" selected>2 Tim (Juara 1 & Runner-Up)</option>
+                <option value="3">3 Tim (Top 3)</option>
+                <option value="4">4 Tim (Top 4)</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group" style="margin-bottom: 0;">
+            <label style="font-size: 0.8rem; color: var(--text-muted); display:flex; align-items:center; gap:5px;">
+              <i class="fa-solid fa-circle-info" style="color:var(--primary);"></i> Sistem Poin: Menang = 3 Poin, Seri = 1 Poin, Kalah = 0 Poin
+            </label>
           </div>
         </div>
         <div class="form-group">
@@ -1152,6 +1226,9 @@
             <div class="comp-header">
               <span class="seed-badge" id="modal-p1-seed">#1</span>
               <span class="comp-name" id="modal-p1-name" title="Participant 1">Participant 1</span>
+              <button type="button" id="btn-toggle-modal-p1-lock" class="btn-slot-lock-modal" title="Kunci / Buka Kunci Slot 1">
+                <i class="fa-solid fa-lock-open"></i>
+              </button>
             </div>
             <div class="score-input-wrapper">
               <label data-i18n="label_score_points">Skor / Points</label>
@@ -1169,6 +1246,9 @@
             <div class="comp-header">
               <span class="seed-badge" id="modal-p2-seed">#8</span>
               <span class="comp-name" id="modal-p2-name" title="Participant 2">Participant 2</span>
+              <button type="button" id="btn-toggle-modal-p2-lock" class="btn-slot-lock-modal" title="Kunci / Buka Kunci Slot 2">
+                <i class="fa-solid fa-lock-open"></i>
+              </button>
             </div>
             <div class="score-input-wrapper">
               <label data-i18n="label_score_points">Skor / Points</label>
@@ -1180,6 +1260,13 @@
           </div>
         </div>
 
+        <!-- Draw Button for Round Robin Matches -->
+        <div id="rr-draw-control-box" class="rr-draw-control-box hidden" style="text-align: center; margin: 10px 0;">
+          <button type="button" id="btn-direct-draw" class="btn btn-sm btn-ghost" style="margin: 0 auto; display: inline-flex; align-items: center; gap: 6px; font-weight: 600; border: 1px solid var(--border-subtle); padding: 6px 14px; border-radius: var(--radius-sm); color: var(--text-secondary);">
+            <i class="fa-solid fa-handshake" style="color: var(--accent-gold);"></i> <span data-i18n="btn_direct_draw">Hasil Seri / Imbang (Draw)</span>
+          </button>
+        </div>
+
         <!-- Match Notes (Catatan Pertandingan) -->
         <div class="match-notes-section">
           <label for="modal-match-note" class="match-notes-label">
@@ -1188,10 +1275,13 @@
           <textarea id="modal-match-note" class="match-notes-input" placeholder="Tulis catatan (misal: Lapangan 2, WO karena cedera, ditunda 15 menit, dll.)..." rows="2"></textarea>
         </div>
 
-        <!-- Reset match result button -->
+        <!-- Reset match result & Lock matchup button -->
         <div class="match-actions-secondary">
-          <button type="button" id="btn-clear-match-result" class="btn btn-ghost btn-sm">
-            <i class="fa-solid fa-rotate-left"></i> <span data-i18n="btn_reset_match">Reset Match Result</span>
+          <button type="button" id="btn-clear-match-result" class="btn btn-ghost btn-sm" title="Reset skor pertandingan ini">
+            <i class="fa-solid fa-rotate-left"></i> <span data-i18n="btn_reset_match">Reset Skor Pertandingan</span>
+          </button>
+          <button type="button" id="btn-toggle-match-lock" class="btn btn-ghost btn-sm btn-match-lock" title="Kunci atau buka kunci matchup ini agar posisinya dapat/tidak dapat ditukar">
+            <i class="fa-solid fa-lock"></i> <span id="match-lock-btn-text" data-i18n="btn_lock_matchup">Kunci Matchup</span>
           </button>
         </div>
       </div>
@@ -1277,6 +1367,48 @@
     </div>
   </div>
 
+  <!-- Modal: Convert Round Robin to Single Elimination -->
+  <div id="modal-convert-knockout" class="modal-overlay hidden">
+    <div class="modal-content modal-md">
+      <div class="modal-header">
+        <div>
+          <h3 data-i18n="modal_convert_title"><i class="fa-solid fa-trophy" style="color:var(--accent-gold); margin-right:6px;"></i> Konversi ke Babak Gugur</h3>
+          <span class="text-subtle" data-i18n="modal_convert_sub">Loloskan tim terbaik dari setiap grup ke bagan Single Elimination.</span>
+        </div>
+        <button class="btn-close-modal" data-close="modal-convert-knockout">&times;</button>
+      </div>
+      <div class="modal-body convert-modal-body">
+        <div class="convert-preview-section">
+          <label style="font-weight: 700; font-size: 0.85rem; color: var(--text-primary); margin-bottom: 8px; display: block;">
+            <i class="fa-solid fa-ranking-star" style="color:var(--primary);"></i> <span data-i18n="label_qualifying_teams">Tim yang Lolos dari Klasemen:</span>
+          </label>
+          <div id="convert-qualifying-list" class="convert-qualifying-grid">
+            <!-- Rendered list of qualifying teams per group -->
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-top: 15px;">
+          <label for="convert-seeding-method" data-i18n="label_seeding_method">Skema Pertemuan Babak Gugur:</label>
+          <select id="convert-seeding-method" class="input-modern select-modern" style="width: 100%;">
+            <option value="cross_group" selected data-i18n="opt_seed_cross">Silang Grup (Juara Grup A vs Runner-up Grup B, dsb.)</option>
+            <option value="rank_order" data-i18n="opt_seed_rank">Sesuai Peringkat Poin Tertinggi (Seed 1 vs Terendah)</option>
+          </select>
+          <small class="form-hint" data-i18n="hint_seeding_method">Skema silang mencegah tim dari grup yang sama bertemu langsung di babak pertama.</small>
+        </div>
+
+        <div id="convert-preview-matchups" class="convert-matchups-box" style="margin-top: 12px; padding: 10px 14px; background: rgba(0, 210, 255, 0.05); border: 1px dashed rgba(0, 210, 255, 0.3); border-radius: var(--radius-sm); font-size: 0.85rem;">
+          <!-- Preview of initial bracket matches -->
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-ghost" data-close="modal-convert-knockout" data-i18n="btn_cancel">Batal</button>
+        <button type="button" id="btn-confirm-convert-knockout" class="btn btn-primary" style="gap: 6px;">
+          <i class="fa-solid fa-circle-check"></i> <span data-i18n="btn_confirm_generate_bracket">Buat Bagan Babak Gugur</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- Modal 7: Match Search & Quick Focus Modal -->
   <div id="modal-match-search" class="modal-overlay hidden">
     <div class="modal-content modal-search-lg">
@@ -1290,7 +1422,7 @@
       <div class="modal-body search-modal-body">
         <div class="search-input-box">
           <i class="fa-solid fa-search search-icon"></i>
-          <input type="text" id="input-search-match" data-i18n-ph="search_match_ph" placeholder="Ketik nama tim / pemain / nomor match..." autocomplete="off">
+          <input type="text" id="input-search-match" data-i18n-ph="search_match_ph" placeholder="Ketik nama tim / pemain / no WeCom / nomor match..." autocomplete="off">
         </div>
         <div class="search-filters">
           <button type="button" class="search-filter-btn active" data-filter="all" data-i18n="filter_all">Semua</button>
@@ -1343,11 +1475,18 @@
         <div class="form-group" style="margin-top:12px;">
           <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
             <label style="margin:0;"><i class="fa-solid fa-users" style="color:var(--primary);"></i> <span data-i18n="label_teammates_list">Rekan / Anggota Tim:</span></label>
-            <button type="button" id="btn-add-edit-partner" class="btn btn-sm btn-outline" style="font-size:0.75rem; padding:3px 8px;">
+            <button type="button" id="btn-add-edit-partner" class="btn btn-sm btn-outline" style="font-size:0.75rem; padding:3px 10px; gap:5px;">
               <i class="fa-solid fa-plus"></i> <span data-i18n="btn_add_partner">Tambah Rekan</span>
             </button>
           </div>
-          <div id="edit-report-partners-container" style="display:flex; flex-direction:column; gap:8px;">
+          <div class="edit-partners-table-header" id="edit-partners-table-header" style="display:none;">
+            <span>#</span>
+            <span data-i18n="col_partner_name">Nama Rekan</span>
+            <span data-i18n="col_partner_dept">Departemen / Divisi</span>
+            <span data-i18n="col_partner_wecom">WeCom / Kontak</span>
+            <span></span>
+          </div>
+          <div id="edit-report-partners-container" class="edit-report-partners-container">
             <!-- Rendered dynamically -->
           </div>
         </div>
@@ -1516,15 +1655,11 @@
       <div class="modal-body" style="padding: 1rem 1.25rem;">
         <div style="position:relative; margin-bottom: 12px;">
           <i class="fa-solid fa-magnifying-glass" style="position:absolute; left:10px; top:50%; transform:translateY(-50%); color:var(--text-muted); font-size:12px;"></i>
-          <input type="text" id="input-search-live-teams" placeholder="Cari nama tim / peserta..." data-i18n-ph="ph_search_registered_teams" style="width: 100%; font-size: 12px; padding: 7px 10px 7px 30px; background:var(--bg-surface-elevated); border:1px solid var(--border-subtle); border-radius:var(--radius-sm); color:var(--text-primary); box-sizing:border-box;" />
+          <input type="text" id="input-search-live-teams" placeholder="Cari nama tim, pemain, atau no WeCom..." data-i18n-ph="ph_search_live_teams" style="width: 100%; font-size: 12px; padding: 7px 10px 7px 30px; background:var(--bg-surface-elevated); border:1px solid var(--border-subtle); border-radius:var(--radius-sm); color:var(--text-primary); box-sizing:border-box;" />
         </div>
         <div id="live-teams-list-container" class="live-teams-list-container" style="max-height: 380px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px;">
           <!-- Rendered team items -->
         </div>
-      </div>
-      <div class="modal-footer" style="justify-content: space-between;">
-        <span style="font-size: 11px; color: var(--text-muted);" id="live-teams-summary-text"></span>
-        <button type="button" class="btn btn-secondary btn-sm" data-close="modal-live-registered-teams" data-i18n="btn_close">Tutup</button>
       </div>
     </div>
   </div>

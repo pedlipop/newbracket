@@ -44,14 +44,16 @@ app.get('/api/tournaments', async (req, res) => {
 // 2. Create tournament
 app.post('/api/tournaments', async (req, res) => {
   try {
-    const { name, game, type, maxParticipants, settings, participants } = req.body;
+    const { name, game, type, maxParticipants, settings, participants, stage, roundRobin } = req.body;
     const tournament = await db.createTournament({
       name,
       game,
       type,
       maxParticipants: parseInt(maxParticipants, 10) || 8,
       settings,
-      participants
+      participants,
+      stage,
+      roundRobin
     });
     res.status(201).json({ success: true, tournament });
   } catch (err) {
@@ -115,7 +117,7 @@ app.delete('/api/tournaments/:id', async (req, res) => {
 // 6. Save entire bracket state (rounds, matches, participants, lock status)
 app.post('/api/tournaments/:id/state', async (req, res) => {
   try {
-    const { rounds, participants, isLocked, status, inProgressHighlight, lockedSeeds, settings, name, registrationDeadline, autoLockAt, isRegistrationClosed, hideLiveBracket } = req.body;
+    const { rounds, participants, isLocked, status, inProgressHighlight, lockedSeeds, settings, name, registrationDeadline, autoLockAt, isRegistrationClosed, hideLiveBracket, stage, roundRobin } = req.body;
     const updates = {};
     if (rounds !== undefined) updates.rounds = rounds;
     if (participants !== undefined) updates.participants = participants;
@@ -129,6 +131,8 @@ app.post('/api/tournaments/:id/state', async (req, res) => {
     if (autoLockAt !== undefined) updates.autoLockAt = autoLockAt;
     if (isRegistrationClosed !== undefined) updates.isRegistrationClosed = isRegistrationClosed;
     if (hideLiveBracket !== undefined) updates.hideLiveBracket = hideLiveBracket;
+    if (stage !== undefined) updates.stage = stage;
+    if (roundRobin !== undefined) updates.roundRobin = roundRobin;
 
     const updated = await db.updateTournament(req.params.id, updates);
     if (!updated) {
@@ -147,10 +151,10 @@ app.post('/api/tournaments/:id/register', async (req, res) => {
     if (!tournament) {
       return res.status(404).json({ success: false, error: 'Tournament not found' });
     }
-    if (tournament.isLocked) {
-      return res.status(400).json({ success: false, error: 'Pendaftaran ditutup karena bracket pertandingan sudah dikunci.' });
-    }
     if (!req.body.isAdmin) {
+      if (tournament.isLocked) {
+        return res.status(400).json({ success: false, error: 'Pendaftaran ditutup karena bracket pertandingan sudah dikunci.' });
+      }
       if (tournament.isRegistrationClosed) {
         return res.status(400).json({ success: false, error: 'Pendaftaran telah ditutup oleh panitia.' });
       }
