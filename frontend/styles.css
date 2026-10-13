@@ -5475,14 +5475,70 @@ button.team-partner-tag.team-partner-btn.active {
     color: #000000 !important;
   }
   .app-header,
+  .live-header,
   .studio-nav-rail,
   .studio-drawer,
-  .studio-canvas-container,
+  .canvas-controls,
+  .corner-match-widget,
+  .stage-nav-bar,
+  .btn-floating-drawer-toggle,
+  .btn-floating-match-search,
+  .toast-container,
+  .export-modal-header,
+  .export-bracket-toolbar,
+  .export-modal-footer,
+  .btn-close-modal,
   .report-header-actions,
   .report-filter-toolbar,
   #btn-close-report-view {
     display: none !important;
   }
+
+  /* When Export Bracket Modal is Open, ensure ONLY the export bracket sheet is printed */
+  body:has(#modal-export-bracket:not(.hidden)) .studio-body,
+  body:has(#modal-export-bracket:not(.hidden)) .studio-canvas-container,
+  body:has(#modal-export-bracket:not(.hidden)) .live-canvas-container {
+    display: none !important;
+  }
+
+  #modal-export-bracket:not(.hidden) {
+    position: static !important;
+    width: 100% !important;
+    height: auto !important;
+    background: transparent !important;
+    padding: 0 !important;
+    border: none !important;
+    overflow: visible !important;
+    box-shadow: none !important;
+    display: block !important;
+  }
+  #modal-export-bracket:not(.hidden) .modal-export-bracket {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+    border: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
+    overflow: visible !important;
+  }
+  #modal-export-bracket:not(.hidden) .export-preview-scroll-area {
+    padding: 0 !important;
+    overflow: visible !important;
+    background: transparent !important;
+  }
+  #modal-export-bracket:not(.hidden) .export-sheet-container {
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    margin: 0 auto !important;
+  }
+
+  /* When only bracket is enabled */
+  .export-sheet-container.only-bracket .export-doc-header,
+  .export-sheet-container.only-bracket .export-footer-bar {
+    display: none !important;
+  }
+
   .studio-report-view {
     padding: 0 !important;
     overflow: visible !important;
@@ -7409,6 +7465,17 @@ button.team-partner-tag.team-partner-btn.active {
   display: flex;
   align-items: center;
   gap: 6px;
+}
+
+/* Only Bracket Mode (Pure Bracket without document title and footer) */
+.export-sheet-container.only-bracket .export-doc-header,
+.export-sheet-container.only-bracket .export-footer-bar {
+  display: none !important;
+}
+
+.export-sheet-container.only-bracket {
+  padding-top: 12px !important;
+  padding-bottom: 12px !important;
 }
 
 

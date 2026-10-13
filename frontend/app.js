@@ -330,6 +330,7 @@
       opt_export_a4: 'A4 Landscape',
       opt_export_a3: 'A3 Landscape (Turnamen Besar)',
       label_export_scores: 'Tampilkan Skor',
+      label_export_only_bracket: 'Hanya Bagan Saja',
       btn_save_pdf: 'Cetak / Simpan PDF',
       btn_download_svg: 'Vektor SVG'
     },
@@ -617,6 +618,7 @@
       opt_export_a4: 'A4 横向 (A4 Landscape)',
       opt_export_a3: 'A3 横向 (大型赛事推荐)',
       label_export_scores: '显示比分',
+      label_export_only_bracket: '仅对阵图 (隐藏标题页眉)',
       btn_save_pdf: '打印 / 保存为 PDF',
       btn_download_svg: '下载矢量 SVG'
     }
@@ -1040,6 +1042,7 @@
     el.exportThemeMode = document.getElementById('export-theme-mode');
     el.exportPaperSize = document.getElementById('export-paper-size');
     el.exportIncludeScores = document.getElementById('export-include-scores');
+    el.exportOnlyBracket = document.getElementById('export-only-bracket');
     el.exportPreviewScroll = document.getElementById('export-preview-scroll');
     el.exportSheetContainer = document.getElementById('export-sheet-container');
     el.btnExportPrintPdf = document.getElementById('btn-export-print-pdf');
@@ -7627,21 +7630,22 @@
     const theme = el.exportThemeMode?.value || 'light';
     const paper = el.exportPaperSize?.value || 'fit';
     const includeScores = !!(el.exportIncludeScores ? el.exportIncludeScores.checked : true);
+    const onlyBracket = !!(el.exportOnlyBracket ? el.exportOnlyBracket.checked : false);
 
-    renderExportBracketSheet(t, { layout, theme, paper, includeScores });
+    renderExportBracketSheet(t, { layout, theme, paper, includeScores, onlyBracket });
   }
 
   function renderExportBracketSheet(tournament, options) {
     const container = el.exportSheetContainer;
     if (!container) return;
 
-    const { layout = 'split', theme = 'light', paper = 'fit', includeScores = true } = options;
+    const { layout = 'split', theme = 'light', paper = 'fit', includeScores = true, onlyBracket = false } = options;
     const isZh = state.lang === 'zh';
     const rounds = tournament.rounds || [];
     const numRounds = rounds.length;
 
-    // Apply container theme classes
-    container.className = `export-sheet-container theme-${theme}`;
+    // Apply container theme and only-bracket classes
+    container.className = `export-sheet-container theme-${theme} ${onlyBracket ? 'only-bracket' : ''}`;
 
     if (numRounds === 0) {
       container.innerHTML = `
@@ -8131,6 +8135,14 @@
       .export-svg-line {
         stroke: ${isDark ? '#00d2ff' : '#64748b'} !important;
       }
+      .only-bracket .export-doc-header,
+      .only-bracket .export-footer-bar {
+        display: none !important;
+      }
+      .only-bracket {
+        padding-top: 10px !important;
+        padding-bottom: 10px !important;
+      }
     `;
   }
 
@@ -8139,6 +8151,7 @@
     if (!t) return;
 
     const theme = el.exportThemeMode?.value || 'light';
+    const onlyBracket = !!(el.exportOnlyBracket ? el.exportOnlyBracket.checked : false);
     const sheetContent = el.exportSheetContainer?.innerHTML;
     if (!sheetContent) return;
 
@@ -8163,7 +8176,7 @@
   </style>
 </head>
 <body class="theme-${theme}">
-  <div class="export-sheet-container theme-${theme}">
+  <div class="export-sheet-container theme-${theme} ${onlyBracket ? 'only-bracket' : ''}">
     ${sheetContent}
   </div>
 </body>
@@ -8938,6 +8951,9 @@
     }
     if (el.exportIncludeScores) {
       el.exportIncludeScores.addEventListener('change', refreshExportBracketPreview);
+    }
+    if (el.exportOnlyBracket) {
+      el.exportOnlyBracket.addEventListener('change', refreshExportBracketPreview);
     }
     if (el.btnExportPrintPdf) {
       el.btnExportPrintPdf.addEventListener('click', handlePrintExportBracket);
