@@ -7405,7 +7405,8 @@ button.team-partner-tag.team-partner-btn.active {
 }
 
 .export-match-slot {
-  height: 19px;
+  flex: 1;
+  min-height: 18px;
   display: flex;
   align-items: center;
   padding: 0 6px;

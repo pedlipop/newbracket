@@ -331,6 +331,9 @@
       opt_export_a3: 'A3 Landscape (Turnamen Besar)',
       label_export_scores: 'Tampilkan Skor',
       label_export_only_bracket: 'Hanya Bagan Saja',
+      label_export_density: 'Kerapatan:',
+      opt_export_autofill: 'Isi Penuh Halaman (Auto Fill)',
+      opt_export_compact: 'Kompak (Compact)',
       btn_save_pdf: 'Cetak / Simpan PDF',
       btn_download_svg: 'Vektor SVG'
     },
@@ -619,6 +622,9 @@
       opt_export_a3: 'A3 横向 (大型赛事推荐)',
       label_export_scores: '显示比分',
       label_export_only_bracket: '仅对阵图 (隐藏标题页眉)',
+      label_export_density: '版面填充:',
+      opt_export_autofill: '铺满整页 (自动拉伸)',
+      opt_export_compact: '紧凑模式 (Compact)',
       btn_save_pdf: '打印 / 保存为 PDF',
       btn_download_svg: '下载矢量 SVG'
     }
@@ -1041,6 +1047,7 @@
     el.exportLayoutMode = document.getElementById('export-layout-mode');
     el.exportThemeMode = document.getElementById('export-theme-mode');
     el.exportPaperSize = document.getElementById('export-paper-size');
+    el.exportDensityMode = document.getElementById('export-density-mode');
     el.exportIncludeScores = document.getElementById('export-include-scores');
     el.exportOnlyBracket = document.getElementById('export-only-bracket');
     el.exportPreviewScroll = document.getElementById('export-preview-scroll');
@@ -7629,17 +7636,18 @@
     const layout = el.exportLayoutMode?.value || 'split';
     const theme = el.exportThemeMode?.value || 'light';
     const paper = el.exportPaperSize?.value || 'fit';
+    const density = el.exportDensityMode?.value || 'autofill';
     const includeScores = !!(el.exportIncludeScores ? el.exportIncludeScores.checked : true);
     const onlyBracket = !!(el.exportOnlyBracket ? el.exportOnlyBracket.checked : false);
 
-    renderExportBracketSheet(t, { layout, theme, paper, includeScores, onlyBracket });
+    renderExportBracketSheet(t, { layout, theme, paper, density, includeScores, onlyBracket });
   }
 
   function renderExportBracketSheet(tournament, options) {
     const container = el.exportSheetContainer;
     if (!container) return;
 
-    const { layout = 'split', theme = 'light', paper = 'fit', includeScores = true, onlyBracket = false } = options;
+    const { layout = 'split', theme = 'light', paper = 'fit', density = 'autofill', includeScores = true, onlyBracket = false } = options;
     const isZh = state.lang === 'zh';
     const rounds = tournament.rounds || [];
     const numRounds = rounds.length;
@@ -7659,10 +7667,7 @@
 
     // Geometry Constants
     const MATCH_WIDTH = 190;
-    const MATCH_HEIGHT = 50;
     const COLUMN_GAP = 36;
-    const SLOT_HEIGHT = 68;
-    const MIN_VERT_GAP = 14;
     const HEADER_OFFSET = 36; // Height for round title headers
 
     const bronzeMatch = getOrInitThirdPlaceMatch(tournament);
@@ -7746,6 +7751,28 @@
       ];
 
       colDefs = [...leftCols, ...centerCols, ...rightCols];
+    }
+
+    // Adaptive Vertical Scaling: Calculate optimal SLOT_HEIGHT so bracket completely fills paper height without empty void
+    const colCount = colDefs.length;
+    const diagramWidth = Math.max(colCount * (MATCH_WIDTH + COLUMN_GAP) - COLUMN_GAP, 800);
+    const maxPairSpan = isSplitActive
+      ? Math.max(1, treePart ? treePart.midPair : Math.pow(2, numRounds - 2))
+      : Math.max(1, (treePart?.totalPairs || Math.pow(2, numRounds - 1)));
+
+    let SLOT_HEIGHT = 68;
+    let MATCH_HEIGHT = 50;
+    let MIN_VERT_GAP = 14;
+
+    if (density === 'autofill') {
+      // Landscape A4/A3 ratio is ~1.414. Total ideal document height to match width:
+      const targetDocHeight = Math.round(diagramWidth / 1.42);
+      const availableHeightForMatches = Math.max(300, targetDocHeight - (onlyBracket ? 70 : 160));
+      const calculatedSlot = Math.floor(availableHeightForMatches / maxPairSpan);
+      // Bound slot height between 68px and 135px so cards have room to expand and fill page
+      SLOT_HEIGHT = Math.min(135, Math.max(68, calculatedSlot));
+      MATCH_HEIGHT = Math.min(58, Math.max(50, Math.round(50 + (SLOT_HEIGHT - 68) * 0.12)));
+      MIN_VERT_GAP = Math.min(26, Math.max(14, Math.round(14 + (SLOT_HEIGHT - 68) * 0.15)));
     }
 
     // Position calculations for each match
@@ -7834,7 +7861,6 @@
       if (pos.y + pos.height > maxDiagramY) maxDiagramY = pos.y + pos.height;
     });
 
-    const diagramWidth = Math.max(colDefs.length * (MATCH_WIDTH + COLUMN_GAP) - COLUMN_GAP, maxDiagramX);
     const diagramHeight = maxDiagramY + 40;
 
     // Generate Header HTML
@@ -7904,7 +7930,7 @@
 
       matchCardsHTML += `
         <div class="export-match-card" style="position: absolute; left: ${x}px; top: ${y + HEADER_OFFSET}px; width: ${MATCH_WIDTH}px; height: ${MATCH_HEIGHT}px;">
-          <div class="export-match-header">
+          <div class="export-match-header" style="height: ${Math.round(MATCH_HEIGHT * 0.24)}px;">
             <span>${escapeHTML(matchHeaderLabel)}</span>
             ${match.status === 'completed' ? '<span style="font-size: 7px; color: #10b981;">✓ SELESAI</span>' : ''}
           </div>
@@ -7933,8 +7959,8 @@
         const target = matchPositionsMap[match.id];
         if (!target) return;
 
-        const targetSlot1Y = target.y + HEADER_OFFSET + 18;
-        const targetSlot2Y = target.y + HEADER_OFFSET + 38;
+        const targetSlot1Y = target.y + HEADER_OFFSET + Math.round(target.height * 0.36);
+        const targetSlot2Y = target.y + HEADER_OFFSET + Math.round(target.height * 0.72);
 
         // Top Feeder
         if (match.feederTopId && matchPositionsMap[match.feederTopId]) {
@@ -7970,11 +7996,13 @@
       });
     });
 
-    const totalHeightWithHeader = diagramHeight + HEADER_OFFSET + 40;
+    const totalHeightWithHeader = diagramHeight + HEADER_OFFSET + 30;
+    const fullContentWidth = Math.max(diagramWidth + 60, 800);
+    const targetMinContainerHeight = density === 'autofill' ? Math.round(fullContentWidth / 1.42) : 0;
 
     container.innerHTML = `
       <!-- Export Document Header -->
-      <div class="export-doc-header" style="margin-bottom: 20px; padding-bottom: 12px; border-bottom: 2px solid ${theme === 'dark' ? '#334155' : '#e2e8f0'}; display: flex; justify-content: space-between; align-items: flex-end;">
+      <div class="export-doc-header" style="margin-bottom: 16px; padding-bottom: 12px; border-bottom: 2px solid ${theme === 'dark' ? '#334155' : '#e2e8f0'}; display: flex; justify-content: space-between; align-items: flex-end;">
         <div>
           <div style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: ${theme === 'dark' ? '#00d2ff' : '#0284c7'}; margin-bottom: 4px;">
             CNGR TOURNAMENT BRACKET SYSTEM
@@ -7994,8 +8022,8 @@
         </div>
       </div>
 
-      <!-- Export Diagram Body -->
-      <div class="export-diagram-viewport" style="position: relative; width: ${diagramWidth}px; height: ${totalHeightWithHeader}px; margin: 0 auto;">
+      <!-- Export Diagram Body (Centered Vertically) -->
+      <div class="export-diagram-viewport" style="position: relative; width: ${diagramWidth}px; height: ${totalHeightWithHeader}px; margin: auto auto;">
         ${roundHeadersHTML}
         <svg xmlns="http://www.w3.org/2000/svg" width="${diagramWidth}" height="${totalHeightWithHeader}" style="position: absolute; left: 0; top: 0; pointer-events: none;">
           ${svgPathsHTML}
@@ -8004,15 +8032,15 @@
       </div>
 
       <!-- Export Document Footer -->
-      <div class="export-footer-bar" style="margin-top: 24px; padding-top: 8px; display: flex; justify-content: space-between; align-items: center; font-size: 9px;">
+      <div class="export-footer-bar" style="margin-top: auto; padding-top: 10px; display: flex; justify-content: space-between; align-items: center; font-size: 9px;">
         <div>CNGR Tournament Management System • Official Tournament Bracket</div>
         <div>Halaman 1 / 1 • Cetak Otomatis Vektor</div>
       </div>
     `;
 
     // Paper Sizing & Container Width Adjustments
-    const fullContentWidth = Math.max(diagramWidth + 60, 800);
     container.style.width = `${fullContentWidth}px`;
+    container.style.minHeight = targetMinContainerHeight > 0 ? `${targetMinContainerHeight}px` : 'auto';
 
     if (paper === 'a4') {
       container.style.maxWidth = '1050px';
@@ -8028,26 +8056,36 @@
     return `
       @page {
         size: landscape;
-        margin: 8mm;
+        margin: 6mm;
       }
       * {
         box-sizing: border-box;
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
       }
-      body {
-        margin: 0;
-        padding: 0;
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-        background: ${isDark ? '#0f172a' : '#ffffff'};
-        color: ${isDark ? '#f8fafc' : '#0f172a'};
-      }
-      .export-sheet-container {
-        width: 100%;
-        margin: 0 auto;
-        padding: 4px;
+      html, body {
+        margin: 0 !important;
+        padding: 0 !important;
+        height: 100% !important;
         background: ${isDark ? '#0f172a' : '#ffffff'} !important;
         color: ${isDark ? '#f8fafc' : '#0f172a'} !important;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      }
+      .export-sheet-container {
+        width: 100% !important;
+        min-height: 98vh !important;
+        margin: 0 auto !important;
+        padding: 6px 12px !important;
+        border: none !important;
+        box-shadow: none !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: space-between !important;
+        background: ${isDark ? '#0f172a' : '#ffffff'} !important;
+        color: ${isDark ? '#f8fafc' : '#0f172a'} !important;
+      }
+      .export-diagram-viewport {
+        margin: auto auto !important;
       }
       .export-match-card {
         box-sizing: border-box;
@@ -8948,6 +8986,9 @@
     }
     if (el.exportPaperSize) {
       el.exportPaperSize.addEventListener('change', refreshExportBracketPreview);
+    }
+    if (el.exportDensityMode) {
+      el.exportDensityMode.addEventListener('change', refreshExportBracketPreview);
     }
     if (el.exportIncludeScores) {
       el.exportIncludeScores.addEventListener('change', refreshExportBracketPreview);
