@@ -272,20 +272,24 @@ export const db = {
       playerName: playerName || '',
       wecom: (participantData.wecom || participantData.contact || '').trim(),
       dept: (participantData.dept || participantData.tag || '').trim(),
+      company: (participantData.company || '').trim(),
       isTeam: !!participantData.isTeam || (Array.isArray(participantData.partners) && participantData.partners.length > 0),
       partners: (Array.isArray(participantData.partners) ? participantData.partners : (participantData.partner ? [participantData.partner] : [])).map(p => ({
         name: (p.name || '').trim(),
         wecom: (p.wecom || '').trim(),
-        dept: (p.dept || '').trim()
+        dept: (p.dept || '').trim(),
+        company: (p.company || '').trim()
       })).filter(p => p.name.length > 0),
       partner: participantData.partner ? {
         name: (participantData.partner.name || '').trim(),
         wecom: (participantData.partner.wecom || '').trim(),
-        dept: (participantData.partner.dept || '').trim()
+        dept: (participantData.partner.dept || '').trim(),
+        company: (participantData.partner.company || '').trim()
       } : (Array.isArray(participantData.partners) && participantData.partners[0] ? {
         name: (participantData.partners[0].name || '').trim(),
         wecom: (participantData.partners[0].wecom || '').trim(),
-        dept: (participantData.partners[0].dept || '').trim()
+        dept: (participantData.partners[0].dept || '').trim(),
+        company: (participantData.partners[0].company || '').trim()
       } : null),
       registeredAt: new Date().toISOString()
     };

@@ -611,14 +611,14 @@
             <table class="report-table" id="report-data-table">
               <thead>
                 <tr>
-                  <th style="width:40px;">#</th>
-                  <th data-i18n="th_team_name">Nama Tim / Peserta</th>
-                  <th data-i18n="th_captain">Ketua / Pemain</th>
-                  <th data-i18n="th_dept">Divisi / Dept</th>
-                  <th data-i18n="th_contact">Kontak / WeCom</th>
-                  <th data-i18n="th_members">Anggota Tim</th>
-                  <th data-i18n="th_reg_time">Waktu Mendaftar</th>
-                  <th data-i18n="th_bracket_status">Status Bagan</th>
+                  <th style="width:42px; text-align:center;">#</th>
+                  <th style="width:160px;" data-i18n="th_team_name">Nama Tim / Peserta</th>
+                  <th style="width:135px;" data-i18n="th_captain">Ketua / Pemain</th>
+                  <th style="width:145px;" data-i18n="th_dept">Divisi / Dept</th>
+                  <th style="width:125px;" data-i18n="th_contact">Kontak / WeCom</th>
+                  <th style="width:320px;" data-i18n="th_members">Anggota Tim</th>
+                  <th style="width:125px;" data-i18n="th_reg_time">Waktu Mendaftar</th>
+                  <th style="width:120px;" data-i18n="th_bracket_status">Status Bagan</th>
                   <th style="width:75px; text-align:center;" data-i18n="th_action">Aksi</th>
                 </tr>
               </thead>
@@ -877,6 +877,14 @@
             <div class="form-group">
               <label for="reg-player-dept"><span data-i18n="reg_dept_label">Departemen (Dept)</span> <span class="required">*</span></label>
               <input type="text" id="reg-player-dept" data-i18n-ph="reg_dept_ph" placeholder="Contoh: Produksi, IT, HR" required>
+            </div>
+
+            <div class="form-group">
+              <label for="reg-player-company"><i class="fa-solid fa-building" style="color: var(--primary);"></i> <span data-i18n="reg_company_label">Perusahaan</span> <span class="required">*</span></label>
+              <select id="reg-player-company" class="input-modern select-modern" required style="width: 100%;">
+                <option value="ZTEN 中青" selected>ZTEN 中青</option>
+                <option value="CDNE 鼎兴">CDNE 鼎兴</option>
+              </select>
             </div>
 
             <!-- Partner Section: Revealed when Tournament is configured for Team Mode -->
@@ -1477,14 +1485,23 @@
             <input type="text" id="edit-report-player" placeholder="Nama lengkap pemain">
           </div>
           <div class="form-group">
-            <label for="edit-report-dept" data-i18n="label_department">Departemen / Divisi:</label>
-            <input type="text" id="edit-report-dept" placeholder="Contoh: Produksi, IT, HR">
+            <label for="edit-report-company"><i class="fa-solid fa-building" style="color:var(--primary); margin-right:4px;"></i> <span data-i18n="label_company">Perusahaan:</span></label>
+            <select id="edit-report-company" class="input-modern select-modern" style="width: 100%;">
+              <option value="ZTEN 中青">ZTEN 中青</option>
+              <option value="CDNE 鼎兴">CDNE 鼎兴</option>
+            </select>
           </div>
         </div>
 
-        <div class="form-group">
-          <label for="edit-report-wecom" data-i18n="label_wecom_contact">No. WeCom / Kontak:</label>
-          <input type="text" id="edit-report-wecom" placeholder="Contoh: 0812345678 / WeCom ID">
+        <div class="form-row" style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+          <div class="form-group">
+            <label for="edit-report-dept" data-i18n="label_department">Departemen / Divisi:</label>
+            <input type="text" id="edit-report-dept" placeholder="Contoh: Produksi, IT, HR">
+          </div>
+          <div class="form-group">
+            <label for="edit-report-wecom" data-i18n="label_wecom_contact">No. WeCom / Kontak:</label>
+            <input type="text" id="edit-report-wecom" placeholder="Contoh: 0812345678 / WeCom ID">
+          </div>
         </div>
 
         <!-- Dynamic Teammates / Partners Section -->
@@ -1498,6 +1515,7 @@
           <div class="edit-partners-table-header" id="edit-partners-table-header" style="display:none;">
             <span>#</span>
             <span data-i18n="col_partner_name">Nama Rekan</span>
+            <span data-i18n="col_partner_company">Perusahaan</span>
             <span data-i18n="col_partner_dept">Departemen / Divisi</span>
             <span data-i18n="col_partner_wecom">WeCom / Kontak</span>
             <span></span>

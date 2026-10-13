@@ -179,6 +179,10 @@
       label_tourn_size: 'Initial Participants',
       label_tourn_doubles: 'Mode Tim / Turnamen Berkelompok',
       btn_cancel: 'Batal',
+      reg_company_label: 'Perusahaan',
+      label_company: 'Perusahaan:',
+      col_partner_company: 'Perusahaan',
+      th_company: 'Perusahaan',
       col_partner_name: 'Nama Rekan',
       col_partner_dept: 'Departemen / Divisi',
       col_partner_wecom: 'WeCom / Kontak',
@@ -470,6 +474,10 @@
       label_tourn_size: '初始队伍规模',
       label_tourn_doubles: '团队 / 多人赛模式（每队多名选手）',
       btn_cancel: '取消',
+      reg_company_label: '所属公司',
+      label_company: '所属公司:',
+      col_partner_company: '所属公司',
+      th_company: '所属公司',
       col_partner_name: '队友姓名',
       col_partner_dept: '部门 / 班组',
       col_partner_wecom: '微信号 / 联系方式',
@@ -784,6 +792,7 @@
     el.editReportName = document.getElementById('edit-report-name');
     el.editReportPlayer = document.getElementById('edit-report-player');
     el.editReportDept = document.getElementById('edit-report-dept');
+    el.editReportCompany = document.getElementById('edit-report-company');
     el.editReportWecom = document.getElementById('edit-report-wecom');
     el.btnAddEditPartner = document.getElementById('btn-add-edit-partner');
     el.editReportPartnersContainer = document.getElementById('edit-report-partners-container');
@@ -980,6 +989,7 @@
     el.regPlayerName = document.getElementById('reg-player-name');
     el.regPlayerWecom = document.getElementById('reg-player-wecom');
     el.regPlayerDept = document.getElementById('reg-player-dept');
+    el.regPlayerCompany = document.getElementById('reg-player-company');
     el.regPartnerSection = document.getElementById('reg-partner-section');
     el.regTeammateCountWrapper = document.getElementById('reg-teammate-count-wrapper');
     el.regTeammateCountSelect = document.getElementById('reg-teammate-count-select');
@@ -4323,14 +4333,34 @@
       const teamNameDisplay = p.teamName || p.name || '-';
       const captainNameDisplay = p.playerName || p.name || '-';
 
-      let membersHtml = `<span class="text-subtle">-</span>`;
+      let membersHtml = `<span class="text-subtle" style="font-size:0.75rem;">-</span>`;
       if (partnersList.length > 0) {
-        membersHtml = partnersList.map(m => `
-          <span class="report-member-badge" title="${escapeHTML(m.name)} (${escapeHTML(m.dept || '-')})">
-            <i class="fa-solid fa-user"></i> ${escapeHTML(m.name)} ${m.dept ? `<span style="opacity:0.65; font-size:0.7rem;">(${escapeHTML(m.dept)})</span>` : ''}
-          </span>
-        `).join('');
+        membersHtml = `
+          <div class="report-team-roster-list">
+            ${partnersList.map((m, mIdx) => {
+              const mCompany = m.company || '';
+              const mCompanyClass = mCompany.includes('CDNE') ? 'cdne' : 'zten';
+              const companyBadge = mCompany ? `<span class="roster-badge-company ${mCompanyClass}">${escapeHTML(mCompany)}</span>` : '';
+              const deptBadge = m.dept ? `<span class="roster-badge-dept">${escapeHTML(m.dept)}</span>` : '';
+              return `
+                <div class="report-roster-item" title="${escapeHTML(m.name)} ${mCompany ? `[${escapeHTML(mCompany)}]` : ''} ${m.dept ? `(${escapeHTML(m.dept)})` : ''}">
+                  <span class="roster-item-num">${mIdx + 1}.</span>
+                  <span class="roster-item-name">${escapeHTML(m.name)}</span>
+                  <span class="roster-item-meta">
+                    ${companyBadge}
+                    ${deptBadge}
+                  </span>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        `;
       }
+
+      const captainCompany = p.company || '';
+      const captainCompanyClass = captainCompany.includes('CDNE') ? 'cdne' : 'zten';
+      const companyHtml = captainCompany ? `<span class="roster-badge-company ${captainCompanyClass}">${escapeHTML(captainCompany)}</span>` : '';
+      const deptHtml = `<span style="background:rgba(255,255,255,0.06); padding:2px 6px; border-radius:4px; font-size:0.76rem;">${escapeHTML(p.dept || '-')}</span>`;
 
       let dateFormatted = '-';
       if (p.registeredAt) {
@@ -4350,13 +4380,18 @@
       const teamNumber = (p.seed !== undefined && p.seed !== null && p.seed !== '') ? p.seed : (origIndex !== -1 ? origIndex + 1 : startIndex + idx + 1);
       return `
         <tr>
-          <td style="color:var(--text-muted); font-weight:700;">${teamNumber}</td>
+          <td style="color:var(--text-muted); font-weight:700; text-align:center;">${teamNumber}</td>
           <td style="font-weight:700; color:var(--text-main);">${escapeHTML(teamNameDisplay)}</td>
           <td>${escapeHTML(captainNameDisplay)}</td>
-          <td><span style="background:rgba(255,255,255,0.06); padding:2px 6px; border-radius:4px; font-size:0.78rem;">${escapeHTML(p.dept || '-')}</span></td>
-          <td>${escapeHTML(p.wecom || '-')}</td>
+          <td>
+            <div style="display:flex; flex-direction:column; align-items:flex-start; gap:3px;">
+              ${companyHtml}
+              ${deptHtml}
+            </div>
+          </td>
+          <td style="font-size:0.8rem;">${escapeHTML(p.wecom || '-')}</td>
           <td>${membersHtml}</td>
-          <td style="font-size:0.78rem; color:var(--text-secondary); white-space:nowrap;">${dateFormatted}</td>
+          <td style="font-size:0.76rem; color:var(--text-secondary); white-space:nowrap;">${dateFormatted}</td>
           <td>${statusBadge}</td>
           <td style="text-align:center;">
             <button type="button" class="btn btn-report-edit" data-id="${p.id}" title="${isZh ? '编辑选手资料' : 'Edit Data Peserta'}">
@@ -4392,12 +4427,13 @@
     if (el.editReportName) el.editReportName.value = p.teamName || p.name || '';
     if (el.editReportPlayer) el.editReportPlayer.value = p.playerName || p.name || '';
     if (el.editReportDept) el.editReportDept.value = p.dept || '';
+    if (el.editReportCompany) el.editReportCompany.value = p.company || 'ZTEN 中青';
     if (el.editReportWecom) el.editReportWecom.value = p.wecom || '';
 
     // Clone partners
     const existingPartners = Array.isArray(p.partners) && p.partners.length > 0
-      ? p.partners.map(m => ({ name: m.name || '', dept: m.dept || '', wecom: m.wecom || '' }))
-      : (p.partner && p.partner.name ? [{ name: p.partner.name || '', dept: p.partner.dept || '', wecom: p.partner.wecom || '' }] : []);
+      ? p.partners.map(m => ({ name: m.name || '', dept: m.dept || '', wecom: m.wecom || '', company: m.company || 'ZTEN 中青' }))
+      : (p.partner && p.partner.name ? [{ name: p.partner.name || '', dept: p.partner.dept || '', wecom: p.partner.wecom || '', company: p.partner.company || 'ZTEN 中青' }] : []);
 
     activeEditPartners = existingPartners;
     renderEditPartnersList();
@@ -4425,6 +4461,10 @@
       <div class="edit-partner-card" data-idx="${idx}">
         <span class="edit-partner-num">#${idx + 1}</span>
         <input type="text" class="edit-partner-name" value="${escapeHTML(partner.name || '')}" placeholder="${isZh ? '姓名...' : 'Nama Rekan...'}" required>
+        <select class="input-modern select-modern edit-partner-company">
+          <option value="ZTEN 中青" ${(partner.company || '') === 'CDNE 鼎兴' ? '' : 'selected'}>ZTEN 中青</option>
+          <option value="CDNE 鼎兴" ${(partner.company || '') === 'CDNE 鼎兴' ? 'selected' : ''}>CDNE 鼎兴</option>
+        </select>
         <input type="text" class="edit-partner-dept" value="${escapeHTML(partner.dept || '')}" placeholder="${isZh ? '部门...' : 'Dept/Divisi...'}">
         <input type="text" class="edit-partner-wecom" value="${escapeHTML(partner.wecom || '')}" placeholder="${isZh ? '微信号/手机...' : 'No. WeCom/Kontak...'}">
         <button type="button" class="btn-remove-edit-partner" data-idx="${idx}" title="${isZh ? '删除队友' : 'Hapus Rekan'}">
@@ -4447,10 +4487,12 @@
     el.editReportPartnersContainer.querySelectorAll('.edit-partner-card').forEach(card => {
       const idx = parseInt(card.dataset.idx, 10);
       const nameInp = card.querySelector('.edit-partner-name');
+      const compSel = card.querySelector('.edit-partner-company');
       const deptInp = card.querySelector('.edit-partner-dept');
       const wecomInp = card.querySelector('.edit-partner-wecom');
 
       if (nameInp) nameInp.addEventListener('input', () => { if (activeEditPartners[idx]) activeEditPartners[idx].name = nameInp.value; });
+      if (compSel) compSel.addEventListener('change', () => { if (activeEditPartners[idx]) activeEditPartners[idx].company = compSel.value; });
       if (deptInp) deptInp.addEventListener('input', () => { if (activeEditPartners[idx]) activeEditPartners[idx].dept = deptInp.value; });
       if (wecomInp) wecomInp.addEventListener('input', () => { if (activeEditPartners[idx]) activeEditPartners[idx].wecom = wecomInp.value; });
     });
@@ -4468,6 +4510,7 @@
     const newDisplayName = el.editReportName.value.trim();
     const newPlayerName = el.editReportPlayer.value.trim();
     const newDept = el.editReportDept.value.trim();
+    const newCompany = el.editReportCompany ? el.editReportCompany.value : (p.company || 'ZTEN 中青');
     const newWecom = el.editReportWecom.value.trim();
 
     // Collect latest partner values from DOM
@@ -4475,10 +4518,11 @@
     if (el.editReportPartnersContainer) {
       el.editReportPartnersContainer.querySelectorAll('.edit-partner-card').forEach(card => {
         const pName = (card.querySelector('.edit-partner-name')?.value || '').trim();
+        const pCompany = (card.querySelector('.edit-partner-company')?.value || 'ZTEN 中青').trim();
         const pDept = (card.querySelector('.edit-partner-dept')?.value || '').trim();
         const pWecom = (card.querySelector('.edit-partner-wecom')?.value || '').trim();
         if (pName) {
-          updatedPartners.push({ name: pName, dept: pDept, wecom: pWecom });
+          updatedPartners.push({ name: pName, dept: pDept, wecom: pWecom, company: pCompany });
         }
       });
     }
@@ -4490,6 +4534,7 @@
     p.teamName = newDisplayName || '';
     p.playerName = newPlayerName || newDisplayName || '';
     p.dept = newDept;
+    p.company = newCompany;
     p.wecom = newWecom;
     p.isTeam = hasPartners;
     p.partners = updatedPartners;
@@ -4502,6 +4547,7 @@
       slotP.teamName = p.teamName;
       slotP.playerName = p.playerName;
       slotP.dept = p.dept;
+      slotP.company = p.company;
       slotP.wecom = p.wecom;
       slotP.isTeam = p.isTeam;
       slotP.partners = p.partners;
@@ -6041,7 +6087,8 @@
           existingValues.push({
             name: c.querySelector('.reg-partner-name')?.value || '',
             wecom: c.querySelector('.reg-partner-wecom')?.value || '',
-            dept: c.querySelector('.reg-partner-dept')?.value || ''
+            dept: c.querySelector('.reg-partner-dept')?.value || '',
+            company: c.querySelector('.reg-partner-company')?.value || 'ZTEN 中青'
           });
         });
 
@@ -6104,6 +6151,7 @@
           const wecomPh = isCurrentZh ? `企业微信 / 手机号` : `No. WeCom / WA`;
           const deptLabel = isCurrentZh ? `队员 #${i + 1} 所属部门` : `Departemen (Dept) Rekan #${i + 1}`;
           const deptPh = isCurrentZh ? `例如：生产部、信息部、HR` : `Contoh: Produksi, IT, HR`;
+          const companyLabel = isCurrentZh ? `队员 #${i + 1} 所属公司` : `Perusahaan Rekan #${i + 1}`;
 
           const prevVal = existingValues[i] || {};
 
@@ -6122,9 +6170,16 @@
               <label class="form-label" style="font-size: 11px;">${wecomLabel} <span class="required">*</span></label>
               <input type="text" class="input-modern reg-partner-wecom" placeholder="${wecomPh}" value="${escapeHTML(prevVal.wecom || '')}" />
             </div>
-            <div class="form-group" style="margin-bottom: 0;">
+            <div class="form-group" style="margin-bottom: 10px;">
               <label class="form-label" style="font-size: 11px;">${deptLabel}</label>
               <input type="text" class="input-modern reg-partner-dept" placeholder="${deptPh}" value="${escapeHTML(prevVal.dept || '')}" />
+            </div>
+            <div class="form-group" style="margin-bottom: 0;">
+              <label class="form-label" style="font-size: 11px;"><i class="fa-solid fa-building" style="color: var(--primary);"></i> ${companyLabel} <span class="required">*</span></label>
+              <select class="input-modern select-modern reg-partner-company" style="width: 100%;">
+                <option value="ZTEN 中青" ${(prevVal.company === 'CDNE 鼎兴') ? '' : 'selected'}>ZTEN 中青</option>
+                <option value="CDNE 鼎兴" ${(prevVal.company === 'CDNE 鼎兴') ? 'selected' : ''}>CDNE 鼎兴</option>
+              </select>
             </div>
           `;
 
@@ -6295,6 +6350,7 @@
             const pName = (card.querySelector('.reg-partner-name')?.value || '').trim();
             const pWecom = (card.querySelector('.reg-partner-wecom')?.value || '').trim();
             const pDept = (card.querySelector('.reg-partner-dept')?.value || '').trim();
+            const pCompany = (card.querySelector('.reg-partner-company')?.value || 'ZTEN 中青').trim();
 
             if (!pName) {
               if (pagedContainer && pagedContainer.goToTeammatePage) {
@@ -6327,7 +6383,7 @@
             }
 
             enteredWecoms.push({ role: isCurrentZh ? `队员 #${i + 1}` : `Rekan #${i + 1}`, wecom: cPWecom, raw: pWecom });
-            partners.push({ name: pName, wecom: pWecom, dept: pDept });
+            partners.push({ name: pName, wecom: pWecom, dept: pDept, company: pCompany });
           }
         }
 
@@ -6341,6 +6397,8 @@
           }
         }
 
+        const playerCompany = (el.regPlayerCompany ? el.regPlayerCompany.value : 'ZTEN 中青').trim();
+
         try {
           const regRes = await fetch(`/api/tournaments/${t.id}/register`, {
             method: 'POST',
@@ -6351,6 +6409,7 @@
               playerName,
               wecom,
               dept,
+              company: playerCompany,
               isTeam,
               partners,
               partner: partners[0] || null
