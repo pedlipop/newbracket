@@ -7224,9 +7224,8 @@ button.team-partner-tag.team-partner-btn.active {
   overflow: auto;
   background: #090d16;
   padding: 24px;
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
+  display: block;
+  text-align: left;
 }
 
 /* Printable Sheet Container */
@@ -7239,7 +7238,8 @@ button.team-partner-tag.team-partner-btn.active {
   display: flex;
   flex-direction: column;
   transition: transform 0.2s ease, width 0.2s ease;
-  transform-origin: top center;
+  transform-origin: top left;
+  margin: 0 auto;
 }
 
 /* Light Theme (Clean Ink-Saving Paper) */

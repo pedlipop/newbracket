@@ -1054,6 +1054,11 @@
     el.exportSheetContainer = document.getElementById('export-sheet-container');
     el.btnExportPrintPdf = document.getElementById('btn-export-print-pdf');
     el.btnExportDownloadSvg = document.getElementById('btn-export-download-svg');
+    el.btnExportZoomOut = document.getElementById('btn-export-zoom-out');
+    el.btnExportZoomIn = document.getElementById('btn-export-zoom-in');
+    el.btnExportZoomFit = document.getElementById('btn-export-zoom-fit');
+    el.btnExportZoomReset = document.getElementById('btn-export-zoom-reset');
+    el.exportZoomDisplay = document.getElementById('export-zoom-display');
 
     el.toastContainer = document.getElementById('toast-container');
   }
@@ -7608,6 +7613,38 @@
     return state.currentTournament || state.liveTournamentData || null;
   }
 
+  function applyExportZoom(zoom) {
+    state.exportZoom = zoom;
+    if (el.exportZoomDisplay) {
+      el.exportZoomDisplay.textContent = `${Math.round(zoom * 100)}%`;
+    }
+    if (el.exportSheetContainer) {
+      if ('zoom' in el.exportSheetContainer.style) {
+        el.exportSheetContainer.style.zoom = zoom;
+        el.exportSheetContainer.style.transform = '';
+      } else {
+        el.exportSheetContainer.style.transform = zoom === 1 ? '' : `scale(${zoom})`;
+        el.exportSheetContainer.style.transformOrigin = 'top left';
+      }
+    }
+  }
+
+  function changeExportZoom(delta) {
+    const current = state.exportZoom || 1.0;
+    const next = Math.min(2.0, Math.max(0.15, Math.round((current + delta) * 10) / 10));
+    applyExportZoom(next);
+  }
+
+  function handleExportZoomFit() {
+    if (!el.exportPreviewScroll || !el.exportSheetContainer) return;
+    const availableWidth = el.exportPreviewScroll.clientWidth - 48;
+    const sheetWidth = parseFloat(el.exportSheetContainer.style.width) || el.exportSheetContainer.scrollWidth || 1200;
+    if (sheetWidth > 0 && availableWidth > 0) {
+      const fitZoom = Math.min(1.0, Math.max(0.15, Math.round((availableWidth / sheetWidth) * 100) / 100));
+      applyExportZoom(fitZoom);
+    }
+  }
+
   function openExportBracketModal() {
     const t = getActiveExportTournament();
     if (!t) {
@@ -7627,6 +7664,21 @@
 
     openModal(el.modalExportBracket);
     refreshExportBracketPreview();
+
+    // Reset scroll to far-left immediately and auto-fit
+    if (el.exportPreviewScroll) {
+      el.exportPreviewScroll.scrollLeft = 0;
+    }
+    setTimeout(() => {
+      if (el.exportPaperSize?.value === 'fit') {
+        handleExportZoomFit();
+      } else {
+        applyExportZoom(1.0);
+      }
+      if (el.exportPreviewScroll) {
+        el.exportPreviewScroll.scrollLeft = 0;
+      }
+    }, 60);
   }
 
   function refreshExportBracketPreview() {
@@ -7641,6 +7693,12 @@
     const onlyBracket = !!(el.exportOnlyBracket ? el.exportOnlyBracket.checked : false);
 
     renderExportBracketSheet(t, { layout, theme, paper, density, includeScores, onlyBracket });
+
+    if (paper === 'fit') {
+      setTimeout(handleExportZoomFit, 40);
+    } else {
+      applyExportZoom(1.0);
+    }
   }
 
   function renderExportBracketSheet(tournament, options) {
@@ -9001,6 +9059,18 @@
     }
     if (el.btnExportDownloadSvg) {
       el.btnExportDownloadSvg.addEventListener('click', handleDownloadExportSvg);
+    }
+    if (el.btnExportZoomOut) {
+      el.btnExportZoomOut.addEventListener('click', () => changeExportZoom(-0.1));
+    }
+    if (el.btnExportZoomIn) {
+      el.btnExportZoomIn.addEventListener('click', () => changeExportZoom(0.1));
+    }
+    if (el.btnExportZoomFit) {
+      el.btnExportZoomFit.addEventListener('click', handleExportZoomFit);
+    }
+    if (el.btnExportZoomReset) {
+      el.btnExportZoomReset.addEventListener('click', () => applyExportZoom(1.0));
     }
 
     // Drawer Tabs (Teams, Format, Themes, Reports)
