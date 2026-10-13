@@ -175,6 +175,12 @@
           <span data-i18n="btn_qualifiers_drawer">Lolos Babak</span>
         </button>
 
+        <!-- Export Bracket PDF Button -->
+        <button type="button" id="btn-studio-export-bracket" class="btn btn-secondary btn-sm" style="gap:6px;" title="Download atau Cetak PDF Bagan Pertandingan">
+          <i class="fa-solid fa-file-pdf" style="color: #ef4444;"></i>
+          <span data-i18n="btn_export_bracket_pdf">Download PDF</span>
+        </button>
+
         <!-- Language Toggle -->
         <button type="button" class="btn btn-ghost btn-sm btn-lang-toggle" title="Switch Language / 切换语言">
           <i class="fa-solid fa-globe"></i>
@@ -473,6 +479,10 @@
           <button id="btn-toggle-split" class="canvas-control-btn" title="Toggle Split View / Bagan 2 Sisi">
             <i class="fa-solid fa-arrows-split-up-and-left"></i>
           </button>
+          <div class="control-separator"></div>
+          <button id="btn-export-pdf-floating" class="canvas-control-btn" title="Download / Cetak PDF Bagan">
+            <i class="fa-solid fa-file-pdf" style="color: #ef4444;"></i>
+          </button>
         </div>
 
         <!-- Corner Match Progress HUD Widget -->
@@ -691,6 +701,12 @@
         <button id="btn-live-match-search" class="btn btn-tool btn-sm" title="Cari match dan pemain di bracket">
           <i class="fa-solid fa-magnifying-glass"></i>
           <span data-i18n="live_search_btn">Cari</span>
+        </button>
+
+        <!-- Download PDF Button for Spectator -->
+        <button id="btn-live-export-pdf" class="btn btn-tool btn-sm" title="Download / Cetak PDF Bagan" style="gap: 6px; font-weight: 600;">
+          <i class="fa-solid fa-file-pdf" style="color: #ef4444;"></i>
+          <span data-i18n="btn_export_bracket_pdf">Download PDF</span>
         </button>
 
       </div>
@@ -1659,6 +1675,92 @@
         </div>
         <div id="live-teams-list-container" class="live-teams-list-container" style="max-height: 380px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px;">
           <!-- Rendered team items -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Export & Download PDF Bracket (Layout Khusus Ekspor Tanpa Mengubah Seed) -->
+  <div id="modal-export-bracket" class="modal-overlay hidden">
+    <div class="modal-content modal-export-bracket">
+      <div class="modal-header export-modal-header">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <div class="modal-icon-badge" style="background: rgba(239, 68, 68, 0.15); color: #ef4444;">
+            <i class="fa-solid fa-file-pdf"></i>
+          </div>
+          <div>
+            <h3 style="margin: 0; font-size: 1.15rem;" data-i18n="modal_export_pdf_title">Ekspor & Download PDF Bagan</h3>
+            <span class="text-subtle" style="font-size: 11px;" data-i18n="modal_export_pdf_sub">Tata letak dioptimalkan khusus untuk dokumen cetak / PDF tanpa mempengaruhi susunan seed aktif.</span>
+          </div>
+        </div>
+        <button class="btn-close-modal" data-close="modal-export-bracket">&times;</button>
+      </div>
+
+      <!-- Export Configuration Toolbar -->
+      <div class="export-bracket-toolbar">
+        <div class="export-toolbar-controls">
+          <!-- Layout Selection -->
+          <div class="export-tool-item">
+            <label for="export-layout-mode"><i class="fa-solid fa-table-columns" style="color: var(--primary);"></i> <span data-i18n="label_export_layout">Format:</span></label>
+            <select id="export-layout-mode" class="input-modern select-modern">
+              <option value="split" selected data-i18n="opt_export_split">2-Sisi Simetris (Split View)</option>
+              <option value="standard" data-i18n="opt_export_standard">Standar (1-Sisi Kiri-Kanan)</option>
+            </select>
+          </div>
+
+          <!-- Color Theme Selection -->
+          <div class="export-tool-item">
+            <label for="export-theme-mode"><i class="fa-solid fa-palette" style="color: var(--accent-gold);"></i> <span data-i18n="label_export_theme">Tema:</span></label>
+            <select id="export-theme-mode" class="input-modern select-modern">
+              <option value="light" selected data-i18n="opt_export_light">Kertas Terang (Hemat Tinta)</option>
+              <option value="dark" data-i18n="opt_export_dark">Modern Esports (Dark)</option>
+            </select>
+          </div>
+
+          <!-- Page Fit / Scale -->
+          <div class="export-tool-item">
+            <label for="export-paper-size"><i class="fa-solid fa-file" style="color: var(--primary);"></i> <span data-i18n="label_export_paper">Kertas:</span></label>
+            <select id="export-paper-size" class="input-modern select-modern">
+              <option value="fit" selected data-i18n="opt_export_fit">Pas 1 Lembar (Fit to Page)</option>
+              <option value="a4" data-i18n="opt_export_a4">A4 Landscape</option>
+              <option value="a3" data-i18n="opt_export_a3">A3 Landscape (Turnamen Besar)</option>
+            </select>
+          </div>
+
+          <!-- Toggles -->
+          <label class="export-toggle-label">
+            <input type="checkbox" id="export-include-scores" checked>
+            <span data-i18n="label_export_scores">Tampilkan Skor</span>
+          </label>
+        </div>
+
+        <div class="export-toolbar-badge">
+          <i class="fa-solid fa-circle-check" style="color: #10b981;"></i>
+          <span>Vektor Tajam & Presisi Cetak</span>
+        </div>
+      </div>
+
+      <!-- Preview Body Area -->
+      <div id="export-preview-scroll" class="export-preview-scroll-area">
+        <div id="export-sheet-container" class="export-sheet-container theme-light">
+          <!-- Dynamically generated export sheet -->
+        </div>
+      </div>
+
+      <!-- Modal Footer with Action Buttons -->
+      <div class="modal-footer export-modal-footer">
+        <div class="export-safety-note">
+          <i class="fa-solid fa-shield-halved" style="color: #10b981;"></i>
+          <span>Tidak mengubah susunan bagan atau nomor seed turnamen.</span>
+        </div>
+        <div style="display: flex; gap: 8px;">
+          <button type="button" class="btn btn-ghost btn-sm" data-close="modal-export-bracket" data-i18n="btn_cancel">Tutup</button>
+          <button type="button" id="btn-export-download-svg" class="btn btn-secondary btn-sm" style="gap: 6px;" title="Unduh file format Vektor SVG (resolusi tak terbatas)">
+            <i class="fa-solid fa-bezier-curve" style="color: var(--primary);"></i> <span data-i18n="btn_download_svg">Vektor SVG</span>
+          </button>
+          <button type="button" id="btn-export-print-pdf" class="btn btn-primary btn-sm" style="gap: 6px;" title="Cetak atau Simpan ke PDF menggunakan Print Browser (Resolusi Vektor Asli)">
+            <i class="fa-solid fa-file-pdf"></i> <span data-i18n="btn_save_pdf">Cetak / Simpan PDF</span>
+          </button>
         </div>
       </div>
     </div>

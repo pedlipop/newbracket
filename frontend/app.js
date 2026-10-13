@@ -315,7 +315,23 @@
       btn_export_txt: 'Export TXT',
       qualifiers_empty: 'Belum ada data peserta yang lolos.',
       qualifier_via_bye: 'Bye (Lolos Otomatis)',
-      qualifier_via_winner: 'Pemenang'
+      qualifier_via_winner: 'Pemenang',
+      btn_export_bracket_pdf: 'Download PDF',
+      modal_export_pdf_title: 'Ekspor & Download PDF Bagan',
+      modal_export_pdf_sub: 'Tata letak dioptimalkan khusus untuk dokumen cetak / PDF tanpa mempengaruhi susunan seed aktif.',
+      label_export_layout: 'Format:',
+      opt_export_split: '2-Sisi Simetris (Split View)',
+      opt_export_standard: 'Standar (1-Sisi Kiri-Kanan)',
+      label_export_theme: 'Tema:',
+      opt_export_light: 'Kertas Terang (Hemat Tinta)',
+      opt_export_dark: 'Modern Esports (Dark)',
+      label_export_paper: 'Kertas:',
+      opt_export_fit: 'Pas 1 Lembar (Fit to Page)',
+      opt_export_a4: 'A4 Landscape',
+      opt_export_a3: 'A3 Landscape (Turnamen Besar)',
+      label_export_scores: 'Tampilkan Skor',
+      btn_save_pdf: 'Cetak / Simpan PDF',
+      btn_download_svg: 'Vektor SVG'
     },
     zh: {
       portal_title: 'CNGR 赛事中心',
@@ -586,7 +602,23 @@
       btn_export_txt: '导出 TXT',
       qualifiers_empty: '暂无选手晋级数据。',
       qualifier_via_bye: '轮空直接晋级',
-      qualifier_via_winner: '获胜晋级'
+      qualifier_via_winner: '获胜晋级',
+      btn_export_bracket_pdf: '下载对阵PDF',
+      modal_export_pdf_title: '导出并下载对阵图 PDF',
+      modal_export_pdf_sub: '专为打印与PDF排版的独立布局，绝不影响当前活动对阵种子排位。',
+      label_export_layout: '版面格式:',
+      opt_export_split: '双侧对称 (Split View)',
+      opt_export_standard: '单侧常规 (从左到右)',
+      label_export_theme: '色彩主题:',
+      opt_export_light: '清爽亮色 (省墨打印)',
+      opt_export_dark: '电竞深色 (Esports Dark)',
+      label_export_paper: '纸张尺寸:',
+      opt_export_fit: '自适应单页 (Fit to Page)',
+      opt_export_a4: 'A4 横向 (A4 Landscape)',
+      opt_export_a3: 'A3 横向 (大型赛事推荐)',
+      label_export_scores: '显示比分',
+      btn_save_pdf: '打印 / 保存为 PDF',
+      btn_download_svg: '下载矢量 SVG'
     }
   };
 
@@ -998,6 +1030,20 @@
     el.btnExportQualifiersCsv = document.getElementById('btn-export-qualifiers-csv');
     el.btnExportQualifiersTxt = document.getElementById('btn-export-qualifiers-txt');
     el.qualifiersDrawerBody = document.getElementById('qualifiers-drawer-body');
+
+    // Export Bracket PDF Modal Elements
+    el.btnStudioExportBracket = document.getElementById('btn-studio-export-bracket');
+    el.btnExportPdfFloating = document.getElementById('btn-export-pdf-floating');
+    el.btnLiveExportPdf = document.getElementById('btn-live-export-pdf');
+    el.modalExportBracket = document.getElementById('modal-export-bracket');
+    el.exportLayoutMode = document.getElementById('export-layout-mode');
+    el.exportThemeMode = document.getElementById('export-theme-mode');
+    el.exportPaperSize = document.getElementById('export-paper-size');
+    el.exportIncludeScores = document.getElementById('export-include-scores');
+    el.exportPreviewScroll = document.getElementById('export-preview-scroll');
+    el.exportSheetContainer = document.getElementById('export-sheet-container');
+    el.btnExportPrintPdf = document.getElementById('btn-export-print-pdf');
+    el.btnExportDownloadSvg = document.getElementById('btn-export-download-svg');
 
     el.toastContainer = document.getElementById('toast-container');
   }
@@ -7544,6 +7590,644 @@
     showToast(isZh ? `已导出 ${names.length} 支队伍名单 TXT (可直接用于生成新对阵图)` : `Berhasil mengekspor ${names.length} nama tim ke berkas TXT (siap untuk generate bagan baru)!`, 'success');
   }
 
+  // ==================== EXPORT BRACKET PDF & VECTOR ENGINE ====================
+  function getActiveExportTournament() {
+    if (state.currentView === 'live' && state.liveTournamentData) {
+      return state.liveTournamentData;
+    }
+    return state.currentTournament || state.liveTournamentData || null;
+  }
+
+  function openExportBracketModal() {
+    const t = getActiveExportTournament();
+    if (!t) {
+      showToast('Tidak ada data turnamen untuk diekspor.', 'warning');
+      return;
+    }
+    if (!t.rounds || t.rounds.length === 0) {
+      showToast('Bagan turnamen belum dibuat atau masih kosong.', 'warning');
+      return;
+    }
+
+    // Default layout selection based on current tournament setting
+    if (el.exportLayoutMode) {
+      const currentSplit = (t.settings?.splitView === 'split' || state.studioSplitViewMode === 'split' || state.liveSplitViewMode === 'split');
+      el.exportLayoutMode.value = currentSplit ? 'split' : 'standard';
+    }
+
+    openModal(el.modalExportBracket);
+    refreshExportBracketPreview();
+  }
+
+  function refreshExportBracketPreview() {
+    const t = getActiveExportTournament();
+    if (!t || !el.exportSheetContainer) return;
+
+    const layout = el.exportLayoutMode?.value || 'split';
+    const theme = el.exportThemeMode?.value || 'light';
+    const paper = el.exportPaperSize?.value || 'fit';
+    const includeScores = !!(el.exportIncludeScores ? el.exportIncludeScores.checked : true);
+
+    renderExportBracketSheet(t, { layout, theme, paper, includeScores });
+  }
+
+  function renderExportBracketSheet(tournament, options) {
+    const container = el.exportSheetContainer;
+    if (!container) return;
+
+    const { layout = 'split', theme = 'light', paper = 'fit', includeScores = true } = options;
+    const isZh = state.lang === 'zh';
+    const rounds = tournament.rounds || [];
+    const numRounds = rounds.length;
+
+    // Apply container theme classes
+    container.className = `export-sheet-container theme-${theme}`;
+
+    if (numRounds === 0) {
+      container.innerHTML = `
+        <div style="padding: 40px; text-align: center; color: var(--text-muted);">
+          <i class="fa-solid fa-triangle-exclamation" style="font-size: 2rem; margin-bottom: 12px; color: #f59e0b;"></i>
+          <p>${isZh ? '暂无对阵数据，请先添加参赛选手并生成对阵。' : 'Bagan masih kosong. Silakan tambahkan peserta terlebih dahulu.'}</p>
+        </div>
+      `;
+      return;
+    }
+
+    // Geometry Constants
+    const MATCH_WIDTH = 190;
+    const MATCH_HEIGHT = 50;
+    const COLUMN_GAP = 36;
+    const SLOT_HEIGHT = 68;
+    const MIN_VERT_GAP = 14;
+    const HEADER_OFFSET = 36; // Height for round title headers
+
+    const bronzeMatch = getOrInitThirdPlaceMatch(tournament);
+    const treePart = partitionTournamentTree(rounds);
+    const canSplit = numRounds >= 2 && !!treePart;
+    const isSplitActive = (layout === 'split') && canSplit;
+
+    let colDefs = [];
+
+    if (!isSplitActive || !treePart) {
+      // Standard 1-Sided Left-to-Right layout
+      colDefs = rounds.map((round, rIdx) => {
+        const isFinal = rIdx === numRounds - 1;
+        const matches = [...round.matches];
+        if (isFinal && bronzeMatch) {
+          matches.push(bronzeMatch);
+        }
+        return {
+          side: 'left',
+          roundIdx: rIdx,
+          roundTitle: round.title,
+          matches,
+          isRight: false,
+          isCenter: isFinal
+        };
+      });
+    } else {
+      // 2-Sided Split layout
+      const leftCols = [];
+      const rightCols = [];
+
+      for (let rIdx = 0; rIdx <= numRounds - 2; rIdx++) {
+        const allRMatches = rounds[rIdx].matches || [];
+        const lMatches = allRMatches.filter(m => treePart.leftMatchIds.has(m.id));
+        const rMatches = allRMatches.filter(m => treePart.rightMatchIds.has(m.id));
+
+        const isSemi = (rIdx === numRounds - 2);
+        const leftTitle = isSemi
+          ? (isZh ? '半决赛 1' : 'Semifinal 1 (Kiri)')
+          : (isZh ? `${rounds[rIdx].title} (左)` : `${rounds[rIdx].title} (Kiri)`);
+        const rightTitle = isSemi
+          ? (isZh ? '半决赛 2' : 'Semifinal 2 (Kanan)')
+          : (isZh ? `${rounds[rIdx].title} (右)` : `${rounds[rIdx].title} (Kanan)`);
+
+        if (lMatches.length > 0) {
+          leftCols.push({
+            side: 'left',
+            roundIdx: rIdx,
+            roundTitle: leftTitle,
+            matches: lMatches,
+            isRight: false,
+            isCenter: false
+          });
+        }
+
+        if (rMatches.length > 0) {
+          rightCols.unshift({
+            side: 'right',
+            roundIdx: rIdx,
+            roundTitle: rightTitle,
+            matches: rMatches,
+            isRight: true,
+            isCenter: false
+          });
+        }
+      }
+
+      const finalMatches = bronzeMatch
+        ? [treePart.finalMatch, bronzeMatch]
+        : [treePart.finalMatch];
+
+      const centerCols = [
+        {
+          side: 'center',
+          roundIdx: numRounds - 1,
+          roundTitle: rounds[numRounds - 1].title,
+          matches: finalMatches,
+          isRight: false,
+          isCenter: true
+        }
+      ];
+
+      colDefs = [...leftCols, ...centerCols, ...rightCols];
+    }
+
+    // Position calculations for each match
+    const matchPositionsMap = {}; // matchId -> { x, y, width, height, match, isRight, isCenter }
+    const midPair = treePart ? treePart.midPair : Math.max(1, Math.floor(Math.pow(2, numRounds - 2)));
+
+    colDefs.forEach((colDef, cIdx) => {
+      const { roundIdx: rIdx, matches } = colDef;
+      const posX = cIdx * (MATCH_WIDTH + COLUMN_GAP);
+
+      const items = matches.map(match => {
+        let targetY = 0;
+        if (numRounds <= 1) {
+          targetY = 40;
+        } else if (match.isBronzeMatch) {
+          let finalTargetY = 0;
+          if (isSplitActive) {
+            finalTargetY = ((midPair - 1) / 2) * SLOT_HEIGHT;
+          } else {
+            const finalM = rounds[rIdx].matches[0];
+            if (finalM && finalM.pairRange && Array.isArray(finalM.pairRange)) {
+              finalTargetY = ((finalM.pairRange[0] + finalM.pairRange[1]) / 2) * SLOT_HEIGHT;
+            }
+          }
+          targetY = finalTargetY + MATCH_HEIGHT + 24;
+        } else if (isSplitActive && colDef.side === 'center' && colDef.roundIdx === numRounds - 1) {
+          targetY = ((midPair - 1) / 2) * SLOT_HEIGHT;
+        } else if (isSplitActive && colDef.side === 'right') {
+          if (match.pairRange && Array.isArray(match.pairRange)) {
+            const adj0 = Math.max(0, match.pairRange[0] - midPair);
+            const adj1 = Math.max(0, match.pairRange[1] - midPair);
+            targetY = ((adj0 + adj1) / 2) * SLOT_HEIGHT;
+          } else {
+            targetY = 0;
+          }
+        } else if (isSplitActive && colDef.side === 'left') {
+          if (match.pairRange && Array.isArray(match.pairRange)) {
+            targetY = ((match.pairRange[0] + match.pairRange[1]) / 2) * SLOT_HEIGHT;
+          } else {
+            targetY = 0;
+          }
+        } else {
+          // Standard 1-sided
+          if (match.pairRange && Array.isArray(match.pairRange)) {
+            targetY = ((match.pairRange[0] + match.pairRange[1]) / 2) * SLOT_HEIGHT;
+          } else {
+            targetY = 0;
+          }
+        }
+        return { match, targetY };
+      });
+
+      // Sort items by targetY
+      items.sort((a, b) => a.targetY - b.targetY);
+
+      // Enforce non-overlapping Y separation
+      for (let i = 0; i < items.length; i++) {
+        if (i === 0) {
+          items[i].finalY = items[i].targetY;
+        } else {
+          const minAllowedY = items[i - 1].finalY + MATCH_HEIGHT + MIN_VERT_GAP;
+          items[i].finalY = Math.max(items[i].targetY, minAllowedY);
+        }
+      }
+
+      items.forEach(item => {
+        const { match, finalY } = item;
+        matchPositionsMap[match.id] = {
+          id: match.id,
+          x: posX,
+          y: finalY,
+          width: MATCH_WIDTH,
+          height: MATCH_HEIGHT,
+          match,
+          isRight: !!colDef.isRight,
+          isCenter: !!colDef.isCenter
+        };
+      });
+    });
+
+    // Compute diagram bounds
+    let maxDiagramX = 0;
+    let maxDiagramY = 0;
+    Object.values(matchPositionsMap).forEach(pos => {
+      if (pos.x + pos.width > maxDiagramX) maxDiagramX = pos.x + pos.width;
+      if (pos.y + pos.height > maxDiagramY) maxDiagramY = pos.y + pos.height;
+    });
+
+    const diagramWidth = Math.max(colDefs.length * (MATCH_WIDTH + COLUMN_GAP) - COLUMN_GAP, maxDiagramX);
+    const diagramHeight = maxDiagramY + 40;
+
+    // Generate Header HTML
+    const formattedDate = new Date().toLocaleDateString(isZh ? 'zh-CN' : 'id-ID', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+    const gameLabel = tournament.game ? escapeHTML(tournament.game) : (isZh ? '电竞赛事' : 'Turnamen');
+    const typeLabel = tournament.type === 'round_robin'
+      ? (isZh ? '小组赛 + 淘汰赛 (Round Robin & Knockout)' : 'Babak Grup + Gugur (Round Robin & Knockout)')
+      : (isZh ? '单败淘汰制 (Single Elimination)' : 'Sistem Gugur Tunggal (Single Elimination)');
+    const participantCount = (tournament.participants || []).length;
+    const countLabel = isZh ? `${participantCount} 支参赛队` : `${participantCount} Tim / Peserta`;
+    const formatName = isSplitActive
+      ? (isZh ? '双侧对称 (Split View)' : '2-Sisi Simetris (Split View)')
+      : (isZh ? '标准单侧 (Standard 1-Sided)' : 'Standar 1-Sisi (Standard View)');
+
+    // Generate Column Headers HTML
+    let roundHeadersHTML = '';
+    colDefs.forEach((colDef, cIdx) => {
+      const posX = cIdx * (MATCH_WIDTH + COLUMN_GAP);
+      let title = colDef.roundTitle;
+      if (isZh) {
+        if (title === 'Championship Final') title = '总决赛 👑';
+        else if (title === 'Semifinals') title = '半决赛';
+        else if (title === 'Quarterfinals') title = '四分之一决赛';
+        else if (title === 'Round of 16') title = '16强赛';
+        else if (title === 'Round of 32') title = '32强赛';
+        else if (title === 'Round of 64') title = '64强赛';
+      } else if (title === 'Championship Final') {
+        title = 'Final 👑';
+      }
+
+      roundHeadersHTML += `
+        <div style="position: absolute; left: ${posX}px; width: ${MATCH_WIDTH}px; text-align: center; top: 0;">
+          <div class="export-round-title" style="font-weight: 700; font-size: 11px; padding-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px;">
+            ${escapeHTML(title)}
+          </div>
+        </div>
+      `;
+    });
+
+    // Generate Match Cards HTML
+    let matchCardsHTML = '';
+    Object.values(matchPositionsMap).forEach(pos => {
+      const { match, x, y } = pos;
+      const isBronze = !!match.isBronzeMatch;
+      const p1 = match.p1 || {};
+      const p2 = match.p2 || {};
+
+      const p1Name = p1.name ? escapeHTML(p1.name) : (p1.isPlaceholder ? (isZh ? '等待中' : 'TBD') : (isZh ? '轮空' : 'BYE'));
+      const p2Name = p2.name ? escapeHTML(p2.name) : (p2.isPlaceholder ? (isZh ? '等待中' : 'TBD') : (isZh ? '轮空' : 'BYE'));
+
+      const p1SeedText = (p1.seed !== undefined && p1.seed !== null && p1.seed !== '') ? `#${p1.seed}` : '-';
+      const p2SeedText = (p2.seed !== undefined && p2.seed !== null && p2.seed !== '') ? `#${p2.seed}` : '-';
+
+      const p1Score = (includeScores && p1.score !== undefined && p1.score !== null && match.status === 'completed') ? p1.score : '';
+      const p2Score = (includeScores && p2.score !== undefined && p2.score !== null && match.status === 'completed') ? p2.score : '';
+
+      const p1Winner = match.status === 'completed' && match.winnerId === p1.id;
+      const p2Winner = match.status === 'completed' && match.winnerId === p2.id;
+
+      let matchHeaderLabel = isBronze
+        ? (isZh ? '🥉 季军争夺战' : '🥉 Perebutan Juara 3')
+        : (match.court ? `LAPANGAN ${match.court}` : `MATCH #${match.matchIndex !== undefined ? match.matchIndex + 1 : '—'}`);
+
+      matchCardsHTML += `
+        <div class="export-match-card" style="position: absolute; left: ${x}px; top: ${y + HEADER_OFFSET}px; width: ${MATCH_WIDTH}px; height: ${MATCH_HEIGHT}px;">
+          <div class="export-match-header">
+            <span>${escapeHTML(matchHeaderLabel)}</span>
+            ${match.status === 'completed' ? '<span style="font-size: 7px; color: #10b981;">✓ SELESAI</span>' : ''}
+          </div>
+          <div class="export-match-slot ${p1Winner ? 'is-winner' : ''}">
+            <span class="export-seed-pill">${p1SeedText}</span>
+            <span class="export-team-name">${p1Name}</span>
+            ${includeScores && p1Score !== '' ? `<span class="export-score-badge">${p1Score}</span>` : ''}
+          </div>
+          <div class="export-match-divider"></div>
+          <div class="export-match-slot ${p2Winner ? 'is-winner' : ''}">
+            <span class="export-seed-pill">${p2SeedText}</span>
+            <span class="export-team-name">${p2Name}</span>
+            ${includeScores && p2Score !== '' ? `<span class="export-score-badge">${p2Score}</span>` : ''}
+          </div>
+        </div>
+      `;
+    });
+
+    // Generate SVG Orthogonal Connectors
+    let svgPathsHTML = '';
+    const strokeColor = theme === 'dark' ? '#00d2ff' : '#64748b';
+
+    rounds.forEach(round => {
+      round.matches.forEach(match => {
+        if (match.isBronzeMatch) return;
+        const target = matchPositionsMap[match.id];
+        if (!target) return;
+
+        const targetSlot1Y = target.y + HEADER_OFFSET + 18;
+        const targetSlot2Y = target.y + HEADER_OFFSET + 38;
+
+        // Top Feeder
+        if (match.feederTopId && matchPositionsMap[match.feederTopId]) {
+          const f1 = matchPositionsMap[match.feederTopId];
+          let startX, targetX;
+          if (f1.x < target.x) {
+            startX = f1.x + f1.width;
+            targetX = target.x;
+          } else {
+            startX = f1.x;
+            targetX = target.x + target.width;
+          }
+          const startY = f1.y + HEADER_OFFSET + (f1.height / 2);
+          const midX = (startX + targetX) / 2;
+          svgPathsHTML += `<path class="export-svg-line" d="M ${startX} ${startY} L ${midX} ${startY} L ${midX} ${targetSlot1Y} L ${targetX} ${targetSlot1Y}" fill="none" stroke="${strokeColor}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />`;
+        }
+
+        // Bottom Feeder
+        if (match.feederBotId && matchPositionsMap[match.feederBotId]) {
+          const f2 = matchPositionsMap[match.feederBotId];
+          let startX, targetX;
+          if (f2.x < target.x) {
+            startX = f2.x + f2.width;
+            targetX = target.x;
+          } else {
+            startX = f2.x;
+            targetX = target.x + target.width;
+          }
+          const startY = f2.y + HEADER_OFFSET + (f2.height / 2);
+          const midX = (startX + targetX) / 2;
+          svgPathsHTML += `<path class="export-svg-line" d="M ${startX} ${startY} L ${midX} ${startY} L ${midX} ${targetSlot2Y} L ${targetX} ${targetSlot2Y}" fill="none" stroke="${strokeColor}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />`;
+        }
+      });
+    });
+
+    const totalHeightWithHeader = diagramHeight + HEADER_OFFSET + 40;
+
+    container.innerHTML = `
+      <!-- Export Document Header -->
+      <div class="export-doc-header" style="margin-bottom: 20px; padding-bottom: 12px; border-bottom: 2px solid ${theme === 'dark' ? '#334155' : '#e2e8f0'}; display: flex; justify-content: space-between; align-items: flex-end;">
+        <div>
+          <div style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: ${theme === 'dark' ? '#00d2ff' : '#0284c7'}; margin-bottom: 4px;">
+            CNGR TOURNAMENT BRACKET SYSTEM
+          </div>
+          <h2 class="export-header-title" style="margin: 0; font-size: 20px; font-weight: 800; line-height: 1.2;">
+            ${escapeHTML(tournament.name || 'Tournament Bracket')}
+          </h2>
+          <div class="export-header-meta" style="margin-top: 5px; font-size: 11px; display: flex; gap: 14px; flex-wrap: wrap;">
+            <span><i class="fa-solid fa-gamepad"></i> ${gameLabel}</span>
+            <span><i class="fa-solid fa-sitemap"></i> ${typeLabel}</span>
+            <span><i class="fa-solid fa-users"></i> ${countLabel}</span>
+          </div>
+        </div>
+        <div style="text-align: right; font-size: 10px; color: ${theme === 'dark' ? '#94a3b8' : '#64748b'};">
+          <div><i class="fa-solid fa-calendar-day"></i> ${formattedDate}</div>
+          <div style="margin-top: 3px; font-weight: 600;">Format: ${formatName}</div>
+        </div>
+      </div>
+
+      <!-- Export Diagram Body -->
+      <div class="export-diagram-viewport" style="position: relative; width: ${diagramWidth}px; height: ${totalHeightWithHeader}px; margin: 0 auto;">
+        ${roundHeadersHTML}
+        <svg xmlns="http://www.w3.org/2000/svg" width="${diagramWidth}" height="${totalHeightWithHeader}" style="position: absolute; left: 0; top: 0; pointer-events: none;">
+          ${svgPathsHTML}
+        </svg>
+        ${matchCardsHTML}
+      </div>
+
+      <!-- Export Document Footer -->
+      <div class="export-footer-bar" style="margin-top: 24px; padding-top: 8px; display: flex; justify-content: space-between; align-items: center; font-size: 9px;">
+        <div>CNGR Tournament Management System • Official Tournament Bracket</div>
+        <div>Halaman 1 / 1 • Cetak Otomatis Vektor</div>
+      </div>
+    `;
+
+    // Paper Sizing & Container Width Adjustments
+    const fullContentWidth = Math.max(diagramWidth + 60, 800);
+    container.style.width = `${fullContentWidth}px`;
+
+    if (paper === 'a4') {
+      container.style.maxWidth = '1050px';
+    } else if (paper === 'a3') {
+      container.style.maxWidth = '1480px';
+    } else {
+      container.style.maxWidth = 'none';
+    }
+  }
+
+  function getExportPrintCSS(theme) {
+    const isDark = theme === 'dark';
+    return `
+      @page {
+        size: landscape;
+        margin: 8mm;
+      }
+      * {
+        box-sizing: border-box;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        background: ${isDark ? '#0f172a' : '#ffffff'};
+        color: ${isDark ? '#f8fafc' : '#0f172a'};
+      }
+      .export-sheet-container {
+        width: 100%;
+        margin: 0 auto;
+        padding: 4px;
+        background: ${isDark ? '#0f172a' : '#ffffff'} !important;
+        color: ${isDark ? '#f8fafc' : '#0f172a'} !important;
+      }
+      .export-match-card {
+        box-sizing: border-box;
+        border-radius: 4px;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        background: ${isDark ? '#1e293b' : '#ffffff'} !important;
+        border: 1px solid ${isDark ? '#334155' : '#cbd5e1'} !important;
+      }
+      .export-match-header {
+        height: 12px;
+        padding: 0 6px;
+        font-size: 8px;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        background: ${isDark ? 'rgba(255, 255, 255, 0.04)' : '#f8fafc'} !important;
+        color: ${isDark ? '#94a3b8' : '#64748b'} !important;
+        border-bottom: 1px solid ${isDark ? '#334155' : '#e2e8f0'} !important;
+      }
+      .export-match-slot {
+        height: 19px;
+        display: flex;
+        align-items: center;
+        padding: 0 6px;
+        gap: 5px;
+        font-size: 11px;
+        box-sizing: border-box;
+        color: ${isDark ? '#f8fafc' : '#1e293b'} !important;
+      }
+      .export-seed-pill {
+        font-size: 9px;
+        font-weight: 700;
+        padding: 1px 4px;
+        border-radius: 2px;
+        min-width: 14px;
+        text-align: center;
+        flex-shrink: 0;
+        background: ${isDark ? 'rgba(255, 255, 255, 0.08)' : '#e2e8f0'} !important;
+        color: ${isDark ? '#cbd5e1' : '#334155'} !important;
+      }
+      .export-team-name {
+        flex: 1;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        font-weight: 600;
+      }
+      .export-score-badge {
+        width: 22px;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 11px;
+        flex-shrink: 0;
+        margin-right: -6px;
+        background: ${isDark ? 'rgba(255, 255, 255, 0.05)' : '#f1f5f9'} !important;
+        color: ${isDark ? '#ffffff' : '#0f172a'} !important;
+        border-left: 1px solid ${isDark ? '#334155' : '#e2e8f0'};
+      }
+      .export-match-slot.is-winner {
+        background: ${isDark ? 'rgba(16, 185, 129, 0.15)' : '#f0fdf4'} !important;
+        font-weight: 700;
+        color: ${isDark ? '#34d399' : '#15803d'} !important;
+      }
+      .export-match-slot.is-winner .export-score-badge {
+        background: ${isDark ? 'rgba(16, 185, 129, 0.25)' : '#dcfce7'} !important;
+        color: ${isDark ? '#6ee7b7' : '#166534'} !important;
+      }
+      .export-match-divider {
+        height: 1px;
+        width: 100%;
+        background: ${isDark ? '#334155' : '#e2e8f0'} !important;
+      }
+      .export-round-title {
+        color: ${isDark ? '#f8fafc' : '#1e293b'} !important;
+        border-bottom: 2px solid ${isDark ? '#00d2ff' : '#0284c7'} !important;
+      }
+      .export-svg-line {
+        stroke: ${isDark ? '#00d2ff' : '#64748b'} !important;
+      }
+    `;
+  }
+
+  function handlePrintExportBracket() {
+    const t = getActiveExportTournament();
+    if (!t) return;
+
+    const theme = el.exportThemeMode?.value || 'light';
+    const sheetContent = el.exportSheetContainer?.innerHTML;
+    if (!sheetContent) return;
+
+    const printFrame = document.createElement('iframe');
+    printFrame.style.position = 'fixed';
+    printFrame.style.right = '0';
+    printFrame.style.bottom = '0';
+    printFrame.style.width = '0';
+    printFrame.style.height = '0';
+    printFrame.style.border = '0';
+    document.body.appendChild(printFrame);
+
+    const frameDoc = printFrame.contentWindow.document;
+    frameDoc.open();
+    frameDoc.write(`<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>${escapeHTML(t.name || 'Tournament')} - Bracket Export</title>
+  <style>
+    ${getExportPrintCSS(theme)}
+  </style>
+</head>
+<body class="theme-${theme}">
+  <div class="export-sheet-container theme-${theme}">
+    ${sheetContent}
+  </div>
+</body>
+</html>`);
+    frameDoc.close();
+
+    setTimeout(() => {
+      try {
+        printFrame.contentWindow.focus();
+        printFrame.contentWindow.print();
+      } catch (err) {
+        console.error('Print error:', err);
+        window.print();
+      }
+      setTimeout(() => {
+        if (document.body.contains(printFrame)) {
+          document.body.removeChild(printFrame);
+        }
+      }, 2000);
+    }, 350);
+  }
+
+  function handleDownloadExportSvg() {
+    const t = getActiveExportTournament();
+    if (!t || !el.exportSheetContainer) return;
+
+    const theme = el.exportThemeMode?.value || 'light';
+    const isDark = theme === 'dark';
+    const sheet = el.exportSheetContainer;
+    const diagram = sheet.querySelector('.export-diagram-viewport');
+    if (!diagram) return;
+
+    const docWidth = parseInt(diagram.style.width, 10) || 1200;
+    const docHeight = (parseInt(diagram.style.height, 10) || 800) + 90;
+
+    const svgContent = `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="${docWidth + 60}" height="${docHeight + 40}" viewBox="0 0 ${docWidth + 60} ${docHeight + 40}">
+  <defs>
+    <style>
+      ${getExportPrintCSS(theme)}
+    </style>
+  </defs>
+  <rect width="100%" height="100%" fill="${isDark ? '#0f172a' : '#ffffff'}" />
+  <foreignObject x="20" y="20" width="${docWidth + 20}" height="${docHeight}">
+    <div xmlns="http://www.w3.org/1999/xhtml" class="export-sheet-container theme-${theme}">
+      ${sheet.innerHTML}
+    </div>
+  </foreignObject>
+</svg>`;
+
+    const blob = new Blob([svgContent], { type: 'image/svg+xml;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const safeTitle = (t.name || 'Tournament').replace(/[^a-zA-Z0-9_\u4e00-\u9fa5]/g, '_');
+    a.href = url;
+    a.download = `${safeTitle}_Bracket_Vector.svg`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    showToast(state.lang === 'zh' ? '已成功下载矢量 SVG 文件！' : 'Berhasil mengunduh berkas Vektor SVG!', 'success');
+  }
+
   // ==================== AUTO-LOCK TIMER & DEADLINE ENGINE ====================
   function updateAutoLockTimerUI() {
     const t = state.currentTournament;
@@ -8231,6 +8915,35 @@
         e.preventDefault();
         if (state.currentTournament) navigateToLive(state.currentTournament.id);
       });
+    }
+
+    // Export Bracket PDF & SVG Triggers
+    if (el.btnStudioExportBracket) {
+      el.btnStudioExportBracket.addEventListener('click', openExportBracketModal);
+    }
+    if (el.btnExportPdfFloating) {
+      el.btnExportPdfFloating.addEventListener('click', openExportBracketModal);
+    }
+    if (el.btnLiveExportPdf) {
+      el.btnLiveExportPdf.addEventListener('click', openExportBracketModal);
+    }
+    if (el.exportLayoutMode) {
+      el.exportLayoutMode.addEventListener('change', refreshExportBracketPreview);
+    }
+    if (el.exportThemeMode) {
+      el.exportThemeMode.addEventListener('change', refreshExportBracketPreview);
+    }
+    if (el.exportPaperSize) {
+      el.exportPaperSize.addEventListener('change', refreshExportBracketPreview);
+    }
+    if (el.exportIncludeScores) {
+      el.exportIncludeScores.addEventListener('change', refreshExportBracketPreview);
+    }
+    if (el.btnExportPrintPdf) {
+      el.btnExportPrintPdf.addEventListener('click', handlePrintExportBracket);
+    }
+    if (el.btnExportDownloadSvg) {
+      el.btnExportDownloadSvg.addEventListener('click', handleDownloadExportSvg);
     }
 
     // Drawer Tabs (Teams, Format, Themes, Reports)
