@@ -22,10 +22,12 @@
         "isTeam": true,
         "regFormTitle": "awfawf",
         "teamSize": 5,
-        "teamNameMode": "manual"
+        "teamNameMode": "manual",
+        "autoBracketSize": true,
+        "manualBracketSize": 8
       },
       "createdAt": "2026-10-09T07:40:42.269Z",
-      "updatedAt": "2026-10-09T08:56:33.732Z",
+      "updatedAt": "2026-10-17T09:08:30.413Z",
       "hideLiveBracket": false
     },
     {
@@ -47,7 +49,8 @@
           "isTeam": false,
           "partners": [],
           "partner": null,
-          "registeredAt": "2026-09-15T08:01:18.930Z"
+          "registeredAt": "2026-09-15T08:01:18.930Z",
+          "seed": 1
         },
         {
           "id": "p_1789459286667_14n9",
@@ -59,7 +62,8 @@
           "isTeam": false,
           "partners": [],
           "partner": null,
-          "registeredAt": "2026-09-15T08:01:26.667Z"
+          "registeredAt": "2026-09-15T08:01:26.667Z",
+          "seed": 2
         },
         {
           "id": "p_1789464054793_0g4o",
@@ -68,7 +72,8 @@
           "teamName": "q",
           "isTeam": false,
           "partners": [],
-          "registeredAt": "2026-09-15T09:20:54.793Z"
+          "registeredAt": "2026-09-15T09:20:54.793Z",
+          "seed": 3
         },
         {
           "id": "p_1789464071200_ibzf",
@@ -77,13 +82,14 @@
           "teamName": "aw",
           "isTeam": false,
           "partners": [],
-          "registeredAt": "2026-09-15T09:21:11.200Z"
+          "registeredAt": "2026-09-15T09:21:11.200Z",
+          "seed": 4
         }
       ],
       "rounds": [
         {
           "roundNumber": 1,
-          "title": "Semifinals",
+          "title": "Quarterfinals",
           "matches": [
             {
               "id": "r1_m1",
@@ -94,31 +100,18 @@
                 0
               ],
               "p1": {
-                "id": "p_1789459278930_adt1",
-                "name": "dada",
-                "teamName": "",
-                "playerName": "dada",
-                "wecom": "",
-                "dept": "",
-                "isTeam": false,
-                "partners": [],
-                "partner": null,
-                "registeredAt": "2026-09-15T08:01:18.930Z",
-                "seed": 1,
-                "isPlaceholder": false,
-                "isUnseeded": false
+                "name": "",
+                "id": null,
+                "isPlaceholder": true,
+                "isUnseeded": true,
+                "seed": 1
               },
               "p2": {
-                "id": "p_1789464071200_ibzf",
-                "name": "aw",
-                "playerName": "aw",
-                "teamName": "aw",
-                "isTeam": false,
-                "partners": [],
-                "registeredAt": "2026-09-15T09:21:11.200Z",
-                "seed": 4,
-                "isPlaceholder": false,
-                "isUnseeded": false
+                "name": "",
+                "id": null,
+                "isPlaceholder": true,
+                "isUnseeded": true,
+                "seed": 8
               },
               "score1": "",
               "score2": "",
@@ -134,31 +127,72 @@
                 1
               ],
               "p1": {
-                "id": "p_1789459286667_14n9",
-                "name": "dwa",
-                "teamName": "",
-                "playerName": "dwa",
-                "wecom": "",
-                "dept": "",
-                "isTeam": false,
-                "partners": [],
-                "partner": null,
-                "registeredAt": "2026-09-15T08:01:26.667Z",
-                "seed": 2,
-                "isPlaceholder": false,
-                "isUnseeded": false
+                "name": "",
+                "id": null,
+                "isPlaceholder": true,
+                "isUnseeded": true,
+                "seed": 4
               },
               "p2": {
-                "id": "p_1789464054793_0g4o",
-                "name": "q",
-                "playerName": "q",
-                "teamName": "q",
-                "isTeam": false,
-                "partners": [],
-                "registeredAt": "2026-09-15T09:20:54.793Z",
-                "seed": 3,
-                "isPlaceholder": false,
-                "isUnseeded": false
+                "name": "",
+                "id": null,
+                "isPlaceholder": true,
+                "isUnseeded": true,
+                "seed": 5
+              },
+              "score1": "",
+              "score2": "",
+              "winnerId": null,
+              "status": "scheduled"
+            },
+            {
+              "id": "r1_m3",
+              "round": 1,
+              "matchIndex": 2,
+              "pairRange": [
+                2,
+                2
+              ],
+              "p1": {
+                "name": "",
+                "id": null,
+                "isPlaceholder": true,
+                "isUnseeded": true,
+                "seed": 2
+              },
+              "p2": {
+                "name": "",
+                "id": null,
+                "isPlaceholder": true,
+                "isUnseeded": true,
+                "seed": 7
+              },
+              "score1": "",
+              "score2": "",
+              "winnerId": null,
+              "status": "scheduled"
+            },
+            {
+              "id": "r1_m4",
+              "round": 1,
+              "matchIndex": 3,
+              "pairRange": [
+                3,
+                3
+              ],
+              "p1": {
+                "name": "",
+                "id": null,
+                "isPlaceholder": true,
+                "isUnseeded": true,
+                "seed": 3
+              },
+              "p2": {
+                "name": "",
+                "id": null,
+                "isPlaceholder": true,
+                "isUnseeded": true,
+                "seed": 6
               },
               "score1": "",
               "score2": "",
@@ -169,7 +203,7 @@
         },
         {
           "roundNumber": 2,
-          "title": "Championship Final",
+          "title": "Semifinals",
           "matches": [
             {
               "id": "r2_m1",
@@ -193,6 +227,58 @@
               "score2": "",
               "winnerId": null,
               "status": "scheduled"
+            },
+            {
+              "id": "r2_m2",
+              "round": 2,
+              "matchIndex": 1,
+              "pairRange": [
+                2,
+                3
+              ],
+              "feederTopId": "r1_m3",
+              "feederBotId": "r1_m4",
+              "p1": {
+                "name": "Winner R1 M3",
+                "isPlaceholder": true
+              },
+              "p2": {
+                "name": "Winner R1 M4",
+                "isPlaceholder": true
+              },
+              "score1": "",
+              "score2": "",
+              "winnerId": null,
+              "status": "scheduled"
+            }
+          ]
+        },
+        {
+          "roundNumber": 3,
+          "title": "Championship Final",
+          "matches": [
+            {
+              "id": "r3_m1",
+              "round": 3,
+              "matchIndex": 0,
+              "pairRange": [
+                0,
+                3
+              ],
+              "feederTopId": "r2_m1",
+              "feederBotId": "r2_m2",
+              "p1": {
+                "name": "Winner R2 M1",
+                "isPlaceholder": true
+              },
+              "p2": {
+                "name": "Winner R2 M2",
+                "isPlaceholder": true
+              },
+              "score1": "",
+              "score2": "",
+              "winnerId": null,
+              "status": "scheduled"
             }
           ]
         }
@@ -206,10 +292,12 @@
         "theme": "dark-modern",
         "isDoubles": true,
         "teamSize": 7,
-        "hideLiveBracket": true
+        "hideLiveBracket": true,
+        "autoBracketSize": false,
+        "manualBracketSize": 8
       },
       "createdAt": "2026-09-15T07:49:24.160Z",
-      "updatedAt": "2026-10-10T00:57:45.388Z",
+      "updatedAt": "2026-10-17T09:22:04.225Z",
       "isRegistrationClosed": false,
       "hideLiveBracket": true
     },
