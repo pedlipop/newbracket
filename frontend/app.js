@@ -104,6 +104,20 @@
       opt_layout_standard: 'Standar (1-Sisi Kiri ke Kanan)',
       opt_layout_split: 'Bagan 2 Sisi (Split View Simetris)',
       hint_bracket_layout: 'Membagi bagan ke dua sisi simetris (sayap kiri & kanan) yang bertemu di Final tengah.',
+      label_bracket_size_mode: 'Ukuran Bagan',
+      label_auto_bracket: 'Ukuran Bagan Otomatis',
+      hint_auto_bracket: 'Jumlah bagan otomatis menyesuaikan total peserta yang terdaftar.',
+      badge_bracket_auto: 'OTOMATIS',
+      badge_bracket_manual: 'MANUAL',
+      label_manual_size: 'Kapasitas / Ukuran Bagan Manual',
+      hint_manual_size: 'Bagan dibuat tetap (fixed) dengan jumlah slot yang dipilih. Slot kosong dapat diisi peserta atau diundi (Auto-Seed).',
+      opt_manual_size_4: '4 Tim / Slot (Semifinal - 2 Babak)',
+      opt_manual_size_8: '8 Tim / Slot (Perempat Final - 3 Babak)',
+      opt_manual_size_16: '16 Tim / Slot (16 Besar - 4 Babak)',
+      opt_manual_size_32: '32 Tim / Slot (32 Besar - 5 Babak)',
+      opt_manual_size_64: '64 Tim / Slot (64 Besar - 6 Babak)',
+      opt_manual_size_128: '128 Tim / Slot (128 Besar - 7 Babak)',
+      opt_manual_size_custom: 'Custom (Kustom)...',
       label_bronze_match: 'Include 3rd Place (Bronze) Match',
       label_hide_live_bracket: 'Sembunyikan Bagan di Live Spectator',
       hint_hide_live_bracket: 'Jika diaktifkan, bagan pertandingan di halaman live spectator akan diburamkan (blurred out) dari penonton.',
@@ -400,6 +414,20 @@
       stage_elimination: '单败淘汰赛 (Single Elimination)',
       btn_direct_draw: '平局 / 和局 (Draw)',
       hint_format_locked: '对阵生成后赛制已锁定。',
+      label_bracket_size_mode: '对阵规模设置',
+      label_auto_bracket: '自动对阵规模 (根据参赛人数)',
+      hint_auto_bracket: '对阵图轮次与签位数量将根据实际报名的参赛队伍人数自动动态生成。',
+      badge_bracket_auto: '自动',
+      badge_bracket_manual: '手动',
+      label_manual_size: '手动设定对阵图规模',
+      hint_manual_size: '生成固定签位数量的对阵图。空余签位可由后续报名选手填补或使用自动抽签分配。',
+      opt_manual_size_4: '4 队 / 签位 (半决赛 - 2 轮)',
+      opt_manual_size_8: '8 队 / 签位 (八强赛 - 3 轮)',
+      opt_manual_size_16: '16 队 / 签位 (16强 - 4 轮)',
+      opt_manual_size_32: '32 队 / 签位 (32强 - 5 轮)',
+      opt_manual_size_64: '64 队 / 签位 (64强 - 6 轮)',
+      opt_manual_size_128: '128 队 / 签位 (128强 - 7 轮)',
+      opt_manual_size_custom: '自定义数量...',
       label_bronze_match: '包含季军赛（争夺第三名）',
       label_hide_live_bracket: '在观众大屏隐藏对阵图（模糊处理）',
       hint_hide_live_bracket: '开启后，公开观众大屏中的对阵图将被模糊虚化，隐藏比赛对阵。',
@@ -745,6 +773,12 @@
     el.settingBronzeMatch = document.getElementById('setting-bronze-match');
     el.settingHideLiveBracket = document.getElementById('setting-hide-live-bracket');
     el.settingBracketLayout = document.getElementById('setting-bracket-layout');
+    el.settingAutoBracket = document.getElementById('setting-auto-bracket');
+    el.badgeBracketMode = document.getElementById('badge-bracket-mode');
+    el.manualSizeContainer = document.getElementById('manual-size-container');
+    el.settingManualSize = document.getElementById('setting-manual-size');
+    el.settingCustomSizeInput = document.getElementById('setting-custom-size-input');
+    el.hintAutoBracket = document.getElementById('hint-auto-bracket');
     el.studioLiveHiddenIndicator = document.getElementById('studio-live-hidden-indicator');
     el.btnResetScores = document.getElementById('btn-reset-scores');
 
@@ -1501,6 +1535,43 @@
       el.studioLiveHiddenIndicator.classList.toggle('hidden', !isHidden);
     }
 
+    // Auto vs Manual Bracket Size Settings
+    const isAutoBracket = t.settings?.autoBracketSize !== false;
+    const manualSize = parseInt(t.settings?.manualBracketSize, 10) || parseInt(t.maxParticipants, 10) || 8;
+    const isZh = state.lang === 'zh';
+
+    if (el.settingAutoBracket) {
+      el.settingAutoBracket.checked = isAutoBracket;
+      el.settingAutoBracket.disabled = isBracketLocked;
+    }
+    if (el.badgeBracketMode) {
+      el.badgeBracketMode.textContent = isAutoBracket
+        ? (isZh ? '自动' : 'OTOMATIS')
+        : (isZh ? '手动' : 'MANUAL');
+      el.badgeBracketMode.className = isAutoBracket ? 'badge badge-setup' : 'badge badge-in-progress';
+    }
+    if (el.manualSizeContainer) {
+      el.manualSizeContainer.classList.toggle('hidden', isAutoBracket);
+    }
+    if (el.settingManualSize) {
+      el.settingManualSize.disabled = isBracketLocked;
+      const stdSizes = ['4', '8', '16', '32', '64', '128'];
+      if (stdSizes.includes(String(manualSize))) {
+        el.settingManualSize.value = String(manualSize);
+        if (el.settingCustomSizeInput) {
+          el.settingCustomSizeInput.classList.add('hidden');
+          el.settingCustomSizeInput.value = '';
+        }
+      } else {
+        el.settingManualSize.value = 'custom';
+        if (el.settingCustomSizeInput) {
+          el.settingCustomSizeInput.classList.remove('hidden');
+          el.settingCustomSizeInput.value = manualSize;
+          el.settingCustomSizeInput.disabled = isBracketLocked;
+        }
+      }
+    }
+
     // Apply theme
     applyTheme(t.settings?.theme || 'dark');
 
@@ -1951,19 +2022,27 @@
    * Generates play-in matches on the left for unseeded entries,
    * while top seeds receiving BYEs enter directly in Round 2.
    */
-  function generateBracketTree(participants, currentRounds = null, isAutoSeeding = false) {
+  function generateBracketTree(participants, currentRounds = null, isAutoSeeding = false, targetCapacity = undefined) {
     const validParticipantIds = new Set((participants || []).filter(p => p && p.id).map(p => p.id));
     const P = (participants || []).length;
 
-    // CASE 0: 0 Participants -> Empty bracket
-    if (P === 0) {
+    let effTarget = targetCapacity;
+    if (effTarget === undefined && state.currentTournament?.settings && state.currentTournament.settings.autoBracketSize === false) {
+      effTarget = state.currentTournament.settings.manualBracketSize || state.currentTournament.maxParticipants || 8;
+    }
+    const isManual = effTarget !== null && effTarget !== undefined && effTarget !== 'auto';
+    const effectiveP = isManual ? (parseInt(effTarget, 10) || 8) : P;
+
+    // CASE 0: 0 Participants -> Empty bracket (only when in Auto mode)
+    if (effectiveP <= 0) {
       return [];
     }
 
     const seedMap = {};
     (participants || []).forEach((p, idx) => {
       if (p && p.name && p.name.trim()) {
-        seedMap[idx + 1] = p;
+        const s = (p.seed !== undefined && p.seed !== null && p.seed !== '') ? parseInt(p.seed, 10) : (idx + 1);
+        seedMap[s] = p;
       }
     });
 
@@ -1980,7 +2059,7 @@
     };
 
     // CASE 1: Exactly 1 Participant -> 1 Championship Final with empty slot, no dummy
-    if (P === 1) {
+    if (effectiveP === 1) {
       const existing = findExistingMatch(currentRounds, 1, 0);
       const defaultP1 = (isAutoSeeding && seedMap[1]) ? { ...seedMap[1], seed: 1, isPlaceholder: false, isUnseeded: false } : makeEmpty(1);
       const p1 = getValidExisting(existing?.p1, defaultP1);
@@ -2008,7 +2087,7 @@
     }
 
     // CASE 2: Exactly 2 Participants -> Pure Championship Final
-    if (P === 2) {
+    if (effectiveP === 2) {
       const existing = findExistingMatch(currentRounds, 1, 0);
       const defaultP1 = (isAutoSeeding && seedMap[1]) ? { ...seedMap[1], seed: 1, isPlaceholder: false, isUnseeded: false } : makeEmpty(1);
       const defaultP2 = (isAutoSeeding && seedMap[2]) ? { ...seedMap[2], seed: 2, isPlaceholder: false, isUnseeded: false } : makeEmpty(2);
@@ -2036,8 +2115,8 @@
       }];
     }
 
-    // Universal Canonical Bracket Engine for any P >= 3 (BracketHQ logic)
-    const N = Math.pow(2, Math.ceil(Math.log2(P)));
+    // Universal Canonical Bracket Engine for any effectiveP >= 3 (BracketHQ logic)
+    const N = Math.pow(2, Math.ceil(Math.log2(effectiveP)));
     const seedingOrder = getSeedingOrder(N);
     const numPairs = N / 2;
     const totalRounds = Math.log2(N);
@@ -2046,11 +2125,11 @@
     for (let i = 0; i < numPairs; i++) {
       const s1 = seedingOrder[2 * i];
       const s2 = seedingOrder[2 * i + 1];
-      pairs.push({ pair: i, s1, s2, isContested: s2 <= P });
+      pairs.push({ pair: i, s1, s2, isContested: s2 <= effectiveP });
     }
 
     const rounds = [];
-    const isPurePowerOf2 = P === N;
+    const isPurePowerOf2 = effectiveP === N;
 
     if (isPurePowerOf2) {
       // Pure power of 2 (4, 8, 16, 32...): All pairs are contested in Round 1
@@ -2381,11 +2460,15 @@
 
     const P = (t.participants || []).length;
     const hasParticipants = P > 0;
+    const isManual = t.settings && t.settings.autoBracketSize === false;
+    const manualSize = isManual ? (parseInt(t.settings.manualBracketSize, 10) || parseInt(t.maxParticipants, 10) || 8) : null;
+    const effectiveCapacity = isManual ? manualSize : P;
+
     const currentTotalMatches = (t.rounds || []).reduce((acc, r) => acc + (r.matches || []).length, 0);
-    const expectedTotalMatches = P > 1 ? P - 1 : (P === 1 ? 1 : 0);
+    const expectedTotalMatches = effectiveCapacity > 1 ? effectiveCapacity - 1 : (effectiveCapacity === 1 ? 1 : 0);
 
     // Generate or hydrate bracket tree if missing, lacking pairRange, or match count mismatch
-    const needsHydration = hasParticipants && (
+    const needsHydration = (hasParticipants || isManual) && (
       !t.rounds ||
       t.rounds.length === 0 ||
       (!t.isLocked && currentTotalMatches !== expectedTotalMatches) ||
@@ -2393,12 +2476,12 @@
     );
 
     if (needsHydration) {
-      t.rounds = generateBracketTree(t.participants || [], t.rounds);
+      t.rounds = generateBracketTree(t.participants || [], t.rounds, false, isManual ? manualSize : null);
       saveTournamentState(false);
-    } else if (!hasParticipants && t.rounds && t.rounds.length > 0) {
+    } else if (!hasParticipants && !isManual && t.rounds && t.rounds.length > 0) {
       t.rounds = [];
       saveTournamentState(false);
-    } else if (P === 1 && (t.rounds.length !== 1 || t.rounds[0].matches.length !== 1 || !t.rounds[0].matches[0].p2?.isPlaceholder)) {
+    } else if (!isManual && P === 1 && (t.rounds.length !== 1 || t.rounds[0].matches.length !== 1 || !t.rounds[0].matches[0].p2?.isPlaceholder)) {
       t.rounds = generateBracketTree(t.participants, null);
       saveTournamentState(false);
     }
@@ -5610,7 +5693,7 @@
       t.participants.push(p);
     });
 
-    t.rounds = generateBracketTree(t.participants);
+    t.rounds = generateBracketTree(t.participants, t.rounds);
     saveTournamentState(true);
     closeModal(el.modalBulkAdd);
     clearCsvFile();
@@ -5638,6 +5721,7 @@
           inProgressHighlight: t.inProgressHighlight,
           name: t.name,
           settings: t.settings,
+          maxParticipants: t.maxParticipants,
           hideLiveBracket: !!(t.settings && t.settings.hideLiveBracket) || !!t.hideLiveBracket,
           registrationDeadline: t.registrationDeadline || null,
           autoLockAt: t.autoLockAt || null,
@@ -9284,6 +9368,117 @@
             'info'
           );
         }
+      });
+    }
+
+    // Auto / Manual Bracket Size Event Handlers
+    if (el.settingAutoBracket) {
+      el.settingAutoBracket.addEventListener('change', () => {
+        const t = state.currentTournament;
+        if (!t) return;
+        if (t.isLocked) {
+          showToast(state.lang === 'zh' ? '比赛已锁定，无法修改对阵规模' : 'Bagan sedang dikunci! Buka kunci bagan terlebih dahulu.', 'warning');
+          el.settingAutoBracket.checked = t.settings?.autoBracketSize !== false;
+          return;
+        }
+
+        const isAuto = el.settingAutoBracket.checked;
+        t.settings = t.settings || {};
+        t.settings.autoBracketSize = isAuto;
+
+        const isZh = state.lang === 'zh';
+        if (el.badgeBracketMode) {
+          el.badgeBracketMode.textContent = isAuto ? (isZh ? '自动' : 'OTOMATIS') : (isZh ? '手动' : 'MANUAL');
+          el.badgeBracketMode.className = isAuto ? 'badge badge-setup' : 'badge badge-in-progress';
+        }
+        if (el.manualSizeContainer) {
+          el.manualSizeContainer.classList.toggle('hidden', isAuto);
+        }
+
+        if (isAuto) {
+          // Switch to automatic: size follows participants
+          t.rounds = generateBracketTree(t.participants, t.rounds, false, null);
+          saveTournamentState(false);
+          renderBracketStudio();
+          showToast(isZh ? '已切换为自动对阵规模（根据参赛队伍人数）' : 'Ukuran bagan otomatis mengikuti jumlah peserta terdaftar', 'info');
+        } else {
+          // Switch to manual: size follows manual selection
+          let size = parseInt(el.settingManualSize?.value, 10);
+          if (el.settingManualSize?.value === 'custom' && el.settingCustomSizeInput) {
+            size = parseInt(el.settingCustomSizeInput.value, 10) || 8;
+          }
+          if (isNaN(size) || size < 2) size = 8;
+          t.settings.manualBracketSize = size;
+          t.maxParticipants = size;
+          t.rounds = generateBracketTree(t.participants, t.rounds, false, size);
+          saveTournamentState(false);
+          renderBracketStudio();
+          showToast(isZh ? `已切换为手动对阵规模（${size} 支队伍/签位）` : `Ukuran bagan diatur manual (${size} Tim/Slot)`, 'info');
+        }
+      });
+    }
+
+    if (el.settingManualSize) {
+      el.settingManualSize.addEventListener('change', () => {
+        const t = state.currentTournament;
+        if (!t) return;
+        if (t.isLocked) {
+          showToast(state.lang === 'zh' ? '比赛已锁定，无法修改对阵规模' : 'Bagan sedang dikunci! Buka kunci bagan terlebih dahulu.', 'warning');
+          return;
+        }
+
+        const val = el.settingManualSize.value;
+        const isZh = state.lang === 'zh';
+
+        if (val === 'custom') {
+          if (el.settingCustomSizeInput) {
+            el.settingCustomSizeInput.classList.remove('hidden');
+            el.settingCustomSizeInput.focus();
+          }
+          return;
+        }
+
+        if (el.settingCustomSizeInput) {
+          el.settingCustomSizeInput.classList.add('hidden');
+        }
+
+        const size = parseInt(val, 10);
+        if (isNaN(size) || size < 2) return;
+
+        t.settings = t.settings || {};
+        t.settings.autoBracketSize = false;
+        t.settings.manualBracketSize = size;
+        t.maxParticipants = size;
+
+        t.rounds = generateBracketTree(t.participants, t.rounds, false, size);
+        saveTournamentState(false);
+        renderBracketStudio();
+        showToast(isZh ? `对阵图规模已更新为 ${size} 队` : `Ukuran bagan diubah menjadi ${size} Tim/Slot`, 'info');
+      });
+    }
+
+    if (el.settingCustomSizeInput) {
+      el.settingCustomSizeInput.addEventListener('change', () => {
+        const t = state.currentTournament;
+        if (!t) return;
+        if (t.isLocked) return;
+
+        const size = parseInt(el.settingCustomSizeInput.value, 10);
+        const isZh = state.lang === 'zh';
+        if (isNaN(size) || size < 2 || size > 256) {
+          showToast(isZh ? '请输入 2 至 256 之间的有效规模' : 'Masukkan kapasitas antara 2 hingga 256', 'warning');
+          return;
+        }
+
+        t.settings = t.settings || {};
+        t.settings.autoBracketSize = false;
+        t.settings.manualBracketSize = size;
+        t.maxParticipants = size;
+
+        t.rounds = generateBracketTree(t.participants, t.rounds, false, size);
+        saveTournamentState(false);
+        renderBracketStudio();
+        showToast(isZh ? `对阵图规模已更新为 ${size} 队` : `Ukuran bagan diubah menjadi ${size} Tim/Slot`, 'info');
       });
     }
 

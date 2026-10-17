@@ -117,7 +117,7 @@ app.delete('/api/tournaments/:id', async (req, res) => {
 // 6. Save entire bracket state (rounds, matches, participants, lock status)
 app.post('/api/tournaments/:id/state', async (req, res) => {
   try {
-    const { rounds, participants, isLocked, status, inProgressHighlight, lockedSeeds, settings, name, registrationDeadline, autoLockAt, isRegistrationClosed, hideLiveBracket, stage, roundRobin } = req.body;
+    const { rounds, participants, isLocked, status, inProgressHighlight, lockedSeeds, settings, name, registrationDeadline, autoLockAt, isRegistrationClosed, hideLiveBracket, stage, roundRobin, maxParticipants } = req.body;
     const updates = {};
     if (rounds !== undefined) updates.rounds = rounds;
     if (participants !== undefined) updates.participants = participants;
@@ -133,6 +133,7 @@ app.post('/api/tournaments/:id/state', async (req, res) => {
     if (hideLiveBracket !== undefined) updates.hideLiveBracket = hideLiveBracket;
     if (stage !== undefined) updates.stage = stage;
     if (roundRobin !== undefined) updates.roundRobin = roundRobin;
+    if (maxParticipants !== undefined) updates.maxParticipants = parseInt(maxParticipants, 10);
 
     const updated = await db.updateTournament(req.params.id, updates);
     if (!updated) {

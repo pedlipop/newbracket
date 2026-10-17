@@ -335,6 +335,45 @@
               </select>
               <small class="form-hint" data-i18n="hint_bracket_layout">Membagi bagan ke dua sisi simetris (sayap kiri & kanan) yang bertemu di Final tengah.</small>
             </div>
+            <!-- Bracket Size Control Group (Auto vs Manual) -->
+            <div class="form-group bracket-size-control-group">
+              <div class="bracket-size-header-row">
+                <label class="toggle-label" for="setting-auto-bracket">
+                  <input type="checkbox" id="setting-auto-bracket" checked>
+                  <span class="toggle-text-with-icon">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                    <span data-i18n="label_auto_bracket">Ukuran Bagan Otomatis</span>
+                  </span>
+                </label>
+                <span id="badge-bracket-mode" class="badge badge-setup" data-i18n="badge_bracket_auto">OTOMATIS</span>
+              </div>
+              <small class="form-hint" id="hint-auto-bracket" data-i18n="hint_auto_bracket">
+                Jumlah bagan otomatis menyesuaikan total peserta yang terdaftar.
+              </small>
+
+              <!-- Manual Bracket Size Selector (Shown when auto-bracket is unchecked) -->
+              <div id="manual-size-container" class="manual-size-wrapper hidden">
+                <label for="setting-manual-size" class="manual-size-label">
+                  <i class="fa-solid fa-sitemap"></i>
+                  <span data-i18n="label_manual_size">Kapasitas / Ukuran Bagan Manual</span>
+                </label>
+                <div class="manual-size-inputs-row">
+                  <select id="setting-manual-size" class="input-modern select-modern">
+                    <option value="4" data-i18n="opt_manual_size_4">4 Tim / Slot (Semifinal - 2 Babak)</option>
+                    <option value="8" selected data-i18n="opt_manual_size_8">8 Tim / Slot (Perempat Final - 3 Babak)</option>
+                    <option value="16" data-i18n="opt_manual_size_16">16 Tim / Slot (16 Besar - 4 Babak)</option>
+                    <option value="32" data-i18n="opt_manual_size_32">32 Tim / Slot (32 Besar - 5 Babak)</option>
+                    <option value="64" data-i18n="opt_manual_size_64">64 Tim / Slot (64 Besar - 6 Babak)</option>
+                    <option value="128" data-i18n="opt_manual_size_128">128 Tim / Slot (128 Besar - 7 Babak)</option>
+                    <option value="custom" data-i18n="opt_manual_size_custom">Custom (Kustom)...</option>
+                  </select>
+                  <input type="number" id="setting-custom-size-input" class="input-modern hidden" min="2" max="256" placeholder="Jml" style="width: 75px; text-align: center;" />
+                </div>
+                <small class="form-hint" data-i18n="hint_manual_size">
+                  Bagan dibuat tetap (fixed) dengan jumlah slot yang dipilih. Slot kosong dapat diisi peserta atau diundi (Auto-Seed).
+                </small>
+              </div>
+            </div>
             <div class="form-group">
               <label class="toggle-label">
                 <input type="checkbox" id="setting-bronze-match">
