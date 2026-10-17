@@ -309,108 +309,129 @@
         <div id="panel-settings" class="drawer-panel">
           <div class="panel-header">
             <div class="panel-title">
-              <h3 data-i18n="drawer_settings">Tournament Settings</h3>
+              <h3 data-i18n="drawer_settings">Pengaturan Turnamen</h3>
             </div>
           </div>
           <div class="panel-body settings-form">
+            <!-- 1. Kategori / Game -->
             <div class="form-group">
-              <label data-i18n="label_category_game">Tournament Category / Game</label>
-              <input type="text" id="setting-game-input" data-i18n-ph="ph_setting_game" placeholder="e.g. Valorant, MLBB, Tekken 8">
+              <label for="setting-game-input">
+                <i class="fa-solid fa-gamepad" style="color:var(--primary);"></i>
+                <span data-i18n="label_category_game">Kategori / Game</span>
+              </label>
+              <input type="text" id="setting-game-input" data-i18n-ph="ph_setting_game" placeholder="cth. Mobile Legends, Badminton">
             </div>
+
+            <!-- 2. Format Turnamen -->
             <div class="form-group">
-              <label data-i18n="label_bracket_format">Bracket Format</label>
-              <select id="setting-format-select" disabled>
+              <label for="setting-format-select">
+                <i class="fa-solid fa-trophy" style="color:var(--primary);"></i>
+                <span data-i18n="label_bracket_format">Format Bagan</span>
+                <i class="fa-solid fa-lock" style="font-size: 10px; opacity: 0.5; margin-left: auto;" title="Format terkunci selama bagan aktif"></i>
+              </label>
+              <select id="setting-format-select" class="input-modern select-modern" disabled>
                 <option value="single_elimination" data-i18n="opt_single_elim">Single Elimination</option>
-                <option value="round_robin" data-i18n="opt_round_robin">Round Robin (Setengah Kompetisi)</option>
-                <option value="round_robin_elimination" data-i18n="opt_round_robin_elim">Round Robin + Single Elimination (Grup & Gugur)</option>
+                <option value="round_robin" data-i18n="opt_round_robin">Round Robin</option>
+                <option value="round_robin_elimination" data-i18n="opt_round_robin_elim">Round Robin + Single Elimination</option>
                 <option value="double_elimination" data-i18n="opt_double_elim">Double Elimination</option>
               </select>
-              <small class="form-hint" data-i18n="hint_format_locked">Format is locked during active bracket generation.</small>
             </div>
-            <div class="form-group">
-              <label data-i18n="label_bracket_layout"><i class="fa-solid fa-table-columns" style="color:var(--primary); margin-right:4px;"></i> Layout Bagan Pertandingan</label>
-              <select id="setting-bracket-layout" class="input-modern select-modern" style="width:100%;">
-                <option value="standard" data-i18n="opt_layout_standard">Standar (1-Sisi Kiri ke Kanan)</option>
-                <option value="split" data-i18n="opt_layout_split">Bagan 2 Sisi (Split View Simetris)</option>
-              </select>
-              <small class="form-hint" data-i18n="hint_bracket_layout">Membagi bagan ke dua sisi simetris (sayap kiri & kanan) yang bertemu di Final tengah.</small>
-            </div>
-            <!-- Bracket Size Control Group (Auto vs Manual) -->
-            <div class="form-group bracket-size-control-group">
-              <div class="bracket-size-header-row">
-                <label class="toggle-label" for="setting-auto-bracket">
-                  <input type="checkbox" id="setting-auto-bracket" checked>
-                  <span class="toggle-text-with-icon">
-                    <i class="fa-solid fa-wand-magic-sparkles"></i>
-                    <span data-i18n="label_auto_bracket">Ukuran Bagan Otomatis</span>
-                  </span>
-                </label>
-                <span id="badge-bracket-mode" class="badge badge-setup" data-i18n="badge_bracket_auto">OTOMATIS</span>
-              </div>
-              <small class="form-hint" id="hint-auto-bracket" data-i18n="hint_auto_bracket">
-                Jumlah bagan otomatis menyesuaikan total peserta yang terdaftar.
-              </small>
 
-              <!-- Manual Bracket Size Selector (Shown when auto-bracket is unchecked) -->
+            <!-- 3. Tata Letak (Layout) -->
+            <div class="form-group">
+              <label for="setting-bracket-layout">
+                <i class="fa-solid fa-table-columns" style="color:var(--primary);"></i>
+                <span data-i18n="label_bracket_layout">Tata Letak (Layout)</span>
+              </label>
+              <select id="setting-bracket-layout" class="input-modern select-modern" style="width:100%;">
+                <option value="standard" data-i18n="opt_layout_standard">Standar (1 Sisi)</option>
+                <option value="split" data-i18n="opt_layout_split">Bagan 2 Sisi (Split View)</option>
+              </select>
+            </div>
+
+            <!-- 4. Kapasitas Bagan (Segmented Control: Otomatis vs Manual) -->
+            <div class="form-group">
+              <label>
+                <i class="fa-solid fa-sitemap" style="color:var(--primary);"></i>
+                <span data-i18n="label_bracket_size">Kapasitas Bagan</span>
+              </label>
+              <input type="checkbox" id="setting-auto-bracket" class="hidden" checked>
+              <div class="segmented-control" id="bracket-size-segmented">
+                <button type="button" class="segment-btn active" data-mode="auto" id="btn-seg-auto">
+                  <i class="fa-solid fa-wand-magic-sparkles"></i>
+                  <span data-i18n="opt_seg_auto">Otomatis</span>
+                </button>
+                <button type="button" class="segment-btn" data-mode="manual" id="btn-seg-manual">
+                  <i class="fa-solid fa-sliders"></i>
+                  <span data-i18n="opt_seg_manual">Manual</span>
+                </button>
+              </div>
+
+              <!-- Manual Size Selector (Shown when Manual is active) -->
               <div id="manual-size-container" class="manual-size-wrapper hidden">
-                <label for="setting-manual-size" class="manual-size-label">
-                  <i class="fa-solid fa-sitemap"></i>
-                  <span data-i18n="label_manual_size">Kapasitas / Ukuran Bagan Manual</span>
-                </label>
                 <div class="manual-size-inputs-row">
                   <select id="setting-manual-size" class="input-modern select-modern">
-                    <option value="4" data-i18n="opt_manual_size_4">4 Tim / Slot (Semifinal - 2 Babak)</option>
-                    <option value="8" selected data-i18n="opt_manual_size_8">8 Tim / Slot (Perempat Final - 3 Babak)</option>
-                    <option value="16" data-i18n="opt_manual_size_16">16 Tim / Slot (16 Besar - 4 Babak)</option>
-                    <option value="32" data-i18n="opt_manual_size_32">32 Tim / Slot (32 Besar - 5 Babak)</option>
-                    <option value="64" data-i18n="opt_manual_size_64">64 Tim / Slot (64 Besar - 6 Babak)</option>
-                    <option value="128" data-i18n="opt_manual_size_128">128 Tim / Slot (128 Besar - 7 Babak)</option>
-                    <option value="custom" data-i18n="opt_manual_size_custom">Custom (Kustom)...</option>
+                    <option value="4" data-i18n="opt_manual_size_4">4 Tim (Semifinal)</option>
+                    <option value="8" selected data-i18n="opt_manual_size_8">8 Tim (Perempat Final)</option>
+                    <option value="16" data-i18n="opt_manual_size_16">16 Tim (16 Besar)</option>
+                    <option value="32" data-i18n="opt_manual_size_32">32 Tim (32 Besar)</option>
+                    <option value="64" data-i18n="opt_manual_size_64">64 Tim (64 Besar)</option>
+                    <option value="128" data-i18n="opt_manual_size_128">128 Tim (128 Besar)</option>
+                    <option value="custom" data-i18n="opt_manual_size_custom">Kustom...</option>
                   </select>
-                  <input type="number" id="setting-custom-size-input" class="input-modern hidden" min="2" max="256" placeholder="Jml" style="width: 75px; text-align: center;" />
+                  <input type="number" id="setting-custom-size-input" class="input-modern hidden" min="2" max="256" placeholder="Slot" />
                 </div>
-                <small class="form-hint" data-i18n="hint_manual_size">
-                  Bagan dibuat tetap (fixed) dengan jumlah slot yang dipilih. Slot kosong dapat diisi peserta atau diundi (Auto-Seed).
-                </small>
               </div>
             </div>
-            <div class="form-group">
-              <label class="toggle-label">
+
+            <!-- 5. Fitur Tampilan (Toggles Card) -->
+            <div class="settings-toggles-card">
+              <label class="settings-toggle-row" for="setting-bronze-match">
+                <span class="toggle-row-title">
+                  <i class="fa-solid fa-medal" style="color: #f59e0b;"></i>
+                  <span data-i18n="label_bronze_match">Perebutan Juara 3</span>
+                </span>
                 <input type="checkbox" id="setting-bronze-match">
-                <span data-i18n="label_bronze_match">Include 3rd Place (Bronze) Match</span>
               </label>
-            </div>
-            <div class="form-group">
-              <label class="toggle-label">
+
+              <div class="settings-toggle-divider"></div>
+
+              <label class="settings-toggle-row" for="setting-hide-live-bracket">
+                <span class="toggle-row-title">
+                  <i class="fa-solid fa-eye-slash" style="color: #ef4444;"></i>
+                  <span data-i18n="label_hide_live_bracket">Sembunyikan di Live View</span>
+                </span>
                 <input type="checkbox" id="setting-hide-live-bracket">
-                <span data-i18n="label_hide_live_bracket">Sembunyikan Bagan di Live Spectator</span>
               </label>
-              <small class="form-hint" data-i18n="hint_hide_live_bracket">Jika diaktifkan, bagan pertandingan di halaman live spectator akan diburamkan (blurred out) dari penonton.</small>
             </div>
+
+            <!-- 6. Auto-Lock Timer -->
             <div class="form-group auto-lock-group">
-              <label style="color: var(--primary);"><i class="fa-solid fa-clock-rotate-left"></i> <span data-i18n="label_autolock">Auto-Lock Bracket Timer</span></label>
-              <p class="form-hint" style="margin-top: 2px;" data-i18n="hint_autolock">Kunci bracket secara otomatis setelah timer habis agar pertandingan langsung segera dimulai.</p>
+              <label for="setting-autolock-select">
+                <i class="fa-solid fa-clock-rotate-left" style="color: var(--primary);"></i>
+                <span data-i18n="label_autolock">Auto-Lock Timer</span>
+              </label>
               <div class="autolock-controls-row">
-                <select id="setting-autolock-select">
-                  <option value="none" data-i18n="autolock_none">Mati (Kunci Manual)</option>
-                  <option value="3" data-i18n="autolock_3m">3 Menit Lagi</option>
-                  <option value="5" data-i18n="autolock_5m">5 Menit Lagi</option>
-                  <option value="10" data-i18n="autolock_10m">10 Menit Lagi</option>
-                  <option value="15" data-i18n="autolock_15m">15 Menit Lagi</option>
-                  <option value="30" data-i18n="autolock_30m">30 Menit Lagi</option>
-                  <option value="sync_qr" data-i18n="autolock_sync_qr">Sesuai Batas Waktu QR</option>
+                <select id="setting-autolock-select" class="input-modern select-modern">
+                  <option value="none" data-i18n="autolock_none">Mati (Manual)</option>
+                  <option value="3" data-i18n="autolock_3m">3 Menit</option>
+                  <option value="5" data-i18n="autolock_5m">5 Menit</option>
+                  <option value="10" data-i18n="autolock_10m">10 Menit</option>
+                  <option value="15" data-i18n="autolock_15m">15 Menit</option>
+                  <option value="30" data-i18n="autolock_30m">30 Menit</option>
+                  <option value="sync_qr" data-i18n="autolock_sync_qr">Sesuai Batas QR</option>
                 </select>
-                <button type="button" id="btn-save-autolock" class="btn btn-secondary btn-sm" data-i18n="btn_set_timer">Set Timer</button>
+                <button type="button" id="btn-save-autolock" class="btn btn-secondary btn-sm" data-i18n="btn_set_timer">Simpan</button>
               </div>
-              <div id="autolock-countdown-banner" class="autolock-status-banner hidden" style="margin-top:8px; font-size:11px; padding:6px 10px; border-radius:6px; background:rgba(0,210,255,0.12); border:1px solid rgba(0,210,255,0.3); color:var(--primary); display:flex; align-items:center; gap:6px;">
-                <i class="fa-solid fa-hourglass-start"></i> <span id="autolock-countdown-text">Auto-lock dalam: --:--</span>
+              <div id="autolock-countdown-banner" class="autolock-status-banner hidden">
+                <i class="fa-solid fa-hourglass-start"></i> <span id="autolock-countdown-text">Auto-lock: --:--</span>
               </div>
             </div>
-            <div class="settings-danger-zone">
-              <h4 data-i18n="title_reset_tournament">Reset Tournament</h4>
-              <p data-i18n="desc_reset_tournament">Reset all match scores and restore bracket to initial setup.</p>
-              <button id="btn-reset-scores" class="btn btn-danger btn-sm">
-                <i class="fa-solid fa-rotate-left"></i> <span data-i18n="btn_reset_scores">Reset Match Scores</span>
+
+            <!-- 7. Danger Zone (Reset) -->
+            <div class="settings-danger-zone" style="margin-top: 4px; padding-top: 10px; border-top: 1px solid var(--border-subtle);">
+              <button id="btn-reset-scores" class="btn btn-danger btn-sm" style="width: 100%; justify-content: center;">
+                <i class="fa-solid fa-rotate-left"></i> <span data-i18n="btn_reset_scores">Reset Skor Pertandingan</span>
               </button>
             </div>
           </div>

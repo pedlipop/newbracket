@@ -76,69 +76,40 @@
       btn_bulk_add: 'Bulk Add',
       ph_add_participant: 'Add team/player name...',
       drag_hint: 'Drag any participant onto a bracket slot to assign or swap seeds!',
-      drawer_settings: 'Tournament Settings',
-      label_category_game: 'Tournament Category / Game',
-      ph_setting_game: 'e.g. Valorant, MLBB, Tekken 8',
-      label_bracket_format: 'Bracket Format',
+      drawer_settings: 'Pengaturan Turnamen',
+      label_category_game: 'Kategori / Game',
+      ph_setting_game: 'cth. Mobile Legends, Badminton',
+      label_bracket_format: 'Format Bagan',
       opt_single_elim: 'Single Elimination',
-      opt_round_robin: 'Round Robin (Setengah Kompetisi)',
-      opt_round_robin_elim: 'Round Robin + Single Elimination (Grup & Gugur)',
+      opt_round_robin: 'Round Robin',
+      opt_round_robin_elim: 'Round Robin + Single Elimination',
       opt_double_elim: 'Double Elimination',
-      rr_config_title: 'Pengaturan Babak Grup (Round Robin)',
-      label_rr_group_count: 'Jumlah Grup',
-      label_rr_advancing: 'Tim Lolos per Grup (Playoff)',
-      btn_convert_knockout: 'Konversi ke Babak Gugur',
-      modal_convert_title: 'Konversi ke Babak Gugur',
-      modal_convert_sub: 'Loloskan tim terbaik dari setiap grup ke bagan Single Elimination.',
-      label_qualifying_teams: 'Tim yang Lolos dari Klasemen:',
-      label_seeding_method: 'Skema Pertemuan Babak Gugur:',
-      opt_seed_cross: 'Silang Grup (Juara Grup A vs Runner-up Grup B, dsb.)',
-      opt_seed_rank: 'Sesuai Peringkat Poin Tertinggi (Seed 1 vs Terendah)',
-      hint_seeding_method: 'Skema silang mencegah tim dari grup yang sama bertemu langsung di babak pertama.',
-      btn_confirm_generate_bracket: 'Buat Bagan Babak Gugur',
-      stage_round_robin: 'Babak Grup (Round Robin)',
-      stage_elimination: 'Babak Gugur (Single Elimination)',
-      btn_direct_draw: 'Hasil Seri / Imbang (Draw)',
-      hint_format_locked: 'Format is locked during active bracket generation.',
-      label_bracket_layout: 'Layout Bagan Pertandingan',
-      opt_layout_standard: 'Standar (1-Sisi Kiri ke Kanan)',
-      opt_layout_split: 'Bagan 2 Sisi (Split View Simetris)',
-      hint_bracket_layout: 'Membagi bagan ke dua sisi simetris (sayap kiri & kanan) yang bertemu di Final tengah.',
-      label_bracket_size_mode: 'Ukuran Bagan',
-      label_auto_bracket: 'Ukuran Bagan Otomatis',
-      hint_auto_bracket: 'Jumlah bagan otomatis menyesuaikan total peserta yang terdaftar.',
-      badge_bracket_auto: 'OTOMATIS',
-      badge_bracket_manual: 'MANUAL',
-      label_manual_size: 'Kapasitas / Ukuran Bagan Manual',
-      hint_manual_size: 'Bagan dibuat tetap (fixed) dengan jumlah slot yang dipilih. Slot kosong dapat diisi peserta atau diundi (Auto-Seed).',
-      opt_manual_size_4: '4 Tim / Slot (Semifinal - 2 Babak)',
-      opt_manual_size_8: '8 Tim / Slot (Perempat Final - 3 Babak)',
-      opt_manual_size_16: '16 Tim / Slot (16 Besar - 4 Babak)',
-      opt_manual_size_32: '32 Tim / Slot (32 Besar - 5 Babak)',
-      opt_manual_size_64: '64 Tim / Slot (64 Besar - 6 Babak)',
-      opt_manual_size_128: '128 Tim / Slot (128 Besar - 7 Babak)',
-      opt_manual_size_custom: 'Custom (Kustom)...',
-      label_bronze_match: 'Include 3rd Place (Bronze) Match',
-      label_hide_live_bracket: 'Sembunyikan Bagan di Live Spectator',
-      hint_hide_live_bracket: 'Jika diaktifkan, bagan pertandingan di halaman live spectator akan diburamkan (blurred out) dari penonton.',
-      badge_hidden: 'Disembunyikan',
-      live_bracket_hidden_badge: 'BAGAN DISEMBUNYIKAN',
-      live_bracket_hidden_title: 'Bagan Pertandingan Diburamkan',
-      live_bracket_hidden_desc: 'Panitia turnamen sedang menyembunyikan susunan bagan pertandingan dari penonton langsung.',
-      live_bracket_hidden_status: 'Mode Privasi Aktif',
-      label_autolock: 'Auto-Lock Bracket Timer',
-      hint_autolock: 'Kunci bracket secara otomatis setelah timer habis agar pertandingan langsung segera dimulai.',
-      autolock_none: 'Mati (Kunci Manual)',
-      autolock_3m: '3 Menit Lagi',
-      autolock_5m: '5 Menit Lagi',
-      autolock_10m: '10 Menit Lagi',
-      autolock_15m: '15 Menit Lagi',
-      autolock_30m: '30 Menit Lagi',
-      autolock_sync_qr: 'Sesuai Batas Waktu QR',
-      btn_set_timer: 'Set Timer',
-      title_reset_tournament: 'Reset Tournament',
-      desc_reset_tournament: 'Reset all match scores and restore bracket to initial setup.',
-      btn_reset_scores: 'Reset Match Scores',
+      label_bracket_layout: 'Tata Letak (Layout)',
+      opt_layout_standard: 'Standar (1 Sisi)',
+      opt_layout_split: 'Bagan 2 Sisi (Split View)',
+      label_bracket_size: 'Kapasitas Bagan',
+      opt_seg_auto: 'Otomatis',
+      opt_seg_manual: 'Manual',
+      opt_manual_size_4: '4 Tim (Semifinal)',
+      opt_manual_size_8: '8 Tim (Perempat Final)',
+      opt_manual_size_16: '16 Tim (16 Besar)',
+      opt_manual_size_32: '32 Tim (32 Besar)',
+      opt_manual_size_64: '64 Tim (64 Besar)',
+      opt_manual_size_128: '128 Tim (128 Besar)',
+      opt_manual_size_custom: 'Kustom...',
+      label_bronze_match: 'Perebutan Juara 3',
+      label_hide_live_bracket: 'Sembunyikan di Live View',
+      label_autolock: 'Auto-Lock Timer',
+      autolock_none: 'Mati (Manual)',
+      autolock_3m: '3 Menit',
+      autolock_5m: '5 Menit',
+      autolock_10m: '10 Menit',
+      autolock_15m: '15 Menit',
+      autolock_30m: '30 Menit',
+      autolock_sync_qr: 'Sesuai Batas QR',
+      btn_set_timer: 'Simpan',
+      title_reset_tournament: 'Reset Turnamen',
+      btn_reset_scores: 'Reset Skor Pertandingan',
       drawer_themes: 'Aesthetic Themes',
       theme_dark: 'Modern Esports (Dark)',
       theme_cyber: 'Midnight Neon',
@@ -414,40 +385,28 @@
       stage_elimination: '单败淘汰赛 (Single Elimination)',
       btn_direct_draw: '平局 / 和局 (Draw)',
       hint_format_locked: '对阵生成后赛制已锁定。',
-      label_bracket_size_mode: '对阵规模设置',
-      label_auto_bracket: '自动对阵规模 (根据参赛人数)',
-      hint_auto_bracket: '对阵图轮次与签位数量将根据实际报名的参赛队伍人数自动动态生成。',
-      badge_bracket_auto: '自动',
-      badge_bracket_manual: '手动',
-      label_manual_size: '手动设定对阵图规模',
-      hint_manual_size: '生成固定签位数量的对阵图。空余签位可由后续报名选手填补或使用自动抽签分配。',
-      opt_manual_size_4: '4 队 / 签位 (半决赛 - 2 轮)',
-      opt_manual_size_8: '8 队 / 签位 (八强赛 - 3 轮)',
-      opt_manual_size_16: '16 队 / 签位 (16强 - 4 轮)',
-      opt_manual_size_32: '32 队 / 签位 (32强 - 5 轮)',
-      opt_manual_size_64: '64 队 / 签位 (64强 - 6 轮)',
-      opt_manual_size_128: '128 队 / 签位 (128强 - 7 轮)',
-      opt_manual_size_custom: '自定义数量...',
-      label_bronze_match: '包含季军赛（争夺第三名）',
-      label_hide_live_bracket: '在观众大屏隐藏对阵图（模糊处理）',
-      hint_hide_live_bracket: '开启后，公开观众大屏中的对阵图将被模糊虚化，隐藏比赛对阵。',
-      badge_hidden: '已隐藏',
-      live_bracket_hidden_badge: '对阵已隐藏',
-      live_bracket_hidden_title: '对阵图暂时保密中',
-      live_bracket_hidden_desc: '比赛组委会已隐藏公开观众大屏上的对阵图，请等待公开。',
-      live_bracket_hidden_status: '隐私保护模式生效中',
-      label_autolock: '自动锁定对阵倒计时',
-      hint_autolock: '倒计时结束后自动锁定对阵图并正式开始比赛。',
-      autolock_none: '关闭（手动锁定）',
-      autolock_3m: '3 分钟后',
-      autolock_5m: '5 分钟后',
-      autolock_10m: '10 分钟后',
-      autolock_15m: '15 分钟后',
-      autolock_30m: '30 分钟后',
-      autolock_sync_qr: '与二维码截止时间同步',
-      btn_set_timer: '保存倒计时',
+      label_bracket_size: '签位规模',
+      opt_seg_auto: '自动',
+      opt_seg_manual: '手动',
+      opt_manual_size_4: '4 队 (半决赛)',
+      opt_manual_size_8: '8 队 (八强赛)',
+      opt_manual_size_16: '16 队 (16强)',
+      opt_manual_size_32: '32 队 (32强)',
+      opt_manual_size_64: '64 队 (64强)',
+      opt_manual_size_128: '128 队 (128强)',
+      opt_manual_size_custom: '自定义...',
+      label_bronze_match: '季军赛 (第三名)',
+      label_hide_live_bracket: '大屏隐藏对阵图',
+      label_autolock: '自动锁定倒计时',
+      autolock_none: '关闭 (手动)',
+      autolock_3m: '3 分钟',
+      autolock_5m: '5 分钟',
+      autolock_10m: '10 分钟',
+      autolock_15m: '15 分钟',
+      autolock_30m: '30 分钟',
+      autolock_sync_qr: '同步二维码截止',
+      btn_set_timer: '保存',
       title_reset_tournament: '重置比赛',
-      desc_reset_tournament: '重置所有比分并将对阵图恢复至初始状态。',
       btn_reset_scores: '重置所有比分',
       drawer_themes: '主题风格',
       theme_dark: '现代电竞深色 (Dark)',
@@ -774,11 +733,11 @@
     el.settingHideLiveBracket = document.getElementById('setting-hide-live-bracket');
     el.settingBracketLayout = document.getElementById('setting-bracket-layout');
     el.settingAutoBracket = document.getElementById('setting-auto-bracket');
-    el.badgeBracketMode = document.getElementById('badge-bracket-mode');
+    el.btnSegAuto = document.getElementById('btn-seg-auto');
+    el.btnSegManual = document.getElementById('btn-seg-manual');
     el.manualSizeContainer = document.getElementById('manual-size-container');
     el.settingManualSize = document.getElementById('setting-manual-size');
     el.settingCustomSizeInput = document.getElementById('setting-custom-size-input');
-    el.hintAutoBracket = document.getElementById('hint-auto-bracket');
     el.studioLiveHiddenIndicator = document.getElementById('studio-live-hidden-indicator');
     el.btnResetScores = document.getElementById('btn-reset-scores');
 
@@ -1544,11 +1503,13 @@
       el.settingAutoBracket.checked = isAutoBracket;
       el.settingAutoBracket.disabled = isBracketLocked;
     }
-    if (el.badgeBracketMode) {
-      el.badgeBracketMode.textContent = isAutoBracket
-        ? (isZh ? '自动' : 'OTOMATIS')
-        : (isZh ? '手动' : 'MANUAL');
-      el.badgeBracketMode.className = isAutoBracket ? 'badge badge-setup' : 'badge badge-in-progress';
+    if (el.btnSegAuto) {
+      el.btnSegAuto.classList.toggle('active', isAutoBracket);
+      el.btnSegAuto.disabled = isBracketLocked;
+    }
+    if (el.btnSegManual) {
+      el.btnSegManual.classList.toggle('active', !isAutoBracket);
+      el.btnSegManual.disabled = isBracketLocked;
     }
     if (el.manualSizeContainer) {
       el.manualSizeContainer.classList.toggle('hidden', isAutoBracket);
@@ -9372,50 +9333,51 @@
     }
 
     // Auto / Manual Bracket Size Event Handlers
+    const updateBracketSizeMode = (isAuto) => {
+      const t = state.currentTournament;
+      if (!t) return;
+      if (t.isLocked) {
+        showToast(state.lang === 'zh' ? '比赛已锁定，无法修改对阵规模' : 'Bagan sedang dikunci! Buka kunci bagan terlebih dahulu.', 'warning');
+        return;
+      }
+
+      t.settings = t.settings || {};
+      t.settings.autoBracketSize = isAuto;
+
+      const isZh = state.lang === 'zh';
+      if (el.settingAutoBracket) el.settingAutoBracket.checked = isAuto;
+      if (el.btnSegAuto) el.btnSegAuto.classList.toggle('active', isAuto);
+      if (el.btnSegManual) el.btnSegManual.classList.toggle('active', !isAuto);
+      if (el.manualSizeContainer) el.manualSizeContainer.classList.toggle('hidden', isAuto);
+
+      if (isAuto) {
+        t.rounds = generateBracketTree(t.participants, t.rounds, false, null);
+        saveTournamentState(false);
+        renderBracketStudio();
+        showToast(isZh ? '已切换为自动规模（跟随参赛人数）' : 'Ukuran bagan otomatis mengikuti jumlah peserta', 'info');
+      } else {
+        let size = parseInt(el.settingManualSize?.value, 10);
+        if (el.settingManualSize?.value === 'custom' && el.settingCustomSizeInput) {
+          size = parseInt(el.settingCustomSizeInput.value, 10) || 8;
+        }
+        if (isNaN(size) || size < 2) size = 8;
+        t.settings.manualBracketSize = size;
+        t.maxParticipants = size;
+        t.rounds = generateBracketTree(t.participants, t.rounds, false, size);
+        saveTournamentState(false);
+        renderBracketStudio();
+        showToast(isZh ? `已切换为手动规模（${size} 队）` : `Ukuran bagan diatur manual (${size} Tim)`, 'info');
+      }
+    };
+
+    if (el.btnSegAuto) {
+      el.btnSegAuto.addEventListener('click', () => updateBracketSizeMode(true));
+    }
+    if (el.btnSegManual) {
+      el.btnSegManual.addEventListener('click', () => updateBracketSizeMode(false));
+    }
     if (el.settingAutoBracket) {
-      el.settingAutoBracket.addEventListener('change', () => {
-        const t = state.currentTournament;
-        if (!t) return;
-        if (t.isLocked) {
-          showToast(state.lang === 'zh' ? '比赛已锁定，无法修改对阵规模' : 'Bagan sedang dikunci! Buka kunci bagan terlebih dahulu.', 'warning');
-          el.settingAutoBracket.checked = t.settings?.autoBracketSize !== false;
-          return;
-        }
-
-        const isAuto = el.settingAutoBracket.checked;
-        t.settings = t.settings || {};
-        t.settings.autoBracketSize = isAuto;
-
-        const isZh = state.lang === 'zh';
-        if (el.badgeBracketMode) {
-          el.badgeBracketMode.textContent = isAuto ? (isZh ? '自动' : 'OTOMATIS') : (isZh ? '手动' : 'MANUAL');
-          el.badgeBracketMode.className = isAuto ? 'badge badge-setup' : 'badge badge-in-progress';
-        }
-        if (el.manualSizeContainer) {
-          el.manualSizeContainer.classList.toggle('hidden', isAuto);
-        }
-
-        if (isAuto) {
-          // Switch to automatic: size follows participants
-          t.rounds = generateBracketTree(t.participants, t.rounds, false, null);
-          saveTournamentState(false);
-          renderBracketStudio();
-          showToast(isZh ? '已切换为自动对阵规模（根据参赛队伍人数）' : 'Ukuran bagan otomatis mengikuti jumlah peserta terdaftar', 'info');
-        } else {
-          // Switch to manual: size follows manual selection
-          let size = parseInt(el.settingManualSize?.value, 10);
-          if (el.settingManualSize?.value === 'custom' && el.settingCustomSizeInput) {
-            size = parseInt(el.settingCustomSizeInput.value, 10) || 8;
-          }
-          if (isNaN(size) || size < 2) size = 8;
-          t.settings.manualBracketSize = size;
-          t.maxParticipants = size;
-          t.rounds = generateBracketTree(t.participants, t.rounds, false, size);
-          saveTournamentState(false);
-          renderBracketStudio();
-          showToast(isZh ? `已切换为手动对阵规模（${size} 支队伍/签位）` : `Ukuran bagan diatur manual (${size} Tim/Slot)`, 'info');
-        }
-      });
+      el.settingAutoBracket.addEventListener('change', () => updateBracketSizeMode(el.settingAutoBracket.checked));
     }
 
     if (el.settingManualSize) {

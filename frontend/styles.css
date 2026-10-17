@@ -838,65 +838,87 @@ button {
   display: flex;
 }
 
-/* Bracket Size Control in Settings Panel */
-.bracket-size-control-group {
-  box-sizing: border-box;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-sm);
-  padding: 12px;
-  margin-bottom: 14px;
-  transition: border-color var(--transition-fast), background var(--transition-fast);
-}
-
-.bracket-size-control-group:hover {
-  border-color: var(--border-accent);
-}
-
-.bracket-size-header-row {
+/* Modern Clean Settings Panel */
+.settings-form {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 6px;
+  flex-direction: column;
+  gap: 12px;
+  padding: 10px 12px 20px 12px;
 }
 
-.toggle-text-with-icon {
+.settings-form .form-group {
+  margin-bottom: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.settings-form label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-secondary);
   display: flex;
   align-items: center;
   gap: 6px;
-  font-weight: 600;
+  margin: 0;
 }
 
-.toggle-text-with-icon i {
-  color: var(--primary);
+/* Segmented Control for Auto vs Manual */
+.segmented-control {
+  display: flex;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 3px;
+  gap: 3px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.segment-btn {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 7px 10px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  white-space: nowrap;
+}
+
+.segment-btn:hover {
+  color: var(--text-main);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.segment-btn.active {
+  color: var(--primary, #00d2ff);
+  background: rgba(0, 210, 255, 0.12);
+  border-color: rgba(0, 210, 255, 0.3);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+}
+
+.segment-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .manual-size-wrapper {
-  margin-top: 10px;
-  padding-top: 10px;
-  border-top: 1px dashed var(--border-subtle);
-  animation: fadeIn 0.2s ease-in-out;
-}
-
-.manual-size-label {
-  font-size: 0.82rem;
-  font-weight: 600;
-  color: var(--text-main);
-  margin-bottom: 6px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.manual-size-label i {
-  color: var(--primary);
+  margin-top: 6px;
+  animation: fadeIn 0.15s ease-in-out;
 }
 
 .manual-size-inputs-row {
   display: flex;
-  gap: 8px;
+  gap: 6px;
   align-items: center;
-  margin-bottom: 4px;
 }
 
 .manual-size-inputs-row select {
@@ -905,9 +927,90 @@ button {
 }
 
 .manual-size-inputs-row input[type="number"] {
-  width: 75px !important;
+  width: 70px !important;
   text-align: center !important;
   flex-shrink: 0 !important;
+}
+
+/* Modern Settings Toggles Card (iOS/Figma style clean rows) */
+.settings-toggles-card {
+  display: flex;
+  flex-direction: column;
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  margin-top: 2px;
+}
+
+.settings-toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 9px 12px;
+  cursor: pointer;
+  user-select: none;
+  transition: background var(--transition-fast);
+  gap: 10px;
+  margin: 0;
+}
+
+.settings-toggle-row:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.toggle-row-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--text-main);
+}
+
+.settings-toggle-row input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 36px;
+  height: 20px;
+  background: var(--bg-surface-elevated, #334155);
+  border: 1px solid var(--border-accent, rgba(255, 255, 255, 0.15));
+  border-radius: 9999px;
+  position: relative;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  flex-shrink: 0;
+  margin: 0;
+}
+
+.settings-toggle-row input[type="checkbox"]::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #94a3b8;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.settings-toggle-row input[type="checkbox"]:checked {
+  background: var(--primary, #00d2ff);
+  border-color: var(--primary, #00d2ff);
+  box-shadow: 0 0 10px var(--primary-glow, rgba(0, 210, 255, 0.35));
+}
+
+.settings-toggle-row input[type="checkbox"]:checked::after {
+  left: 18px;
+  background: #ffffff;
+}
+
+.settings-toggle-divider {
+  height: 1px;
+  background: var(--border-subtle);
+  margin: 0;
 }
 
 /* Auto-Lock Bracket Controls in Settings */
