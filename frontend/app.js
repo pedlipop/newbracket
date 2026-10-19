@@ -67,6 +67,7 @@
       studio_unlock_btn: 'Unlock Bracket',
       studio_qr_btn: 'Player QR',
       studio_live_btn: 'Live Spectator',
+      badge_hidden: 'Disembunyikan',
       nav_teams: 'Teams',
       nav_format: 'Format',
       nav_themes: 'Themes',
@@ -84,6 +85,22 @@
       opt_round_robin: 'Round Robin',
       opt_round_robin_elim: 'Round Robin + Single Elimination',
       opt_double_elim: 'Double Elimination',
+      rr_config_title: 'Pengaturan Babak Grup (Round Robin)',
+      label_rr_group_count: 'Jumlah Grup',
+      label_rr_advancing: 'Lolos per Grup (Knockout)',
+      btn_convert_knockout: 'Loloskan ke Babak Gugur',
+      modal_convert_title: 'Generate Bagan Babak Gugur',
+      modal_convert_sub: 'Berdasarkan klasemen poin grup, sistem akan otomatis menyusun bagan Single Elimination.',
+      label_qualifying_teams: 'Tim yang Lolos dari Grup:',
+      label_seeding_method: 'Metode Seeding Babak Gugur:',
+      opt_seed_cross: 'Silang Antar Grup (Juara A vs Runner-up B)',
+      opt_seed_rank: 'Peringkat Poin Keseluruhan',
+      hint_seeding_method: 'Metode silang mencegah tim dari grup yang sama bertemu terlalu awal di babak pertama.',
+      btn_confirm_generate_bracket: 'Konfirmasi Buat Bagan Gugur',
+      stage_round_robin: 'Babak Grup (Round Robin)',
+      stage_elimination: 'Babak Gugur (Single Elimination)',
+      btn_direct_draw: 'Seri / Imbang (Draw)',
+      hint_format_locked: 'Format bagan telah dikunci setelah turnamen dibuat.',
       label_bracket_layout: 'Tata Letak (Layout)',
       opt_layout_standard: 'Standar (1 Sisi)',
       opt_layout_split: 'Bagan 2 Sisi (Split View)',
@@ -126,6 +143,10 @@
       not_started_title: 'Permainan Belum Dimulai',
       not_started_desc: 'Bagan pertandingan (bracket) sedang dipersiapkan oleh panitia. Halaman ini akan otomatis terupdate begitu pertandingan dimulai.',
       not_started_waiting: 'Menunggu Pembukaan',
+      live_bracket_hidden_badge: 'BAGAN DISEMBUNYIKAN',
+      live_bracket_hidden_title: 'Bagan Pertandingan Diburamkan',
+      live_bracket_hidden_desc: 'Panitia turnamen sedang menyembunyikan susunan bagan pertandingan dari penonton langsung.',
+      live_bracket_hidden_status: 'Mode Privasi Aktif',
       reg_badge: 'PARTICIPANT REGISTRATION',
       label_bracket_layout: 'Tata Letak Bagan (Layout)',
       opt_layout_standard: 'Standar (1-Sisi Kiri ke Kanan)',
@@ -352,6 +373,7 @@
       studio_unlock_btn: '解锁对阵',
       studio_qr_btn: '选手扫码',
       studio_live_btn: '观赛页面',
+      badge_hidden: '隐藏中',
       nav_teams: '队伍名单',
       nav_format: '赛制结构',
       nav_themes: '主题风格',
@@ -424,6 +446,10 @@
       not_started_title: '比赛尚未开始',
       not_started_desc: '裁判与组委会正在编排对阵图。比赛一旦开始，本页面将自动刷新并展示实时赛程。',
       not_started_waiting: '等待开赛',
+      live_bracket_hidden_badge: '对阵图已隐藏',
+      live_bracket_hidden_title: '比赛对阵图已暂闭',
+      live_bracket_hidden_desc: '裁判与组委会已对现场观众隐藏实时对阵图安排。',
+      live_bracket_hidden_status: '隐私保护模式生效中',
       reg_badge: '参赛选手登记报名',
       label_bracket_layout: '对阵图布局',
       opt_layout_standard: '标准单侧 (从左至右)',
@@ -625,9 +651,9 @@
     }
   };
 
-  function t(key) {
+  function t(key, fallback = null) {
     const lang = state.lang || 'id';
-    return (I18N[lang] && I18N[lang][key]) || (I18N.id && I18N.id[key]) || key;
+    return (I18N[lang] && I18N[lang][key]) || (I18N.id && I18N.id[key]) || fallback;
   }
 
   function setLanguage(lang) {
