@@ -434,12 +434,12 @@
                 <i class="fa-solid fa-dice" style="color: var(--primary);"></i>
                 <span data-i18n="label_seed_number">Kode Seed Bagan</span>
               </label>
-              <div class="autolock-controls-row">
-                <input type="number" id="setting-seed-number" class="input-modern" min="1" max="999999" step="1" placeholder="Belum ada (Auto-Seed dulu)" style="flex:1; min-width:0;">
-                <button type="button" id="btn-apply-seed" class="btn btn-primary btn-sm" title="Terapkan kode seed ke bagan">
+              <div class="seed-controls-row" style="display: flex; gap: 6px; align-items: center; width: 100%;">
+                <input type="number" id="setting-seed-number" class="input-modern" min="1" max="999999" step="1" placeholder="Belum ada (Auto-Seed dulu)" style="flex: 1 1 0; min-width: 0;">
+                <button type="button" id="btn-apply-seed" class="btn btn-primary btn-sm" title="Terapkan kode seed ke bagan" style="flex-shrink: 0; white-space: nowrap; padding: 6px 10px;">
                   <i class="fa-solid fa-check"></i> <span data-i18n="btn_apply_seed">Terapkan</span>
                 </button>
-                <button type="button" id="btn-copy-current-seed" class="btn btn-secondary btn-sm" title="Salin kode seed">
+                <button type="button" id="btn-copy-current-seed" class="btn btn-secondary btn-sm" title="Salin kode seed" style="flex-shrink: 0; padding: 6px 10px;">
                   <i class="fa-regular fa-copy"></i>
                 </button>
               </div>
@@ -1887,6 +1887,6 @@
   <div id="toast-container" class="toast-container"></div>
 
   <!-- Application Logic -->
-  <script src="app.js?v=3.5"></script>
+  <script src="app.js?v=3.6"></script>
 </body>
 </html>

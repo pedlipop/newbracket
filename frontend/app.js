@@ -5497,6 +5497,65 @@
     return true;
   }
 
+  // ---- Seed lock snapshots: remember locked slots per seed code so a code always reproduces the same bracket ----
+  const SEED_LOCK_HISTORY_MAX = 50;
+
+  function recordSeedLockSnapshot(t, code, entrySlots) {
+    if (!t || !code) return;
+    t.settings = t.settings || {};
+    const isPlaced = p => p && !p.isPlaceholder && !p.isUnseeded;
+    const locks = entrySlots.filter(s => s.isLocked).map(s => ({
+      r: s.roundIdx,
+      m: s.matchIdx,
+      slot: s.slot,
+      pid: isPlaced(s.currentP) ? (s.currentP.id || null) : null,
+      name: isPlaced(s.currentP) ? (s.currentP.name || '') : ''
+    }));
+    const hist = Array.isArray(t.settings.seedLockHistory) ? t.settings.seedLockHistory : [];
+    t.settings.seedLockHistory = [{ code, locks }, ...hist.filter(h => h && h.code !== code)].slice(0, SEED_LOCK_HISTORY_MAX);
+  }
+
+  // Restores the locked slots saved for this code. Returns number of locks restored, or -1 if no snapshot exists.
+  function restoreSeedLockSnapshot(t, code) {
+    const hist = t?.settings?.seedLockHistory;
+    const entry = Array.isArray(hist) ? hist.find(h => h && h.code === code) : null;
+    if (!entry) return -1;
+
+    if (!t.rounds || t.rounds.length === 0) {
+      t.rounds = generateBracketTree(t.participants, null, false);
+    }
+    // Start from a clean lock state, then apply exactly the saved locks
+    t.rounds.forEach(r => (r.matches || []).forEach(m => { delete m.p1Locked; delete m.p2Locked; }));
+
+    let restored = 0;
+    (entry.locks || []).forEach(l => {
+      const match = t.rounds[l.r]?.matches?.[l.m];
+      if (!match) return;
+      const isEntrySlot = l.slot === 'p1' ? !match.feederTopId : !match.feederBotId;
+      if (!isEntrySlot) return;
+
+      if (l.pid || l.name) {
+        const parts = t.participants || [];
+        let idx = l.pid ? parts.findIndex(p => p && p.id === l.pid) : -1;
+        if (idx === -1 && l.name) {
+          const key = l.name.trim().toLowerCase();
+          idx = parts.findIndex(p => p && p.name && p.name.trim().toLowerCase() === key);
+        }
+        if (idx === -1) return; // team no longer exists -> cannot restore this lock
+        const part = parts[idx];
+        const teamNumber = (part.seed !== undefined && part.seed !== null && part.seed !== '') ? part.seed : idx + 1;
+        match[l.slot] = { ...part, seed: teamNumber, isPlaceholder: false, isUnseeded: false };
+      } else {
+        // Locked empty slot
+        const prev = match[l.slot];
+        match[l.slot] = { name: '', id: null, isPlaceholder: true, isUnseeded: true, seed: prev && prev.isPlaceholder ? prev.seed : null };
+      }
+      match[`${l.slot}Locked`] = true;
+      restored++;
+    });
+    return restored;
+  }
+
   // Re-draw the bracket using a specific (previously generated) seed code
   function handleApplySeedCode() {
     const t = state.currentTournament;
@@ -5507,6 +5566,8 @@
       return;
     }
     if (!canRunSeeding(t)) return;
+    // Bring back the slots that were locked when this code was drawn (even after Reset Seed cleared them)
+    restoreSeedLockSnapshot(t, code);
     performSeeding(true, code);
   }
 
@@ -5674,6 +5735,7 @@
       }
       t.settings = t.settings || {};
       t.settings.lastSeedUsed = usedSeed;
+      recordSeedLockSnapshot(t, usedSeed, entrySlots);
     }
 
     // 4. Assign into unlocked slots

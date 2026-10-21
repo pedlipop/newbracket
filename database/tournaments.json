@@ -8,8 +8,389 @@
       "status": "setup",
       "isLocked": false,
       "maxParticipants": 8,
-      "participants": [],
-      "rounds": [],
+      "participants": [
+        {
+          "id": "p_1792486185293_bmky",
+          "name": "dada",
+          "teamName": "dada",
+          "playerName": "dada",
+          "wecom": "",
+          "dept": "",
+          "company": "",
+          "isTeam": false,
+          "partners": [],
+          "partner": null,
+          "registeredAt": "2026-10-20T08:49:51.067Z",
+          "seed": 1
+        },
+        {
+          "id": "p_1792486185461_dsc2",
+          "name": "wawgfa",
+          "teamName": "wawgfa",
+          "playerName": "wawgfa",
+          "wecom": "",
+          "dept": "",
+          "company": "",
+          "isTeam": false,
+          "partners": [],
+          "partner": null,
+          "registeredAt": "2026-10-20T08:49:52.553Z",
+          "seed": 2
+        },
+        {
+          "id": "p_1792486185684_quuv",
+          "name": "erger",
+          "teamName": "erger",
+          "playerName": "erger",
+          "wecom": "",
+          "dept": "",
+          "company": "",
+          "isTeam": false,
+          "partners": [],
+          "partner": null,
+          "registeredAt": "2026-10-20T08:49:54.065Z",
+          "seed": 3
+        },
+        {
+          "id": "p_1792486185863_2m4x",
+          "name": "awefaw",
+          "teamName": "awefaw",
+          "playerName": "awefaw",
+          "wecom": "",
+          "dept": "",
+          "company": "",
+          "isTeam": false,
+          "partners": [],
+          "partner": null,
+          "registeredAt": "2026-10-20T08:49:55.010Z",
+          "seed": 4
+        },
+        {
+          "id": "p_1792486186051_jkf0",
+          "name": "awegaw",
+          "teamName": "awegaw",
+          "playerName": "awegaw",
+          "wecom": "",
+          "dept": "",
+          "company": "",
+          "isTeam": false,
+          "partners": [],
+          "partner": null,
+          "registeredAt": "2026-10-20T08:49:55.837Z",
+          "seed": 5
+        },
+        {
+          "id": "p_1792486186226_c0tv",
+          "name": "awegawr",
+          "teamName": "awegawr",
+          "playerName": "awegawr",
+          "wecom": "",
+          "dept": "",
+          "company": "",
+          "isTeam": false,
+          "partners": [],
+          "partner": null,
+          "registeredAt": "2026-10-20T08:49:56.693Z",
+          "seed": 6
+        },
+        {
+          "id": "p_1792486186401_mlel",
+          "name": "awregaw",
+          "teamName": "awregaw",
+          "playerName": "awregaw",
+          "wecom": "",
+          "dept": "",
+          "company": "",
+          "isTeam": false,
+          "partners": [],
+          "partner": null,
+          "registeredAt": "2026-10-20T08:49:58.269Z",
+          "seed": 7
+        },
+        {
+          "id": "p_1792486186555_rcla",
+          "name": "sdgas",
+          "teamName": "sdgas",
+          "playerName": "sdgas",
+          "wecom": "",
+          "dept": "",
+          "company": "",
+          "isTeam": false,
+          "partners": [],
+          "partner": null,
+          "registeredAt": "2026-10-20T08:49:59.274Z",
+          "seed": 8
+        }
+      ],
+      "rounds": [
+        {
+          "roundNumber": 1,
+          "title": "Quarterfinals",
+          "matches": [
+            {
+              "id": "r1_m1",
+              "round": 1,
+              "matchIndex": 0,
+              "pairRange": [
+                0,
+                0
+              ],
+              "p1": {
+                "id": "p_1792486186555_rcla",
+                "name": "sdgas",
+                "teamName": "sdgas",
+                "playerName": "sdgas",
+                "wecom": "",
+                "dept": "",
+                "company": "",
+                "isTeam": false,
+                "partners": [],
+                "partner": null,
+                "registeredAt": "2026-10-20T08:49:59.274Z",
+                "seed": 8,
+                "isPlaceholder": false,
+                "isUnseeded": false
+              },
+              "p2": {
+                "id": "p_1792486186401_mlel",
+                "name": "awregaw",
+                "teamName": "awregaw",
+                "playerName": "awregaw",
+                "wecom": "",
+                "dept": "",
+                "company": "",
+                "isTeam": false,
+                "partners": [],
+                "partner": null,
+                "registeredAt": "2026-10-20T08:49:58.269Z",
+                "seed": 7,
+                "isPlaceholder": false,
+                "isUnseeded": false
+              },
+              "score1": "",
+              "score2": "",
+              "winnerId": null,
+              "status": "scheduled"
+            },
+            {
+              "id": "r1_m2",
+              "round": 1,
+              "matchIndex": 1,
+              "pairRange": [
+                1,
+                1
+              ],
+              "p1": {
+                "id": "p_1792486185684_quuv",
+                "name": "erger",
+                "teamName": "erger",
+                "playerName": "erger",
+                "wecom": "",
+                "dept": "",
+                "company": "",
+                "isTeam": false,
+                "partners": [],
+                "partner": null,
+                "registeredAt": "2026-10-20T08:49:54.065Z",
+                "seed": 3,
+                "isPlaceholder": false,
+                "isUnseeded": false
+              },
+              "p2": {
+                "id": "p_1792486185461_dsc2",
+                "name": "wawgfa",
+                "teamName": "wawgfa",
+                "playerName": "wawgfa",
+                "wecom": "",
+                "dept": "",
+                "company": "",
+                "isTeam": false,
+                "partners": [],
+                "partner": null,
+                "registeredAt": "2026-10-20T08:49:52.553Z",
+                "seed": 2,
+                "isPlaceholder": false,
+                "isUnseeded": false
+              },
+              "score1": "",
+              "score2": "",
+              "winnerId": null,
+              "status": "scheduled"
+            },
+            {
+              "id": "r1_m3",
+              "round": 1,
+              "matchIndex": 2,
+              "pairRange": [
+                2,
+                2
+              ],
+              "p1": {
+                "id": "p_1792486185293_bmky",
+                "name": "dada",
+                "teamName": "dada",
+                "playerName": "dada",
+                "wecom": "",
+                "dept": "",
+                "company": "",
+                "isTeam": false,
+                "partners": [],
+                "partner": null,
+                "registeredAt": "2026-10-20T08:49:51.067Z",
+                "seed": 1,
+                "isPlaceholder": false,
+                "isUnseeded": false
+              },
+              "p2": {
+                "id": "p_1792486186051_jkf0",
+                "name": "awegaw",
+                "teamName": "awegaw",
+                "playerName": "awegaw",
+                "wecom": "",
+                "dept": "",
+                "company": "",
+                "isTeam": false,
+                "partners": [],
+                "partner": null,
+                "registeredAt": "2026-10-20T08:49:55.837Z",
+                "seed": 5,
+                "isPlaceholder": false,
+                "isUnseeded": false
+              },
+              "score1": "",
+              "score2": "",
+              "winnerId": null,
+              "status": "scheduled"
+            },
+            {
+              "id": "r1_m4",
+              "round": 1,
+              "matchIndex": 3,
+              "pairRange": [
+                3,
+                3
+              ],
+              "p1": {
+                "id": "p_1792486185863_2m4x",
+                "name": "awefaw",
+                "teamName": "awefaw",
+                "playerName": "awefaw",
+                "wecom": "",
+                "dept": "",
+                "company": "",
+                "isTeam": false,
+                "partners": [],
+                "partner": null,
+                "registeredAt": "2026-10-20T08:49:55.010Z",
+                "seed": 4,
+                "isPlaceholder": false,
+                "isUnseeded": false
+              },
+              "p2": {
+                "id": "p_1792486186226_c0tv",
+                "name": "awegawr",
+                "teamName": "awegawr",
+                "playerName": "awegawr",
+                "wecom": "",
+                "dept": "",
+                "company": "",
+                "isTeam": false,
+                "partners": [],
+                "partner": null,
+                "registeredAt": "2026-10-20T08:49:56.693Z",
+                "seed": 6,
+                "isPlaceholder": false,
+                "isUnseeded": false
+              },
+              "score1": "",
+              "score2": "",
+              "winnerId": null,
+              "status": "scheduled"
+            }
+          ]
+        },
+        {
+          "roundNumber": 2,
+          "title": "Semifinals",
+          "matches": [
+            {
+              "id": "r2_m1",
+              "round": 2,
+              "matchIndex": 0,
+              "pairRange": [
+                0,
+                1
+              ],
+              "feederTopId": "r1_m1",
+              "feederBotId": "r1_m2",
+              "p1": {
+                "name": "Winner R1 M1",
+                "isPlaceholder": true
+              },
+              "p2": {
+                "name": "Winner R1 M2",
+                "isPlaceholder": true
+              },
+              "score1": "",
+              "score2": "",
+              "winnerId": null,
+              "status": "scheduled"
+            },
+            {
+              "id": "r2_m2",
+              "round": 2,
+              "matchIndex": 1,
+              "pairRange": [
+                2,
+                3
+              ],
+              "feederTopId": "r1_m3",
+              "feederBotId": "r1_m4",
+              "p1": {
+                "name": "Winner R1 M3",
+                "isPlaceholder": true
+              },
+              "p2": {
+                "name": "Winner R1 M4",
+                "isPlaceholder": true
+              },
+              "score1": "",
+              "score2": "",
+              "winnerId": null,
+              "status": "scheduled"
+            }
+          ]
+        },
+        {
+          "roundNumber": 3,
+          "title": "Championship Final",
+          "matches": [
+            {
+              "id": "r3_m1",
+              "round": 3,
+              "matchIndex": 0,
+              "pairRange": [
+                0,
+                3
+              ],
+              "feederTopId": "r2_m1",
+              "feederBotId": "r2_m2",
+              "p1": {
+                "name": "Winner R2 M1",
+                "isPlaceholder": true
+              },
+              "p2": {
+                "name": "Winner R2 M2",
+                "isPlaceholder": true
+              },
+              "score1": "",
+              "score2": "",
+              "winnerId": null,
+              "status": "scheduled"
+            }
+          ]
+        }
+      ],
       "lockedSeeds": [],
       "inProgressHighlight": false,
       "registrationDeadline": null,
@@ -24,10 +405,12 @@
         "teamSize": 5,
         "teamNameMode": "manual",
         "autoBracketSize": true,
-        "manualBracketSize": 8
+        "manualBracketSize": 8,
+        "seedNumber": 347071,
+        "lastSeedUsed": 366554
       },
       "createdAt": "2026-10-09T07:40:42.269Z",
-      "updatedAt": "2026-10-17T09:08:30.413Z",
+      "updatedAt": "2026-10-21T01:28:43.958Z",
       "hideLiveBracket": false
     },
     {
