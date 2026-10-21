@@ -136,41 +136,27 @@
                 0
               ],
               "p1": {
-                "id": "p_1792486186555_rcla",
-                "name": "sdgas",
-                "teamName": "sdgas",
-                "playerName": "sdgas",
-                "wecom": "",
-                "dept": "",
-                "company": "",
+                "id": "p_1792486185461_dsc2",
+                "name": "wawgfa",
+                "seed": 2,
+                "playerName": "wawgfa",
                 "isTeam": false,
-                "partners": [],
-                "partner": null,
-                "registeredAt": "2026-10-20T08:49:59.274Z",
-                "seed": 8,
-                "isPlaceholder": false,
-                "isUnseeded": false
+                "teamName": "wawgfa"
               },
               "p2": {
-                "id": "p_1792486186401_mlel",
-                "name": "awregaw",
-                "teamName": "awregaw",
-                "playerName": "awregaw",
-                "wecom": "",
-                "dept": "",
-                "company": "",
+                "id": "p_1792486186051_jkf0",
+                "name": "awegaw",
+                "seed": 5,
+                "playerName": "awegaw",
                 "isTeam": false,
-                "partners": [],
-                "partner": null,
-                "registeredAt": "2026-10-20T08:49:58.269Z",
-                "seed": 7,
-                "isPlaceholder": false,
-                "isUnseeded": false
+                "teamName": "awegaw"
               },
               "score1": "",
               "score2": "",
               "winnerId": null,
-              "status": "scheduled"
+              "status": "scheduled",
+              "p1Locked": true,
+              "p2Locked": true
             },
             {
               "id": "r1_m2",
@@ -197,18 +183,18 @@
                 "isUnseeded": false
               },
               "p2": {
-                "id": "p_1792486185461_dsc2",
-                "name": "wawgfa",
-                "teamName": "wawgfa",
-                "playerName": "wawgfa",
+                "id": "p_1792486186555_rcla",
+                "name": "sdgas",
+                "teamName": "sdgas",
+                "playerName": "sdgas",
                 "wecom": "",
                 "dept": "",
                 "company": "",
                 "isTeam": false,
                 "partners": [],
                 "partner": null,
-                "registeredAt": "2026-10-20T08:49:52.553Z",
-                "seed": 2,
+                "registeredAt": "2026-10-20T08:49:59.274Z",
+                "seed": 8,
                 "isPlaceholder": false,
                 "isUnseeded": false
               },
@@ -242,18 +228,18 @@
                 "isUnseeded": false
               },
               "p2": {
-                "id": "p_1792486186051_jkf0",
-                "name": "awegaw",
-                "teamName": "awegaw",
-                "playerName": "awegaw",
+                "id": "p_1792486185863_2m4x",
+                "name": "awefaw",
+                "teamName": "awefaw",
+                "playerName": "awefaw",
                 "wecom": "",
                 "dept": "",
                 "company": "",
                 "isTeam": false,
                 "partners": [],
                 "partner": null,
-                "registeredAt": "2026-10-20T08:49:55.837Z",
-                "seed": 5,
+                "registeredAt": "2026-10-20T08:49:55.010Z",
+                "seed": 4,
                 "isPlaceholder": false,
                 "isUnseeded": false
               },
@@ -271,18 +257,18 @@
                 3
               ],
               "p1": {
-                "id": "p_1792486185863_2m4x",
-                "name": "awefaw",
-                "teamName": "awefaw",
-                "playerName": "awefaw",
+                "id": "p_1792486186401_mlel",
+                "name": "awregaw",
+                "teamName": "awregaw",
+                "playerName": "awregaw",
                 "wecom": "",
                 "dept": "",
                 "company": "",
                 "isTeam": false,
                 "partners": [],
                 "partner": null,
-                "registeredAt": "2026-10-20T08:49:55.010Z",
-                "seed": 4,
+                "registeredAt": "2026-10-20T08:49:58.269Z",
+                "seed": 7,
                 "isPlaceholder": false,
                 "isUnseeded": false
               },
@@ -325,11 +311,13 @@
               "feederBotId": "r1_m2",
               "p1": {
                 "name": "Winner R1 M1",
-                "isPlaceholder": true
+                "isPlaceholder": true,
+                "seed": null
               },
               "p2": {
                 "name": "Winner R1 M2",
-                "isPlaceholder": true
+                "isPlaceholder": true,
+                "seed": null
               },
               "score1": "",
               "score2": "",
@@ -348,11 +336,13 @@
               "feederBotId": "r1_m4",
               "p1": {
                 "name": "Winner R1 M3",
-                "isPlaceholder": true
+                "isPlaceholder": true,
+                "seed": null
               },
               "p2": {
                 "name": "Winner R1 M4",
-                "isPlaceholder": true
+                "isPlaceholder": true,
+                "seed": null
               },
               "score1": "",
               "score2": "",
@@ -377,11 +367,13 @@
               "feederBotId": "r2_m2",
               "p1": {
                 "name": "Winner R2 M1",
-                "isPlaceholder": true
+                "isPlaceholder": true,
+                "seed": null
               },
               "p2": {
                 "name": "Winner R2 M2",
-                "isPlaceholder": true
+                "isPlaceholder": true,
+                "seed": null
               },
               "score1": "",
               "score2": "",
@@ -407,10 +399,111 @@
         "autoBracketSize": true,
         "manualBracketSize": 8,
         "seedNumber": 347071,
-        "lastSeedUsed": 366554
+        "lastSeedUsed": 265665,
+        "seedLockHistory": [
+          {
+            "code": 265665,
+            "locks": [
+              {
+                "r": 0,
+                "m": 0,
+                "slot": "p1",
+                "pid": "p_1792486185461_dsc2",
+                "name": "wawgfa"
+              },
+              {
+                "r": 0,
+                "m": 0,
+                "slot": "p2",
+                "pid": "p_1792486186051_jkf0",
+                "name": "awegaw"
+              }
+            ]
+          },
+          {
+            "code": 555526,
+            "locks": [
+              {
+                "r": 0,
+                "m": 0,
+                "slot": "p1",
+                "pid": "p_1792486185461_dsc2",
+                "name": "wawgfa"
+              },
+              {
+                "r": 0,
+                "m": 0,
+                "slot": "p2",
+                "pid": "p_1792486186051_jkf0",
+                "name": "awegaw"
+              }
+            ]
+          },
+          {
+            "code": 129931,
+            "locks": [
+              {
+                "r": 0,
+                "m": 0,
+                "slot": "p1",
+                "pid": "p_1792486185461_dsc2",
+                "name": "wawgfa"
+              },
+              {
+                "r": 0,
+                "m": 0,
+                "slot": "p2",
+                "pid": "p_1792486186051_jkf0",
+                "name": "awegaw"
+              }
+            ]
+          },
+          {
+            "code": 73547,
+            "locks": [
+              {
+                "r": 0,
+                "m": 0,
+                "slot": "p1",
+                "pid": "p_1792486185461_dsc2",
+                "name": "wawgfa"
+              },
+              {
+                "r": 0,
+                "m": 0,
+                "slot": "p2",
+                "pid": "p_1792486186051_jkf0",
+                "name": "awegaw"
+              }
+            ]
+          },
+          {
+            "code": 731405,
+            "locks": [
+              {
+                "r": 0,
+                "m": 0,
+                "slot": "p1",
+                "pid": "p_1792486185461_dsc2",
+                "name": "wawgfa"
+              },
+              {
+                "r": 0,
+                "m": 0,
+                "slot": "p2",
+                "pid": "p_1792486186051_jkf0",
+                "name": "awegaw"
+              }
+            ]
+          },
+          {
+            "code": 392141,
+            "locks": []
+          }
+        ]
       },
       "createdAt": "2026-10-09T07:40:42.269Z",
-      "updatedAt": "2026-10-21T02:02:51.009Z",
+      "updatedAt": "2026-10-21T02:08:21.066Z",
       "hideLiveBracket": false
     },
     {

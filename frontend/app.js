@@ -3406,7 +3406,7 @@
       const displayName = isEmpty
         ? (isFeeder ? (p?.name || tbdPlaceholder) : emptyPlaceholder)
         : (rawName || emptyPlaceholder);
-      const slotSeed = (p?.seed !== undefined && p?.seed !== null && p?.seed !== '') ? p.seed : '';
+      const slotSeed = (!isEmpty && p?.seed !== undefined && p?.seed !== null && p?.seed !== '') ? p.seed : '';
 
       const partnersList = Array.isArray(p?.partners) && p.partners.length > 0
         ? p.partners
@@ -3433,7 +3433,7 @@
 
       return `
         <div class="match-team-row ${pClass} ${isEmpty ? 'is-empty' : ''} ${(!isLiveView && isSlotLocked) ? 'slot-locked' : ''}" data-slot="${slot}" data-round="${rIdx}" data-match="${mIdx}">
-          <span class="team-seed">${slotSeed}</span>
+          ${slotSeed ? `<span class="team-seed">${slotSeed}</span>` : ''}
           <span class="team-name-text ${isFeeder ? 'is-feeder-text' : ''} ${isEmpty ? 'empty-slot' : ''} ${(!isLiveView && !t?.isLocked && !isFeeder) ? 'editable' : ''}" title="${escapeHTML(rawName || displayName)}${(!isLiveView && !t?.isLocked && !isFeeder) ? (isZh ? ' (双击可编辑)' : ' (Dobel klik untuk edit)') : ''}">
             ${isEmpty ? `<span style="opacity:0.45; font-style:italic;">${escapeHTML(displayName)}</span>` : (isUnnamed ? `<span style="opacity:0.4; font-style:italic;">${emptyPlaceholder}</span>` : escapeHTML(displayName))}
           </span>
@@ -5901,9 +5901,11 @@
         }
         t.winner = null;
         t.status = 'setup';
-        // Clear slot lock flags
+        // Clear slot lock flags and lingering seed numbers
         (t.rounds || []).forEach(r => {
           (r.matches || []).forEach(m => {
+            if (m.p1 && (m.p1.isPlaceholder || m.p1.isUnseeded || !m.p1.id)) m.p1.seed = null;
+            if (m.p2 && (m.p2.isPlaceholder || m.p2.isUnseeded || !m.p2.id)) m.p2.seed = null;
             delete m.p1Locked;
             delete m.p2Locked;
           });

@@ -1864,6 +1864,12 @@ button {
   flex-shrink: 0;
 }
 
+.match-team-row.is-empty .team-seed,
+.team-seed.is-empty-seed,
+.team-seed:empty {
+  display: none !important;
+}
+
 .team-name-text {
   flex: 1;
   font-size: 0.8rem;
