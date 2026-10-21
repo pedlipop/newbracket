@@ -1955,6 +1955,309 @@
     floatingTeamPopoverEl.style.left = `${left}px`;
   }
 
+  // ==================== FLOATING MATCH DETAILS POPOVER ====================
+  let floatingMatchDetailsPopoverEl = null;
+  let activeMatchInfoButton = null;
+
+  function ensureFloatingMatchDetailsPopover() {
+    if (!floatingMatchDetailsPopoverEl) {
+      floatingMatchDetailsPopoverEl = document.getElementById('floating-match-details-popover');
+      if (!floatingMatchDetailsPopoverEl) {
+        floatingMatchDetailsPopoverEl = document.createElement('div');
+        floatingMatchDetailsPopoverEl.id = 'floating-match-details-popover';
+        floatingMatchDetailsPopoverEl.className = 'hidden';
+        document.body.appendChild(floatingMatchDetailsPopoverEl);
+
+        document.addEventListener('click', (e) => {
+          if (!floatingMatchDetailsPopoverEl || floatingMatchDetailsPopoverEl.classList.contains('hidden')) return;
+          if (!floatingMatchDetailsPopoverEl.contains(e.target) && !e.target.closest('.btn-match-card-info')) {
+            hideFloatingMatchDetailsPopover();
+          }
+        });
+
+        document.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape') {
+            hideFloatingMatchDetailsPopover();
+          }
+        });
+      }
+    }
+  }
+
+  function hideFloatingMatchDetailsPopover() {
+    if (floatingMatchDetailsPopoverEl) {
+      floatingMatchDetailsPopoverEl.classList.add('hidden');
+    }
+    if (activeMatchInfoButton) {
+      activeMatchInfoButton.classList.remove('active');
+      activeMatchInfoButton = null;
+    }
+  }
+
+  function showMatchDetailsPopover(buttonEl, match, rIdx, mIdx, isLiveView = false) {
+    if (!buttonEl || !match) return;
+    ensureFloatingMatchDetailsPopover();
+
+    if (activeMatchInfoButton === buttonEl && !floatingMatchDetailsPopoverEl.classList.contains('hidden')) {
+      hideFloatingMatchDetailsPopover();
+      return;
+    }
+
+    if (activeMatchInfoButton) {
+      activeMatchInfoButton.classList.remove('active');
+    }
+    activeMatchInfoButton = buttonEl;
+    buttonEl.classList.add('active');
+
+    hideGlobalTooltip();
+    hideFloatingTeamPopover();
+
+    const t = isLiveView ? (state.liveTournament || state.currentTournament) : state.currentTournament;
+    const isZh = state.lang === 'zh';
+
+    const roundObj = (t?.rounds && t.rounds[rIdx]) ? t.rounds[rIdx] : null;
+    const roundTitle = match.isBronzeMatch
+      ? (isZh ? '季军争夺战' : 'Perebutan Juara 3 (Bronze Match)')
+      : (roundObj?.title || (isZh ? `第 ${rIdx + 1} 轮` : `Babak ${rIdx + 1}`));
+    const matchTitle = match.isBronzeMatch
+      ? (isZh ? '🥉 季军赛' : '🥉 3RD PLACE MATCH')
+      : (isZh ? `第 ${mIdx + 1} 场` : `MATCH ${mIdx + 1}`);
+
+    // Status text & badge
+    let statusText = isZh ? '未开始' : 'Belum Mulai';
+    let statusBadgeClass = 'badge-secondary';
+    let statusIcon = 'fa-regular fa-clock';
+    if (match.status === 'in_progress') {
+      statusText = isZh ? '比赛进行中' : 'Sedang Berlangsung';
+      statusBadgeClass = 'badge-warning';
+      statusIcon = 'fa-solid fa-play';
+    } else if (match.status === 'completed') {
+      statusText = isZh ? '已结束' : 'Selesai';
+      statusBadgeClass = 'badge-success';
+      statusIcon = 'fa-solid fa-circle-check';
+    } else if (match.status === 'next_up') {
+      statusText = isZh ? '即将开打' : 'Akan Main Selanjutnya';
+      statusBadgeClass = 'badge-info';
+      statusIcon = 'fa-solid fa-forward-step';
+    }
+
+    const p1 = match.p1 || { name: 'TBD', seed: '' };
+    const p2 = match.p2 || { name: 'TBD', seed: '' };
+    const p1IsWinner = !!(match.winnerId && match.winnerId === p1.id);
+    const p2IsWinner = !!(match.winnerId && match.winnerId === p2.id);
+
+    function resolveParticipant(pObj, isFeeder) {
+      if (!pObj || pObj.isPlaceholder || !pObj.name) {
+        return {
+          isEmpty: true,
+          isFeeder,
+          displayName: pObj?.name || (isFeeder ? (isZh ? '前轮胜者' : 'Pemenang Babak Sebelumnya') : (isZh ? '空槽位' : 'Slot Kosong')),
+          seed: pObj?.seed || ''
+        };
+      }
+      const parts = t?.participants || [];
+      const orig = parts.find(item => (pObj.id && item.id === pObj.id) || (pObj.name && item.name === pObj.name)) || {};
+      const full = {
+        ...orig,
+        ...pObj,
+        playerName: pObj.playerName || orig.playerName || '',
+        dept: pObj.dept || orig.dept || '',
+        company: pObj.company || orig.company || '',
+        wecom: pObj.wecom || pObj.contact || orig.wecom || orig.contact || '',
+        isTeam: pObj.isTeam !== undefined ? pObj.isTeam : (orig.isTeam !== undefined ? orig.isTeam : (Array.isArray(orig.partners) && orig.partners.length > 0))
+      };
+      const partners = (Array.isArray(full.partners) && full.partners.length > 0)
+        ? full.partners
+        : (Array.isArray(orig.partners) && orig.partners.length > 0)
+          ? orig.partners
+          : (full.partner && full.partner.name ? [full.partner] : (orig.partner && orig.partner.name ? [orig.partner] : []));
+      return {
+        isEmpty: false,
+        isFeeder: false,
+        data: full,
+        partners,
+        teamSize: 1 + partners.length,
+        isTeam: partners.length > 0 || full.isTeam
+      };
+    }
+
+    const team1 = resolveParticipant(p1, !!match.feederTopId);
+    const team2 = resolveParticipant(p2, !!match.feederBotId);
+
+    function renderTeamBlock(info, slotKey, isWinner) {
+      const slotLabel = slotKey === 'p1' ? (isZh ? '队伍 1' : 'Tim 1') : (isZh ? '队伍 2' : 'Tim 2');
+      if (info.isEmpty) {
+        return `
+          <div class="match-info-team-card">
+            <div class="team-card-header">
+              <span class="team-card-label" style="font-size:0.7rem; color:var(--text-muted); font-weight:700;">${slotLabel}</span>
+              <span class="team-tag-badge" style="background:rgba(255,255,255,0.06); color:var(--text-muted); border-color:transparent;">${info.isFeeder ? (isZh ? '等待晋级' : 'Menunggu') : (isZh ? '未抽签' : 'Belum Diundi')}</span>
+            </div>
+            <div style="padding:10px 4px; text-align:center; color:var(--text-muted); font-size:0.76rem; font-style:italic;">
+              <i class="fa-regular fa-clock" style="margin-right:4px;"></i> ${escapeHTML(info.displayName)}
+            </div>
+          </div>
+        `;
+      }
+
+      const p = info.data;
+      const captainName = p.playerName || p.name;
+      const seedDisplay = (p.seed !== undefined && p.seed !== null && p.seed !== '') ? p.seed : '-';
+
+      return `
+        <div class="match-info-team-card ${isWinner ? 'team-winner' : ''}">
+          <div class="team-card-header">
+            <div class="team-card-title-wrap">
+              <span class="team-seed-badge">${seedDisplay}</span>
+              <span class="team-name-text" title="${escapeHTML(p.name)}">${escapeHTML(p.name)}</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:5px; flex-shrink:0;">
+              ${isWinner ? `<span class="team-winner-badge"><i class="fa-solid fa-trophy"></i> ${isZh ? '本场胜者' : 'Pemenang'}</span>` : ''}
+              ${info.isTeam ? `<span class="team-tag-badge">${info.teamSize} ${isZh ? '人' : 'Pemain'}</span>` : ''}
+            </div>
+          </div>
+
+          <!-- Main Player / Captain Block -->
+          <div class="tooltip-person-block" style="margin-top:2px;">
+            <div class="person-role-tag" style="display:flex; justify-content:space-between; align-items:center;">
+              <span>${info.isTeam ? (isZh ? '队长 / 主力选手' : 'KAPTEN / PEMAIN UTAMA') : (isZh ? '参赛选手' : 'PESERTA')}</span>
+              ${(!isLiveView && !t?.isLocked) ? `
+                <button type="button" class="btn-manage-team-from-popover" data-part-id="${escapeHTML(p.id || '')}" style="background:transparent; border:none; color:var(--primary); font-size:0.65rem; cursor:pointer; padding:0; text-decoration:underline;">
+                  <i class="fa-solid fa-pen-to-square"></i> ${isZh ? '编辑资料' : 'Kelola Tim'}
+                </button>
+              ` : ''}
+            </div>
+            <div class="person-name" style="font-size:0.82rem; font-weight:700; color:#ffffff;">${escapeHTML(captainName)}</div>
+            ${p.company ? `<div class="person-meta-item"><i class="fa-solid fa-briefcase"></i> Perusahaan: ${escapeHTML(p.company)}</div>` : ''}
+            ${p.dept ? `<div class="person-meta-item"><i class="fa-solid fa-building"></i> Departemen: ${escapeHTML(p.dept)}</div>` : ''}
+            ${p.wecom ? `<div class="person-meta-item"><i class="fa-solid fa-address-book"></i> No. WeCom: ${escapeHTML(p.wecom)}</div>` : ''}
+          </div>
+
+          <!-- Team Partners List (if any) -->
+          ${info.partners && info.partners.length > 0 ? `
+            <div style="margin-top:3px; display:flex; flex-direction:column; gap:4px;">
+              <div style="font-size:0.65rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.3px;">
+                ${isZh ? `队员名单 (${info.partners.length})` : `Anggota Tim (${info.partners.length}):`}
+              </div>
+              ${info.partners.map((partner, idx) => `
+                <div class="tooltip-person-block partner-block" style="padding:4px 7px;">
+                  <div class="person-role-tag partner" style="font-size:0.6rem;">${isZh ? `队员 #${idx + 1}` : `Rekan #${idx + 1}`}</div>
+                  <div class="person-name partner-highlight" style="font-size:0.75rem;">${escapeHTML(partner.name)}</div>
+                  ${partner.company ? `<div class="person-meta-item" style="font-size:0.67rem;"><i class="fa-solid fa-briefcase"></i> ${escapeHTML(partner.company)}</div>` : ''}
+                  ${partner.dept ? `<div class="person-meta-item" style="font-size:0.67rem;"><i class="fa-solid fa-building"></i> ${escapeHTML(partner.dept)}</div>` : ''}
+                  ${partner.wecom ? `<div class="person-meta-item" style="font-size:0.67rem;"><i class="fa-solid fa-address-book"></i> ${escapeHTML(partner.wecom)}</div>` : ''}
+                </div>
+              `).join('')}
+            </div>
+          ` : ''}
+        </div>
+      `;
+    }
+
+    floatingMatchDetailsPopoverEl.innerHTML = `
+      <div class="popover-header-bar">
+        <div class="popover-title">
+          <i class="fa-solid fa-circle-info" style="color:var(--primary);"></i>
+          <span>${isZh ? '比赛与队伍详情' : 'INFORMASI PERTANDINGAN & TIM'}</span>
+        </div>
+        <button type="button" class="btn-close-popover" title="${isZh ? '关闭' : 'Tutup'}">&times;</button>
+      </div>
+
+      <div class="popover-content-scroll">
+        <!-- Match Meta Headline -->
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:6px;">
+          <div>
+            <div style="font-size:0.68rem; color:var(--text-muted); font-weight:600; text-transform:uppercase;">${escapeHTML(roundTitle)}</div>
+            <div style="font-size:0.88rem; font-weight:800; color:#ffffff;">${escapeHTML(matchTitle)}</div>
+          </div>
+          <span class="badge ${statusBadgeClass}" style="font-size:0.68rem; display:inline-flex; align-items:center; gap:4px; padding:3px 8px;">
+            <i class="${statusIcon}"></i> ${statusText}
+          </span>
+        </div>
+
+        <!-- Score Banner -->
+        <div class="match-info-score-banner">
+          <div class="team-score-side ${p1IsWinner ? 'winner' : ''}">
+            <span class="team-score-name" title="${escapeHTML(p1.name || 'Slot 1')}">${escapeHTML(p1.name || 'Slot 1')}</span>
+            ${p1IsWinner ? '<i class="fa-solid fa-crown" style="color:#fbbf24; font-size:10px; margin-left:3px;"></i>' : ''}
+          </div>
+          <div class="team-score-display">
+            <span class="score-num ${p1IsWinner ? 'high' : ''}">${match.score1 !== '' && match.score1 !== undefined ? match.score1 : '-'}</span>
+            <span class="score-divider">:</span>
+            <span class="score-num ${p2IsWinner ? 'high' : ''}">${match.score2 !== '' && match.score2 !== undefined ? match.score2 : '-'}</span>
+          </div>
+          <div class="team-score-side ${p2IsWinner ? 'winner' : ''}">
+            <span class="team-score-name" title="${escapeHTML(p2.name || 'Slot 2')}">${escapeHTML(p2.name || 'Slot 2')}</span>
+            ${p2IsWinner ? '<i class="fa-solid fa-crown" style="color:#fbbf24; font-size:10px; margin-left:3px;"></i>' : ''}
+          </div>
+        </div>
+
+        <!-- Optional Match Note / Court -->
+        ${match.note ? `
+          <div class="match-info-note-card">
+            <i class="fa-solid fa-location-dot" style="color:var(--primary); margin-top:2px;"></i>
+            <div>
+              <div class="note-label">${isZh ? '场地 / 备注 / 时间' : 'Lokasi / Catatan / Jadwal:'}</div>
+              <div class="note-text">${escapeHTML(match.note)}</div>
+            </div>
+          </div>
+        ` : ''}
+
+        <!-- Team 1 Card -->
+        ${renderTeamBlock(team1, 'p1', p1IsWinner)}
+
+        <!-- Team 2 Card -->
+        ${renderTeamBlock(team2, 'p2', p2IsWinner)}
+      </div>
+    `;
+
+    const closeBtn = floatingMatchDetailsPopoverEl.querySelector('.btn-close-popover');
+    if (closeBtn) {
+      closeBtn.onclick = (e) => {
+        e.stopPropagation();
+        hideFloatingMatchDetailsPopover();
+      };
+    }
+
+    // Attach click listeners for "Kelola Tim" buttons
+    floatingMatchDetailsPopoverEl.querySelectorAll('.btn-manage-team-from-popover').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const partId = btn.dataset.partId;
+        const part = (t?.participants || []).find(p => p.id === partId);
+        if (part) {
+          hideFloatingMatchDetailsPopover();
+          showTeamFloatingPopover(buttonEl, part);
+        }
+      });
+    });
+
+    floatingMatchDetailsPopoverEl.classList.remove('hidden');
+
+    // Positioning
+    const btnRect = buttonEl.getBoundingClientRect();
+    const popWidth = Math.min(380, window.innerWidth - 20);
+    floatingMatchDetailsPopoverEl.style.width = `${popWidth}px`;
+
+    const popoverRect = floatingMatchDetailsPopoverEl.getBoundingClientRect();
+
+    let left = btnRect.left;
+    let top = btnRect.bottom + 6;
+
+    if (left + popWidth > window.innerWidth - 10) {
+      left = window.innerWidth - popWidth - 10;
+    }
+    if (left < 10) left = 10;
+
+    if (top + popoverRect.height > window.innerHeight - 10) {
+      top = btnRect.top - popoverRect.height - 6;
+      if (top < 10) top = 10;
+    }
+
+    floatingMatchDetailsPopoverEl.style.top = `${top}px`;
+    floatingMatchDetailsPopoverEl.style.left = `${left}px`;
+  }
+
   function enrichTournamentMatchSlots(t) {
     if (!t || !t.rounds || !t.participants || t.participants.length === 0) return;
     const pMap = new Map();
@@ -3128,20 +3431,12 @@
           </button>`
         : (!isLiveView && isSlotLocked ? `<span class="slot-locked-tag" title="${isZh ? '槽位已锁定' : 'Slot Terkunci'}"><i class="fa-solid fa-lock"></i></span>` : '');
 
-      const partnerTagTitle = isZh ? `点击查看 ${teamSize} 名队员详情` : `Klik untuk lihat detail ${teamSize} pemain`;
-
-      const hasParticipantInfo = !isEmpty && !isFeeder && !!(p && (p.name || p.playerName || p.dept || p.wecom || (Array.isArray(p.partners) && p.partners.length > 0) || (p.partner && p.partner.name)));
-      const detailBtnHtml = hasPartner
-        ? `<button type="button" class="team-partner-tag team-partner-btn" title="${partnerTagTitle}">${teamSize}P <i class="fa-solid fa-circle-info" style="font-size:10px; margin-left:2px; opacity:0.85;"></i></button>`
-        : (hasParticipantInfo ? `<button type="button" class="btn-match-info" title="${isZh ? '点击查看登记详情' : 'Klik untuk lihat detail pendaftaran'}"><i class="fa-solid fa-circle-info"></i></button>` : '');
-
       return `
         <div class="match-team-row ${pClass} ${isEmpty ? 'is-empty' : ''} ${(!isLiveView && isSlotLocked) ? 'slot-locked' : ''}" data-slot="${slot}" data-round="${rIdx}" data-match="${mIdx}">
           <span class="team-seed">${slotSeed}</span>
           <span class="team-name-text ${isFeeder ? 'is-feeder-text' : ''} ${isEmpty ? 'empty-slot' : ''} ${(!isLiveView && !t?.isLocked && !isFeeder) ? 'editable' : ''}" title="${escapeHTML(rawName || displayName)}${(!isLiveView && !t?.isLocked && !isFeeder) ? (isZh ? ' (双击可编辑)' : ' (Dobel klik untuk edit)') : ''}">
             ${isEmpty ? `<span style="opacity:0.45; font-style:italic;">${escapeHTML(displayName)}</span>` : (isUnnamed ? `<span style="opacity:0.4; font-style:italic;">${emptyPlaceholder}</span>` : escapeHTML(displayName))}
           </span>
-          ${detailBtnHtml}
           <div class="slot-actions-cell" style="display:flex; align-items:center; gap:4px; margin-left:auto;">
             ${editBtnHtml}
             ${lockBtnHtml}
@@ -3160,24 +3455,28 @@
 
     node.innerHTML = `
       <div class="match-meta-strip ${match.isBronzeMatch ? 'bronze-meta-strip' : ''}">
-        <span class="match-meta-left" style="display:flex; align-items:center; gap:4px;">${matchLabel} ${noteBadgeHtml}</span>
+        <span class="match-meta-left" style="display:flex; align-items:center; gap:5px;">
+          <button type="button" class="btn-match-card-info" data-round="${rIdx}" data-match="${mIdx}" title="${isZh ? '点击查看比赛详情与队伍信息' : 'Lihat info match & detail tim'}">
+            <i class="fa-solid fa-circle-info"></i>
+          </button>
+          <span class="match-meta-label-text">${matchLabel}</span>
+          ${noteBadgeHtml}
+        </span>
         ${statusBadgeHtml}
       </div>
       ${renderRow(p1, 'p1', match.score1, p1Class)}
       ${renderRow(p2, 'p2', match.score2, p2Class)}
     `;
 
-    // Attach click listener for team-partner-btn and btn-match-info on bracket slot rows to show floating popover
-    node.querySelectorAll('.team-partner-btn, .btn-match-info').forEach(btn => {
-      btn.addEventListener('click', (e) => {
+    // Attach click listener for match-level info button (i)
+    const matchInfoBtn = node.querySelector('.btn-match-card-info');
+    if (matchInfoBtn) {
+      matchInfoBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         e.preventDefault();
-        const row = btn.closest('.match-team-row');
-        const slot = row?.dataset.slot;
-        const p = slot === 'p1' ? p1 : (slot === 'p2' ? p2 : null);
-        if (p) showTeamFloatingPopover(btn, p);
+        showMatchDetailsPopover(matchInfoBtn, match, rIdx, mIdx, isLiveView);
       });
-    });
+    }
 
     // Attach click listener for individual slot lock buttons
     node.querySelectorAll('.btn-slot-lock').forEach(btn => {
@@ -3241,10 +3540,11 @@
     if (!isLiveView) {
       let downPos = null;
       node.addEventListener('mousedown', (e) => {
+        if (e.target.closest('.btn-match-card-info')) return;
         downPos = { x: e.clientX, y: e.clientY };
       });
       node.addEventListener('click', (e) => {
-        if (e.target.closest('.btn-slot-lock, .btn-slot-edit, .slot-inline-edit')) return;
+        if (e.target.closest('.btn-slot-lock, .btn-slot-edit, .slot-inline-edit, .btn-match-card-info')) return;
         if (state.isDraggingSlot) return;
         if (downPos) {
           const dist = Math.hypot(e.clientX - downPos.x, e.clientY - downPos.y);

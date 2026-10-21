@@ -3267,6 +3267,274 @@ button.team-partner-tag.team-partner-btn.active {
   pointer-events: none;
 }
 
+/* Match Card Info Button (i) beside MATCH header */
+.btn-match-card-info {
+  background: transparent;
+  border: none;
+  color: var(--primary, #00d2ff);
+  font-size: 11px;
+  cursor: pointer;
+  padding: 0;
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 17px;
+  height: 17px;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  line-height: 1;
+  opacity: 0.85;
+}
+
+.btn-match-card-info:hover,
+.btn-match-card-info.active {
+  color: #ffffff;
+  background: rgba(0, 210, 255, 0.3);
+  box-shadow: 0 0 8px rgba(0, 210, 255, 0.7);
+  transform: scale(1.18);
+  opacity: 1;
+}
+
+/* Floating Match Details Popover (Match info + Both teams details) */
+#floating-match-details-popover {
+  position: fixed;
+  z-index: 100000;
+  width: 380px;
+  max-width: calc(100vw - 24px);
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  background: rgba(13, 17, 28, 0.98);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(0, 210, 255, 0.5);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.9), 0 0 24px rgba(0, 210, 255, 0.28);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  box-sizing: border-box;
+  animation: popover-fade 0.15s ease-out;
+  pointer-events: auto;
+}
+
+#floating-match-details-popover.hidden {
+  display: none !important;
+  pointer-events: none;
+}
+
+#floating-match-details-popover .popover-header-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding-bottom: 6px;
+  margin-bottom: 8px;
+}
+
+#floating-match-details-popover .popover-title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--primary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+#floating-match-details-popover .btn-close-popover {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 1.25rem;
+  cursor: pointer;
+  line-height: 1;
+  padding: 0 4px;
+  transition: color 0.15s;
+}
+
+#floating-match-details-popover .btn-close-popover:hover {
+  color: #f87171;
+}
+
+#floating-match-details-popover .popover-content-scroll {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow-y: auto;
+  max-height: calc(85vh - 70px);
+  padding-right: 2px;
+}
+
+/* Match Score / Status Banner in Popover */
+.match-info-score-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+  gap: 8px;
+}
+
+.match-info-score-banner .team-score-side {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  min-width: 0;
+}
+
+.match-info-score-banner .team-score-side:last-child {
+  justify-content: flex-end;
+  text-align: right;
+}
+
+.match-info-score-banner .team-score-side.winner {
+  color: #38bdf8;
+  font-weight: 700;
+}
+
+.match-info-score-banner .team-score-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.match-info-score-banner .team-score-display {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-family: monospace;
+  font-size: 1.1rem;
+  font-weight: 800;
+  padding: 2px 8px;
+  background: rgba(0, 0, 0, 0.35);
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  flex-shrink: 0;
+}
+
+.match-info-score-banner .score-num.high {
+  color: #38bdf8;
+}
+
+.match-info-score-banner .score-divider {
+  opacity: 0.5;
+}
+
+.match-info-note-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  background: rgba(0, 210, 255, 0.05);
+  border: 1px solid rgba(0, 210, 255, 0.2);
+  border-radius: var(--radius-sm);
+  padding: 6px 10px;
+  font-size: 0.72rem;
+}
+
+.match-info-note-card .note-label {
+  font-weight: 700;
+  color: var(--primary);
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  margin-bottom: 2px;
+}
+
+.match-info-note-card .note-text {
+  color: var(--text-primary);
+  line-height: 1.3;
+}
+
+/* Team Section in Match Popover */
+.match-info-team-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+}
+
+.match-info-team-card.team-winner {
+  border-color: rgba(0, 210, 255, 0.4);
+  background: rgba(0, 210, 255, 0.03);
+}
+
+.match-info-team-card .team-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  padding-bottom: 5px;
+}
+
+.match-info-team-card .team-card-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  flex: 1;
+}
+
+.match-info-team-card .team-seed-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  background: rgba(0, 210, 255, 0.15);
+  border: 1px solid rgba(0, 210, 255, 0.4);
+  color: var(--primary);
+  font-size: 0.7rem;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.match-info-team-card .team-name-text {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #ffffff;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.match-info-team-card .team-tag-badge {
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: rgba(168, 85, 247, 0.2);
+  border: 1px solid rgba(168, 85, 247, 0.4);
+  color: #c084fc;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.match-info-team-card .team-winner-badge {
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: rgba(56, 189, 248, 0.2);
+  border: 1px solid rgba(56, 189, 248, 0.5);
+  color: #38bdf8;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  flex-shrink: 0;
+}
+
 /* Floating Team Members Popover (Opened via clicking 5P button) */
 #floating-team-popover {
   position: fixed;
