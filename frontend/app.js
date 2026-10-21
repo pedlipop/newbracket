@@ -5808,6 +5808,96 @@
     return true;
   }
 
+  // Capture current complete leaf placements of tournament bracket for deterministic seed reproduction
+  function captureCurrentBracketLeafSnapshot(t) {
+    if (!t || !t.rounds || t.rounds.length === 0) return [];
+    const snapshot = [];
+    t.rounds.forEach((round, rIdx) => {
+      (round.matches || []).forEach((m, mIdx) => {
+        if (!m.feederTopId) {
+          const p = m.p1;
+          const isValid = p && !p.isPlaceholder && !p.isUnseeded && p.id;
+          snapshot.push({
+            roundIdx: rIdx,
+            matchIdx: mIdx,
+            slot: 'p1',
+            participantId: isValid ? p.id : null,
+            participantName: isValid ? (p.name || '') : '',
+            seed: p ? p.seed : null,
+            wasLocked: !!m.p1Locked
+          });
+        }
+        if (!m.feederBotId) {
+          const p = m.p2;
+          const isValid = p && !p.isPlaceholder && !p.isUnseeded && p.id;
+          snapshot.push({
+            roundIdx: rIdx,
+            matchIdx: mIdx,
+            slot: 'p2',
+            participantId: isValid ? p.id : null,
+            participantName: isValid ? (p.name || '') : '',
+            seed: p ? p.seed : null,
+            wasLocked: !!m.p2Locked
+          });
+        }
+      });
+    });
+    return snapshot;
+  }
+
+  // Restore the exact bracket leaf layout from a saved seed snapshot (unlocked and clean)
+  function applySeedSnapshot(t, snapshot) {
+    if (!t || !Array.isArray(snapshot) || snapshot.length === 0) return false;
+
+    // Generate fresh empty bracket tree with proper canonical structures
+    t.rounds = generateBracketTree(t.participants, null, false);
+    if (t.thirdPlaceMatch && t.settings?.thirdPlaceMatch) {
+      getOrInitThirdPlaceMatch(t);
+    }
+
+    const participants = t.participants || [];
+
+    snapshot.forEach(entry => {
+      const round = t.rounds[entry.roundIdx];
+      if (!round || !round.matches) return;
+      const match = round.matches[entry.matchIdx];
+      if (!match) return;
+
+      if (!entry.participantId && !entry.participantName) {
+        return;
+      }
+
+      const pObj = participants.find(p => (entry.participantId && p.id === entry.participantId) || (p.name && p.name.trim() === entry.participantName?.trim()));
+      if (pObj) {
+        const origIdx = participants.findIndex(item => item.id === pObj.id);
+        const teamNumber = (pObj.seed !== undefined && pObj.seed !== null && pObj.seed !== '')
+          ? pObj.seed
+          : (entry.seed !== undefined && entry.seed !== null && entry.seed !== '' ? entry.seed : (origIdx !== -1 ? origIdx + 1 : 1));
+        const assigned = { ...pObj, seed: teamNumber, isPlaceholder: false, isUnseeded: false };
+        if (entry.slot === 'p1') {
+          match.p1 = assigned;
+        } else {
+          match.p2 = assigned;
+        }
+      }
+    });
+
+    // Clear all slot locks and reset match statuses so the re-applied bracket is 100% clean and unlocked
+    (t.rounds || []).forEach(r => {
+      (r.matches || []).forEach(m => {
+        delete m.p1Locked;
+        delete m.p2Locked;
+        m.score1 = '';
+        m.score2 = '';
+        m.winnerId = null;
+        m.status = 'scheduled';
+      });
+    });
+
+    sanitizeBracketDuplicates(t);
+    return true;
+  }
+
   // Re-draw the bracket using a specific seed code (always clean & unlocked)
   function handleApplySeedCode() {
     const t = state.currentTournament;
@@ -5818,14 +5908,6 @@
       return;
     }
     if (!canRunSeeding(t)) return;
-
-    // Clear all slot locks so the re-applied bracket is 100% unlocked and clean
-    (t.rounds || []).forEach(r => {
-      (r.matches || []).forEach(m => {
-        delete m.p1Locked;
-        delete m.p2Locked;
-      });
-    });
 
     performSeeding(true, code);
   }
@@ -5916,6 +5998,26 @@
       return;
     }
 
+    const usedSeed = isRandom ? (normalizeSeedNumber(seedCode) || generateSeedNumber()) : null;
+
+    // Check if we have a recorded seed snapshot for this exact seed code
+    if (usedSeed && t.settings?.seedSnapshots && t.settings.seedSnapshots[usedSeed]) {
+      const success = applySeedSnapshot(t, t.settings.seedSnapshots[usedSeed]);
+      if (success) {
+        t.settings.lastSeedUsed = usedSeed;
+        sanitizeBracketDuplicates(t);
+        const seedTag = ` [Seed #${usedSeed}]`;
+        addTournamentLog(t, 'slot', `🔄 Bagan dipulihkan sesuai konfigurasi Seed #${usedSeed}.`);
+        saveTournamentState(true);
+        renderParticipantsDrawer();
+        renderBracketStudio();
+        syncSeedNumberUI(t);
+        const isZh = state.lang === 'zh';
+        showToast((isZh ? `🔄 已恢复 Seed #${usedSeed} 的对阵图编排！` : `🔄 Bagan berhasil dipulihkan sesuai Seed #${usedSeed}!`), 'success');
+        return;
+      }
+    }
+
     // Ensure bracket tree exists and matches participant count
     if (!t.rounds || t.rounds.length === 0) {
       t.rounds = generateBracketTree(t.participants, null, false);
@@ -5982,10 +6084,8 @@
       return;
     }
 
-    let usedSeed = null;
-    if (isRandom) {
+    if (isRandom && usedSeed) {
       // Seeded Fisher-Yates shuffle: same code + same participants => same bracket
-      usedSeed = normalizeSeedNumber(seedCode) || generateSeedNumber();
       // Canonical participant order first, so list order changes don't affect the result
       const keyOf = p => String(p.id || p.name.trim().toLowerCase());
       pool.sort((a, b) => keyOf(a) < keyOf(b) ? -1 : keyOf(a) > keyOf(b) ? 1 : 0);
@@ -6037,6 +6137,19 @@
     });
 
     sanitizeBracketDuplicates(t);
+
+    // Save snapshot of this complete leaf layout for this seed code
+    if (usedSeed) {
+      t.settings = t.settings || {};
+      t.settings.seedSnapshots = t.settings.seedSnapshots || {};
+      t.settings.seedSnapshots[usedSeed] = captureCurrentBracketLeafSnapshot(t);
+      const snapKeys = Object.keys(t.settings.seedSnapshots);
+      if (snapKeys.length > 60) {
+        delete t.settings.seedSnapshots[snapKeys[0]];
+      }
+      t.settings.lastSeedUsed = usedSeed;
+    }
+
     const seedTag = usedSeed ? ` [Seed #${usedSeed}]` : '';
     addTournamentLog(t, 'slot', (lockedCount > 0
       ? `🎲 Bagan diundi secara acak (${lockedCount} slot terkunci tetap aman).`
