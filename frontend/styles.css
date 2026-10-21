@@ -524,15 +524,30 @@ button {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 1.25rem;
+  padding: 0 clamp(0.75rem, 1.5vw, 1.25rem);
+  width: 100%;
+  box-sizing: border-box;
   z-index: 100;
   flex-shrink: 0;
 }
 
-.studio-header-left, .studio-header-right, .live-header-right {
+.studio-header-left {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: clamp(0.35rem, 0.7vw, 0.5rem);
+  min-width: 0;
+  flex: 0 1 auto;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.studio-header-right, .live-header-right {
+  display: flex;
+  align-items: center;
+  gap: clamp(0.3rem, 0.6vw, 0.5rem);
+  min-width: 0;
+  flex: 0 1 auto;
+  justify-content: flex-end;
   flex-shrink: 0;
   white-space: nowrap;
 }
@@ -8715,8 +8730,9 @@ button.team-partner-tag.team-partner-btn.active {
   }
 }
 
-/* --- STUDIO VIEW HEADER RESPONSIVE --- */
-@media (max-width: 1200px) {
+/* --- STUDIO VIEW HEADER FLUID RESPONSIVE --- */
+/* Tier 1: <= 1440px (Laptops 1366px, 1280px, split desktop) -> Secondary buttons become clean icons */
+@media (max-width: 1440px) {
   #btn-open-participant-report span,
   #btn-open-qualifiers-stage span,
   #btn-download-pdf span,
@@ -8725,17 +8741,45 @@ button.team-partner-tag.team-partner-btn.active {
     display: none !important;
   }
 
-  .studio-header-right .btn {
-    padding: 0 8px !important;
+  #btn-open-participant-report,
+  #btn-open-qualifiers-stage,
+  #btn-download-pdf,
+  #btn-open-qr-modal,
+  .studio-header-right .btn-lang-toggle {
+    width: 34px !important;
+    min-width: 34px !important;
+    padding: 0 !important;
+    justify-content: center !important;
   }
 }
 
+/* Tier 2: <= 1080px (Tablets, smaller windows) -> All right buttons become clean icons */
+@media (max-width: 1080px) {
+  #btn-toggle-tournament-lock span,
+  #btn-open-live-view span {
+    display: none !important;
+  }
+
+  #btn-toggle-tournament-lock,
+  #btn-open-live-view {
+    width: 34px !important;
+    min-width: 34px !important;
+    padding: 0 !important;
+    justify-content: center !important;
+  }
+
+  .studio-header-right .divider-vertical {
+    display: none !important;
+  }
+}
+
+/* Tier 3: <= 768px (Mobile phones & small devices) */
 @media (max-width: 768px) {
   .studio-header {
     height: 52px !important;
     min-height: 52px !important;
     padding: 0 8px !important;
-    gap: 6px !important;
+    gap: 4px !important;
     display: flex !important;
     align-items: center !important;
     justify-content: space-between !important;
@@ -8745,13 +8789,13 @@ button.team-partner-tag.team-partner-btn.active {
     min-width: 0 !important;
     flex: 1 1 auto !important;
     overflow: hidden !important;
-    gap: 6px !important;
+    gap: 4px !important;
   }
 
   #btn-back-to-dashboard {
-    width: 34px !important;
-    height: 34px !important;
-    min-width: 34px !important;
+    width: 32px !important;
+    height: 32px !important;
+    min-width: 32px !important;
     padding: 0 !important;
     display: inline-flex !important;
     align-items: center !important;
@@ -8762,37 +8806,40 @@ button.team-partner-tag.team-partner-btn.active {
     display: none !important;
   }
 
+  .studio-header-left .divider-vertical {
+    display: none !important;
+  }
+
   #studio-tournament-name {
-    font-size: 0.95rem !important;
+    font-size: 0.92rem !important;
     white-space: nowrap !important;
     overflow: hidden !important;
     text-overflow: ellipsis !important;
-    max-width: 120px !important;
+    max-width: clamp(80px, 22vw, 130px) !important;
   }
 
   #studio-status-badge {
     font-size: 0.65rem !important;
-    padding: 2px 6px !important;
+    padding: 2px 5px !important;
   }
 
   .studio-header-right {
-    gap: 4px !important;
+    gap: 3px !important;
     flex-shrink: 0 !important;
   }
 
-  #btn-toggle-tournament-lock span,
-  #btn-open-live-view span {
-    display: none !important;
-  }
-
   .studio-header-right .btn {
-    width: 34px !important;
-    height: 34px !important;
-    min-width: 34px !important;
+    width: 32px !important;
+    height: 32px !important;
+    min-width: 32px !important;
     padding: 0 !important;
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
+  }
+
+  .studio-header-right .btn span {
+    display: none !important;
   }
 }
 
