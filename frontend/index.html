@@ -428,6 +428,24 @@
               </div>
             </div>
 
+            <!-- 6b. Seed Code (Deterministic Auto-Seed) -->
+            <div class="form-group seed-number-group">
+              <label for="setting-seed-number">
+                <i class="fa-solid fa-dice" style="color: var(--primary);"></i>
+                <span data-i18n="label_seed_number">Kode Seed Bagan</span>
+              </label>
+              <div class="autolock-controls-row">
+                <input type="number" id="setting-seed-number" class="input-modern" min="1" max="999999" step="1" placeholder="Belum ada (Auto-Seed dulu)" style="flex:1; min-width:0;">
+                <button type="button" id="btn-apply-seed" class="btn btn-primary btn-sm" title="Terapkan kode seed ke bagan">
+                  <i class="fa-solid fa-check"></i> <span data-i18n="btn_apply_seed">Terapkan</span>
+                </button>
+                <button type="button" id="btn-copy-current-seed" class="btn btn-secondary btn-sm" title="Salin kode seed">
+                  <i class="fa-regular fa-copy"></i>
+                </button>
+              </div>
+              <small class="form-hint" data-i18n="hint_seed_number">Setiap Auto-Seed menghasilkan kode unik. Masukkan kode lama lalu klik Terapkan untuk mengembalikan susunan bagan tersebut.</small>
+            </div>
+
             <!-- 7. Danger Zone (Reset) -->
             <div class="settings-danger-zone" style="margin-top: 4px; padding-top: 10px; border-top: 1px solid var(--border-subtle);">
               <button id="btn-reset-scores" class="btn btn-danger btn-sm" style="width: 100%; justify-content: center;">

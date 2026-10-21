@@ -117,6 +117,9 @@
       label_bronze_match: 'Perebutan Juara 3',
       label_hide_live_bracket: 'Sembunyikan di Live View',
       label_autolock: 'Auto-Lock Timer',
+      label_seed_number: 'Kode Seed Bagan',
+      btn_apply_seed: 'Terapkan',
+      hint_seed_number: 'Setiap Auto-Seed menghasilkan kode unik. Masukkan kode lama lalu klik Terapkan untuk mengembalikan susunan bagan tersebut.',
       autolock_none: 'Mati (Manual)',
       autolock_3m: '3 Menit',
       autolock_5m: '5 Menit',
@@ -420,6 +423,9 @@
       label_bronze_match: '季军赛 (第三名)',
       label_hide_live_bracket: '大屏隐藏对阵图',
       label_autolock: '自动锁定倒计时',
+      label_seed_number: '对阵图抽签种子码',
+      btn_apply_seed: '应用',
+      hint_seed_number: '每次自动抽签都会生成唯一种子码。输入先前的代码并点击“应用”即可还原对应对阵图。',
       autolock_none: '关闭 (手动)',
       autolock_3m: '3 分钟',
       autolock_5m: '5 分钟',
@@ -757,6 +763,9 @@
     el.settingGameInput = document.getElementById('setting-game-input');
     el.settingBronzeMatch = document.getElementById('setting-bronze-match');
     el.settingHideLiveBracket = document.getElementById('setting-hide-live-bracket');
+    el.settingSeedNumber = document.getElementById('setting-seed-number');
+    el.btnApplySeed = document.getElementById('btn-apply-seed');
+    el.btnCopyCurrentSeed = document.getElementById('btn-copy-current-seed');
     el.settingBracketLayout = document.getElementById('setting-bracket-layout');
     el.settingAutoBracket = document.getElementById('setting-auto-bracket');
     el.btnSegAuto = document.getElementById('btn-seg-auto');
@@ -1515,6 +1524,7 @@
     if (el.settingHideLiveBracket) {
       el.settingHideLiveBracket.checked = !!(t.settings && t.settings.hideLiveBracket) || !!t.hideLiveBracket;
     }
+    syncSeedNumberUI(t);
     if (el.studioLiveHiddenIndicator) {
       const isHidden = !!(t.settings && t.settings.hideLiveBracket) || !!t.hideLiveBracket;
       el.studioLiveHiddenIndicator.classList.toggle('hidden', !isHidden);
@@ -5439,27 +5449,74 @@
     });
   }
 
-  function handleAutoSeed() {
-    const t = state.currentTournament;
-    if (!t) return;
-    const isZh = state.lang === 'zh';
+  // ==================== SEED NUMBER (DETERMINISTIC AUTO-SEED) ====================
+  function generateSeedNumber() {
+    return Math.floor(Math.random() * 999999) + 1;
+  }
 
+  function normalizeSeedNumber(val) {
+    const n = parseInt(val, 10);
+    return Number.isFinite(n) && n > 0 ? n : null;
+  }
+
+  // Mulberry32: small, fast seeded PRNG -> same seed always yields the same sequence
+  function createSeededRandom(seed) {
+    let a = seed >>> 0;
+    return function () {
+      a = (a + 0x6D2B79F5) >>> 0;
+      let r = Math.imul(a ^ (a >>> 15), 1 | a);
+      r = (r + Math.imul(r ^ (r >>> 7), 61 | r)) ^ r;
+      return ((r ^ (r >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+
+  function syncSeedNumberUI(t) {
+    if (!t) return;
+    const code = normalizeSeedNumber(t.settings?.lastSeedUsed);
+    if (el.settingSeedNumber && document.activeElement !== el.settingSeedNumber) {
+      el.settingSeedNumber.value = code || '';
+    }
+  }
+
+  // Validates the bracket can be (re)drawn; returns true if OK
+  function canRunSeeding(t) {
+    const isZh = state.lang === 'zh';
+    if (!t) return false;
     if (t.isLocked) {
       showToast(isZh ? '对阵图已锁定，无法重新抽签！请先解锁。' : 'Bagan sedang dikunci! Buka kunci (Unlock) bagan terlebih dahulu untuk melakukan Auto-Seed.', 'warning');
-      return;
+      return false;
     }
-
     if (t.status === 'in_progress') {
       showToast(isZh ? '比赛进行中，无法重新抽签！' : 'Turnamen sedang berjalan! Auto-Seed dinonaktifkan untuk menjaga skor pertandingan.', 'warning');
-      return;
+      return false;
     }
-
     if (!t.participants || t.participants.length < 1) {
       showToast(isZh ? '暂无参赛选手，请先添加选手！' : 'Belum ada peserta terdaftar. Tambahkan peserta terlebih dahulu untuk melakukan Auto-Seed!', 'warning');
+      return false;
+    }
+    return true;
+  }
+
+  // Re-draw the bracket using a specific (previously generated) seed code
+  function handleApplySeedCode() {
+    const t = state.currentTournament;
+    if (!t) return;
+    const code = normalizeSeedNumber(el.settingSeedNumber?.value);
+    if (!code) {
+      showToast('Masukkan kode seed berupa angka positif.', 'warning');
       return;
     }
+    if (!canRunSeeding(t)) return;
+    performSeeding(true, code);
+  }
 
-    performSeeding(true);
+  function handleAutoSeed() {
+    const t = state.currentTournament;
+    if (!canRunSeeding(t)) return;
+    // Every Auto-Seed gets a fresh unique code
+    let code = generateSeedNumber();
+    while (code === t.settings?.lastSeedUsed) code = generateSeedNumber();
+    performSeeding(true, code);
   }
 
   function handleResetSeeds() {
@@ -5523,7 +5580,7 @@
     renderBracketStudio();
   }
 
-  function performSeeding(isRandom = true) {
+  function performSeeding(isRandom = true, seedCode = null) {
     const t = state.currentTournament;
     if (!t) return;
 
@@ -5542,23 +5599,40 @@
       t.rounds = generateBracketTree(t.participants, null, false);
     }
 
+    // Canonical (structural) seed per slot from a fresh empty tree, so slot order never depends on a previous draw
+    const canonicalMap = {};
+    try {
+      (generateBracketTree(t.participants, null, false) || []).forEach((round, rIdx) => {
+        (round.matches || []).forEach((m, mIdx) => {
+          canonicalMap[`${rIdx}_${mIdx}_p1`] = parseInt(m.p1?.seed, 10);
+          canonicalMap[`${rIdx}_${mIdx}_p2`] = parseInt(m.p2?.seed, 10);
+        });
+      });
+    } catch (e) { /* fall back to slot seeds */ }
+    const slotSeed = (rIdx, mIdx, slot, p) => {
+      const c = canonicalMap[`${rIdx}_${mIdx}_${slot}`];
+      if (Number.isFinite(c)) return c;
+      return parseInt(p?.seed, 10) || 9999;
+    };
+
     // 1. Gather all leaf entry slots across Round 1 (play-ins) and Round 2 (BYEs)
     const entrySlots = [];
     t.rounds.forEach((round, rIdx) => {
       round.matches.forEach((m, mIdx) => {
         if (!m.feederTopId) {
-          const canonicalSeed = parseInt(m.p1?.seed, 10) || 9999;
+          const canonicalSeed = slotSeed(rIdx, mIdx, 'p1', m.p1);
           entrySlots.push({ roundIdx: rIdx, matchIdx: mIdx, slot: 'p1', isLocked: !!m.p1Locked, currentP: m.p1, canonicalSeed });
         }
         if (!m.feederBotId) {
-          const canonicalSeed = parseInt(m.p2?.seed, 10) || 9999;
+          const canonicalSeed = slotSeed(rIdx, mIdx, 'p2', m.p2);
           entrySlots.push({ roundIdx: rIdx, matchIdx: mIdx, slot: 'p2', isLocked: !!m.p2Locked, currentP: m.p2, canonicalSeed });
         }
       });
     });
 
     // Sort entrySlots by canonical seed ascending so top seeds get BYEs in Round 2 and lower seeds play in Round 1
-    entrySlots.sort((a, b) => a.canonicalSeed - b.canonicalSeed);
+    // (tie-break on position to keep the order fully deterministic)
+    entrySlots.sort((a, b) => (a.canonicalSeed - b.canonicalSeed) || (a.roundIdx - b.roundIdx) || (a.matchIdx - b.matchIdx) || a.slot.localeCompare(b.slot));
 
     // 2. Identify which participants are locked in place
     const lockedParticipantIds = new Set();
@@ -5586,12 +5660,20 @@
       return;
     }
 
+    let usedSeed = null;
     if (isRandom) {
-      // Fisher-Yates random shuffle
+      // Seeded Fisher-Yates shuffle: same code + same participants => same bracket
+      usedSeed = normalizeSeedNumber(seedCode) || generateSeedNumber();
+      // Canonical participant order first, so list order changes don't affect the result
+      const keyOf = p => String(p.id || p.name.trim().toLowerCase());
+      pool.sort((a, b) => keyOf(a) < keyOf(b) ? -1 : keyOf(a) > keyOf(b) ? 1 : 0);
+      const rand = createSeededRandom(usedSeed);
       for (let i = pool.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
+        const j = Math.floor(rand() * (i + 1));
         [pool[i], pool[j]] = [pool[j], pool[i]];
       }
+      t.settings = t.settings || {};
+      t.settings.lastSeedUsed = usedSeed;
     }
 
     // 4. Assign into unlocked slots
@@ -5633,17 +5715,19 @@
     });
 
     sanitizeBracketDuplicates(t);
-    addTournamentLog(t, 'slot', lockedCount > 0
+    const seedTag = usedSeed ? ` [Seed #${usedSeed}]` : '';
+    addTournamentLog(t, 'slot', (lockedCount > 0
       ? `🎲 Bagan diundi secara acak (${lockedCount} slot terkunci tetap aman).`
-      : '🎲 Bagan diundi secara acak (Auto-Seed).'
+      : '🎲 Bagan diundi secara acak (Auto-Seed).') + seedTag
     );
     saveTournamentState(true);
     renderParticipantsDrawer();
     renderBracketStudio();
+    syncSeedNumberUI(t);
     const isZh = state.lang === 'zh';
-    const msg = lockedCount > 0
+    const msg = (lockedCount > 0
       ? (isZh ? `🎲 自动抽签成功！已随机编排（${lockedCount} 个锁定签位保持不变）` : `🎲 Auto-Seed berhasil! Bagan telah diacak (${lockedCount} slot terkunci tetap aman).`)
-      : (isZh ? '🎲 自动抽签成功，对阵图已完成随机编排！' : '🎲 Auto-Seed berhasil! Bagan telah diundi secara acak.');
+      : (isZh ? '🎲 自动抽签成功，对阵图已完成随机编排！' : '🎲 Auto-Seed berhasil! Bagan telah diundi secara acak.')) + seedTag;
     showToast(msg, 'success');
   }
 
@@ -9478,6 +9562,28 @@
         showToast(el.settingBronzeMatch.checked ? '🥉 Perebutan Juara 3 (Bronze Match) ditampilkan di bawah Final!' : 'Perebutan Juara 3 disembunyikan', 'info');
       }
     });
+
+    // Seed Number / Code (Deterministic Auto-Seed)
+    if (el.btnApplySeed) {
+      el.btnApplySeed.addEventListener('click', handleApplySeedCode);
+    }
+    if (el.settingSeedNumber) {
+      el.settingSeedNumber.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          handleApplySeedCode();
+        }
+      });
+    }
+    if (el.btnCopyCurrentSeed) {
+      el.btnCopyCurrentSeed.addEventListener('click', () => {
+        const t = state.currentTournament;
+        const last = t && normalizeSeedNumber(t.settings?.lastSeedUsed);
+        if (!last) return showToast('Belum ada kode seed pada bagan saat ini.', 'warning');
+        navigator.clipboard?.writeText(String(last));
+        showToast(`📋 Kode seed #${last} disalin!`, 'success');
+      });
+    }
 
     if (el.settingHideLiveBracket) {
       el.settingHideLiveBracket.addEventListener('change', () => {
