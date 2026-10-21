@@ -1138,6 +1138,18 @@
     handleRoute();
     window.addEventListener('popstate', handleRoute);
     setInterval(updateAutoLockTimerUI, 1000);
+
+    window.addEventListener('resize', () => {
+      checkStudioHeaderCollision();
+    });
+
+    const studioHeaderEl = document.querySelector('.studio-header');
+    if (studioHeaderEl && window.ResizeObserver) {
+      const headerObserver = new ResizeObserver(() => {
+        checkStudioHeaderCollision();
+      });
+      headerObserver.observe(studioHeaderEl);
+    }
   }
 
   function handleRoute() {
@@ -1547,11 +1559,44 @@
     }
   }
 
+  function checkStudioHeaderCollision() {
+    const header = document.querySelector('.studio-header');
+    if (!header || header.offsetParent === null) return;
+
+    const left = header.querySelector('.studio-header-left');
+    const right = header.querySelector('.studio-header-right');
+    if (!left || !right) return;
+
+    const leftRect = left.getBoundingClientRect();
+    const rightRect = right.getBoundingClientRect();
+    const gap = rightRect.left - leftRect.right;
+
+    // If buttons touch or get within 28px of the tournament name / badge:
+    if (gap <= 28) {
+      header.classList.add('is-compact');
+      // If still extremely tight or overlapping after first compact tier:
+      requestAnimationFrame(() => {
+        const updatedGap = right.getBoundingClientRect().left - left.getBoundingClientRect().right;
+        if (updatedGap <= 15) {
+          header.classList.add('is-compact-all');
+        }
+      });
+    } else if (gap > 320) {
+      if (header.classList.contains('is-compact-all') && gap > 380) {
+        header.classList.remove('is-compact-all');
+      }
+      if (header.classList.contains('is-compact') && gap > 500) {
+        header.classList.remove('is-compact');
+      }
+    }
+  }
+
   function setupStudioUI() {
     const t = state.currentTournament;
     el.studioTournamentName.textContent = t.name;
     el.studioStatusBadge.className = `badge badge-${t.status || 'setup'}`;
     el.studioStatusBadge.textContent = (t.status || 'setup').replace('_', ' ').toUpperCase();
+    requestAnimationFrame(checkStudioHeaderCollision);
 
     if (el.btnOpenLiveView) {
       el.btnOpenLiveView.href = `?view=live&id=${t.id}`;
