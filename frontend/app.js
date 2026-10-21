@@ -6627,7 +6627,7 @@
       const realParticipants = getRealParticipants(t.participants);
       if (el.liveTeamsBtnText) {
         const isZh = state.lang === 'zh';
-        el.liveTeamsBtnText.textContent = `${isZh ? '已报名战队' : 'Tim Terdaftar'} (${realParticipants.length})`;
+        el.liveTeamsBtnText.innerHTML = `<span class="live-teams-label">${isZh ? '已报名' : 'Tim'}</span> <span class="badge-count">(${realParticipants.length})</span>`;
       }
       if (el.btnLiveViewTeams) {
         el.btnLiveViewTeams.onclick = () => {
@@ -9824,20 +9824,30 @@
     // Corner HUD widget collapse/expand toggles
     const studioHud = document.getElementById('studio-match-progress');
     const btnStudioHudToggle = document.getElementById('btn-studio-hud-toggle');
-    if (btnStudioHudToggle && studioHud) {
-      btnStudioHudToggle.addEventListener('click', (e) => {
-        e.stopPropagation();
-        studioHud.classList.toggle('collapsed');
-      });
+    if (studioHud) {
+      if (window.innerWidth <= 768) studioHud.classList.add('collapsed');
+      const studioHeader = studioHud.querySelector('.widget-header');
+      if (studioHeader) {
+        studioHeader.style.cursor = 'pointer';
+        studioHeader.addEventListener('click', (e) => {
+          if (e.target.closest('.btn-widget-action')) return;
+          studioHud.classList.toggle('collapsed');
+        });
+      }
     }
 
     const liveHud = document.getElementById('live-match-progress');
     const btnLiveHudToggle = document.getElementById('btn-live-hud-toggle');
-    if (btnLiveHudToggle && liveHud) {
-      btnLiveHudToggle.addEventListener('click', (e) => {
-        e.stopPropagation();
-        liveHud.classList.toggle('collapsed');
-      });
+    if (liveHud) {
+      if (window.innerWidth <= 768) liveHud.classList.add('collapsed');
+      const liveHeader = liveHud.querySelector('.widget-header');
+      if (liveHeader) {
+        liveHeader.style.cursor = 'pointer';
+        liveHeader.addEventListener('click', (e) => {
+          if (e.target.closest('.btn-widget-action')) return;
+          liveHud.classList.toggle('collapsed');
+        });
+      }
     }
 
     // Match Queue Drawer Triggers & Controls
