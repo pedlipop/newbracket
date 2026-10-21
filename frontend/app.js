@@ -1740,36 +1740,45 @@
 
       <div class="popover-members-scroll">
         ${!hasInfo ? `
-          <div class="tooltip-person-block" style="text-align:center; padding:14px 8px; color:var(--text-muted); font-size:0.78rem;">
+          <div class="tooltip-person-block" style="text-align:center; padding:12px 8px; color:var(--text-muted); font-size:0.78rem;">
             <i class="fa-solid fa-circle-exclamation" style="color:var(--warning); margin-bottom:6px; font-size:1.2rem; display:block;"></i>
             ${isZh ? '此位置为空槽位。点击下方“重命名”或“成员”录入选手信息。' : 'Slot ini masih kosong. Silakan gunakan tombol Ubah Nama atau Anggota Tim di bawah untuk mengisi data peserta.'}
           </div>
         ` : (isTeam ? `
-          <div class="tooltip-person-block">
-            <div class="person-role-tag">${isZh ? '队长 / 主力选手' : 'KAPTEN / PEMAIN UTAMA'}</div>
-            <div class="person-name">${escapeHTML(mainPlayerName || fullP.name)}</div>
-            ${mainCompany ? `<div class="person-meta-item"><i class="fa-solid fa-briefcase"></i> Perusahaan: ${escapeHTML(mainCompany)}</div>` : ''}
-            ${mainDept ? `<div class="person-meta-item"><i class="fa-solid fa-building"></i> Departemen: ${escapeHTML(mainDept)}</div>` : ''}
-            ${mainWecom ? `<div class="person-meta-item"><i class="fa-solid fa-address-book"></i> No. WeCom: ${escapeHTML(mainWecom)}</div>` : ''}
+          <div class="tooltip-person-block" style="padding:6px 8px;">
+            <div class="person-role-tag" style="margin-bottom:2px;">${isZh ? '队长 / 主力选手' : 'KAPTEN / PEMAIN UTAMA'}</div>
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:6px;">
+              <span class="person-name" style="font-size:0.82rem; font-weight:700; color:#ffffff;">${escapeHTML(mainPlayerName || fullP.name)}</span>
+              ${mainCompany ? `<span class="person-meta-company">${escapeHTML(mainCompany)}</span>` : ''}
+            </div>
           </div>
 
-          ${partnersList.map((partner, pIdx) => `
-            <div class="tooltip-person-block partner-block">
-              <div class="person-role-tag partner">${isZh ? `队员 #${pIdx + 1}` : `REKAN TIM #${pIdx + 1}`}</div>
-              <div class="person-name partner-highlight">${escapeHTML(partner.name)}</div>
-              ${partner.company ? `<div class="person-meta-item"><i class="fa-solid fa-briefcase"></i> Perusahaan: ${escapeHTML(partner.company)}</div>` : ''}
-              ${partner.dept ? `<div class="person-meta-item"><i class="fa-solid fa-building"></i> Departemen: ${escapeHTML(partner.dept)}</div>` : ''}
-              ${partner.wecom ? `<div class="person-meta-item"><i class="fa-solid fa-address-book"></i> No. WeCom: ${escapeHTML(partner.wecom)}</div>` : ''}
+          ${partnersList.length > 0 ? `
+            <div style="margin-top:4px; display:flex; flex-direction:column; gap:3px;">
+              <div style="font-size:0.62rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.3px; padding-left:2px;">
+                ${isZh ? `队员名单 (${partnersList.length})` : `Anggota Tim (${partnersList.length}):`}
+              </div>
+              <div class="roster-compact-list">
+                ${partnersList.map((partner, pIdx) => `
+                  <div class="roster-compact-item">
+                    <div style="display:flex; align-items:center; gap:6px; min-width:0;">
+                      <span style="font-size:0.62rem; color:var(--text-muted); font-weight:700; flex-shrink:0;">#${pIdx + 1}</span>
+                      <span style="color:var(--text-primary); font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${escapeHTML(partner.name)}</span>
+                    </div>
+                    ${partner.company ? `<span class="person-meta-company">${escapeHTML(partner.company)}</span>` : ''}
+                  </div>
+                `).join('')}
+              </div>
             </div>
-          `).join('')}
+          ` : ''}
         ` : `
-          <div class="tooltip-person-block">
-            <div class="person-role-tag" style="color:var(--primary);">${isZh ? '单人选手' : 'PESERTA TUNGGAL'}</div>
-            <div class="person-name primary-highlight" style="font-size: 14px; font-weight: 700; color: var(--primary); margin-bottom: 4px;">${escapeHTML(mainPlayerName || fullP.name)}</div>
-            ${mainCompany ? `<div class="person-meta-item"><i class="fa-solid fa-briefcase"></i> Perusahaan: ${escapeHTML(mainCompany)}</div>` : ''}
-            ${mainDept ? `<div class="person-meta-item"><i class="fa-solid fa-building"></i> Departemen: ${escapeHTML(mainDept)}</div>` : ''}
-            ${mainWecom ? `<div class="person-meta-item"><i class="fa-solid fa-address-book"></i> No. WeCom: ${escapeHTML(mainWecom)}</div>` : ''}
-            ${fullP.registeredAt ? `<div class="person-meta-item time" style="margin-top: 4px; font-size: 0.68rem; color: var(--text-muted);"><i class="fa-regular fa-clock"></i> Daftar: ${new Date(fullP.registeredAt).toLocaleDateString()}</div>` : ''}
+          <div class="tooltip-person-block" style="padding:6px 8px;">
+            <div class="person-role-tag" style="color:var(--primary); margin-bottom:2px;">${isZh ? '单人选手' : 'PESERTA TUNGGAL'}</div>
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:6px;">
+              <span class="person-name primary-highlight" style="font-size:0.85rem; font-weight:700; color:var(--primary);">${escapeHTML(mainPlayerName || fullP.name)}</span>
+              ${mainCompany ? `<span class="person-meta-company">${escapeHTML(mainCompany)}</span>` : ''}
+            </div>
+            ${fullP.registeredAt ? `<div class="person-meta-item time" style="margin-top: 4px; font-size: 0.65rem; color: var(--text-muted);"><i class="fa-regular fa-clock"></i> Daftar: ${new Date(fullP.registeredAt).toLocaleDateString()}</div>` : ''}
           </div>
         `)}
       </div>
@@ -1925,7 +1934,7 @@
     floatingTeamPopoverEl.classList.remove('hidden');
 
     const btnRect = buttonEl.getBoundingClientRect();
-    const popWidth = Math.min(340, window.innerWidth - 20);
+    const popWidth = Math.min(300, window.innerWidth - 20);
     floatingTeamPopoverEl.style.width = `${popWidth}px`;
 
     const popoverRect = floatingTeamPopoverEl.getBoundingClientRect();
@@ -2118,8 +2127,8 @@
           </div>
 
           <!-- Main Player / Captain Block -->
-          <div class="tooltip-person-block" style="margin-top:2px;">
-            <div class="person-role-tag" style="display:flex; justify-content:space-between; align-items:center;">
+          <div class="tooltip-person-block" style="margin-top:2px; padding:6px 8px;">
+            <div class="person-role-tag" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2px;">
               <span>${info.isTeam ? (isZh ? '队长 / 主力选手' : 'KAPTEN / PEMAIN UTAMA') : (isZh ? '参赛选手' : 'PESERTA')}</span>
               ${(!isLiveView && !t?.isLocked) ? `
                 <button type="button" class="btn-manage-team-from-popover" data-part-id="${escapeHTML(p.id || '')}" style="background:transparent; border:none; color:var(--primary); font-size:0.65rem; cursor:pointer; padding:0; text-decoration:underline;">
@@ -2127,27 +2136,29 @@
                 </button>
               ` : ''}
             </div>
-            <div class="person-name" style="font-size:0.82rem; font-weight:700; color:#ffffff;">${escapeHTML(captainName)}</div>
-            ${p.company ? `<div class="person-meta-item"><i class="fa-solid fa-briefcase"></i> Perusahaan: ${escapeHTML(p.company)}</div>` : ''}
-            ${p.dept ? `<div class="person-meta-item"><i class="fa-solid fa-building"></i> Departemen: ${escapeHTML(p.dept)}</div>` : ''}
-            ${p.wecom ? `<div class="person-meta-item"><i class="fa-solid fa-address-book"></i> No. WeCom: ${escapeHTML(p.wecom)}</div>` : ''}
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:6px;">
+              <span class="person-name" style="font-size:0.82rem; font-weight:700; color:#ffffff;">${escapeHTML(captainName)}</span>
+              ${p.company ? `<span class="person-meta-company">${escapeHTML(p.company)}</span>` : ''}
+            </div>
           </div>
 
           <!-- Team Partners List (if any) -->
           ${info.partners && info.partners.length > 0 ? `
-            <div style="margin-top:3px; display:flex; flex-direction:column; gap:4px;">
-              <div style="font-size:0.65rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.3px;">
+            <div style="margin-top:4px; display:flex; flex-direction:column; gap:3px;">
+              <div style="font-size:0.62rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.3px; padding-left:2px;">
                 ${isZh ? `队员名单 (${info.partners.length})` : `Anggota Tim (${info.partners.length}):`}
               </div>
-              ${info.partners.map((partner, idx) => `
-                <div class="tooltip-person-block partner-block" style="padding:4px 7px;">
-                  <div class="person-role-tag partner" style="font-size:0.6rem;">${isZh ? `队员 #${idx + 1}` : `Rekan #${idx + 1}`}</div>
-                  <div class="person-name partner-highlight" style="font-size:0.75rem;">${escapeHTML(partner.name)}</div>
-                  ${partner.company ? `<div class="person-meta-item" style="font-size:0.67rem;"><i class="fa-solid fa-briefcase"></i> ${escapeHTML(partner.company)}</div>` : ''}
-                  ${partner.dept ? `<div class="person-meta-item" style="font-size:0.67rem;"><i class="fa-solid fa-building"></i> ${escapeHTML(partner.dept)}</div>` : ''}
-                  ${partner.wecom ? `<div class="person-meta-item" style="font-size:0.67rem;"><i class="fa-solid fa-address-book"></i> ${escapeHTML(partner.wecom)}</div>` : ''}
-                </div>
-              `).join('')}
+              <div class="roster-compact-list">
+                ${info.partners.map((partner, idx) => `
+                  <div class="roster-compact-item">
+                    <div style="display:flex; align-items:center; gap:6px; min-width:0;">
+                      <span style="font-size:0.62rem; color:var(--text-muted); font-weight:700; flex-shrink:0;">#${idx + 1}</span>
+                      <span style="color:var(--text-primary); font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${escapeHTML(partner.name)}</span>
+                    </div>
+                    ${partner.company ? `<span class="person-meta-company">${escapeHTML(partner.company)}</span>` : ''}
+                  </div>
+                `).join('')}
+              </div>
             </div>
           ` : ''}
         </div>
@@ -2236,7 +2247,7 @@
 
     // Positioning
     const btnRect = buttonEl.getBoundingClientRect();
-    const popWidth = Math.min(380, window.innerWidth - 20);
+    const popWidth = Math.min(310, window.innerWidth - 20);
     floatingMatchDetailsPopoverEl.style.width = `${popWidth}px`;
 
     const popoverRect = floatingMatchDetailsPopoverEl.getBoundingClientRect();

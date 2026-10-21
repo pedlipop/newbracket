@@ -13,12 +13,49 @@
           "id": "p_1792486185293_bmky",
           "name": "dada",
           "teamName": "dada",
-          "playerName": "dada",
+          "playerName": "Dada Utama",
           "wecom": "",
           "dept": "",
-          "company": "",
-          "isTeam": false,
-          "partners": [],
+          "company": "CNGR 中伟",
+          "isTeam": true,
+          "partners": [
+            {
+              "name": "Budi Santoso",
+              "company": "ZTEN 中青",
+              "dept": "Produksi",
+              "wecom": "08123456789"
+            },
+            {
+              "name": "Siti Aminah",
+              "company": "CNGR 中伟",
+              "dept": "Finance",
+              "wecom": "08129876543"
+            },
+            {
+              "name": "Agus Wijaya",
+              "company": "ZTEN 中青",
+              "dept": "HRD",
+              "wecom": "08121112223"
+            },
+            {
+              "name": "Eko Prasetyo",
+              "company": "CNGR 中伟",
+              "dept": "IT Tech",
+              "wecom": "08123334445"
+            },
+            {
+              "name": "Lina Marlina",
+              "company": "ZTEN 中青",
+              "dept": "Logistik",
+              "wecom": "08125556667"
+            },
+            {
+              "name": "Rian Pratama",
+              "company": "CNGR 中伟",
+              "dept": "Maintenance",
+              "wecom": "08127778889"
+            }
+          ],
           "partner": null,
           "registeredAt": "2026-10-20T08:49:51.067Z",
           "seed": 1
@@ -274,12 +311,49 @@
                 "id": "p_1792486185293_bmky",
                 "name": "dada",
                 "teamName": "dada",
-                "playerName": "dada",
+                "playerName": "Dada Utama",
                 "wecom": "",
                 "dept": "",
-                "company": "",
-                "isTeam": false,
-                "partners": [],
+                "company": "CNGR 中伟",
+                "isTeam": true,
+                "partners": [
+                  {
+                    "name": "Budi Santoso",
+                    "company": "ZTEN 中青",
+                    "dept": "Produksi",
+                    "wecom": "08123456789"
+                  },
+                  {
+                    "name": "Siti Aminah",
+                    "company": "CNGR 中伟",
+                    "dept": "Finance",
+                    "wecom": "08129876543"
+                  },
+                  {
+                    "name": "Agus Wijaya",
+                    "company": "ZTEN 中青",
+                    "dept": "HRD",
+                    "wecom": "08121112223"
+                  },
+                  {
+                    "name": "Eko Prasetyo",
+                    "company": "CNGR 中伟",
+                    "dept": "IT Tech",
+                    "wecom": "08123334445"
+                  },
+                  {
+                    "name": "Lina Marlina",
+                    "company": "ZTEN 中青",
+                    "dept": "Logistik",
+                    "wecom": "08125556667"
+                  },
+                  {
+                    "name": "Rian Pratama",
+                    "company": "CNGR 中伟",
+                    "dept": "Maintenance",
+                    "wecom": "08127778889"
+                  }
+                ],
                 "partner": null,
                 "registeredAt": "2026-10-20T08:49:51.067Z",
                 "seed": 1,
@@ -416,7 +490,7 @@
         "lastSeedUsed": 265665
       },
       "createdAt": "2026-10-09T07:40:42.269Z",
-      "updatedAt": "2026-10-21T02:15:34.108Z",
+      "updatedAt": "2026-10-21T02:25:58.880Z",
       "hideLiveBracket": false
     },
     {
