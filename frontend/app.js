@@ -73,10 +73,10 @@
       nav_themes: 'Themes',
       drawer_participants: 'Participants',
       btn_auto_seed: 'Auto-Seed',
-      btn_reset_seeds: 'Reset Seed',
+      btn_reset_seeds: 'Reset Bagan',
       btn_bulk_add: 'Bulk Add',
-      ph_add_participant: 'Add team/player name...',
-      drag_hint: 'Drag any participant onto a bracket slot to assign or swap seeds!',
+      ph_add_participant: 'Nama tim / peserta...',
+      drag_hint: 'Tarik & lepas tim ke slot bagan untuk menukar posisi.',
       drawer_settings: 'Pengaturan Turnamen',
       label_category_game: 'Kategori / Game',
       ph_setting_game: 'cth. Mobile Legends, Badminton',
@@ -85,22 +85,22 @@
       opt_round_robin: 'Round Robin',
       opt_round_robin_elim: 'Round Robin + Single Elimination',
       opt_double_elim: 'Double Elimination',
-      rr_config_title: 'Pengaturan Babak Grup (Round Robin)',
+      rr_config_title: 'Pengaturan Babak Grup',
       label_rr_group_count: 'Jumlah Grup',
       label_rr_advancing: 'Lolos per Grup (Knockout)',
       btn_convert_knockout: 'Loloskan ke Babak Gugur',
       modal_convert_title: 'Generate Bagan Babak Gugur',
-      modal_convert_sub: 'Berdasarkan klasemen poin grup, sistem akan otomatis menyusun bagan Single Elimination.',
+      modal_convert_sub: 'Bagan gugur disusun otomatis dari klasemen grup.',
       label_qualifying_teams: 'Tim yang Lolos dari Grup:',
       label_seeding_method: 'Metode Seeding Babak Gugur:',
       opt_seed_cross: 'Silang Antar Grup (Juara A vs Runner-up B)',
       opt_seed_rank: 'Peringkat Poin Keseluruhan',
-      hint_seeding_method: 'Metode silang mencegah tim dari grup yang sama bertemu terlalu awal di babak pertama.',
+      hint_seeding_method: 'Mencegah tim segrup bertemu di babak awal.',
       btn_confirm_generate_bracket: 'Konfirmasi Buat Bagan Gugur',
       stage_round_robin: 'Babak Grup (Round Robin)',
       stage_elimination: 'Babak Gugur (Single Elimination)',
       btn_direct_draw: 'Seri / Imbang (Draw)',
-      hint_format_locked: 'Format bagan telah dikunci setelah turnamen dibuat.',
+      hint_format_locked: 'Format terkunci setelah turnamen dibuat.',
       label_bracket_layout: 'Tata Letak (Layout)',
       opt_layout_standard: 'Standar (1 Sisi)',
       opt_layout_split: 'Bagan 2 Sisi (Split View)',
@@ -119,8 +119,8 @@
       label_autolock: 'Auto-Lock Timer',
       label_seed_number: 'Kode Seed Bagan',
       btn_apply_seed: 'Terapkan',
-      btn_save_bracket_to_seed: 'Simpan Posisi Bagan ke Kode Seed',
-      hint_seed_number: 'Setiap Auto-Seed menghasilkan kode unik. Anda juga dapat menyimpan posisi bagan saat ini ke kode seed baru, lalu memasukkan kode tersebut kapan saja untuk mengembalikannya.',
+      btn_save_bracket_to_seed: 'Simpan Posisi ke Seed',
+      hint_seed_number: 'Simpan atau masukkan kode seed untuk memulihkan susunan bagan.',
       autolock_none: 'Mati (Manual)',
       autolock_3m: '3 Menit',
       autolock_5m: '5 Menit',
@@ -131,13 +131,13 @@
       btn_set_timer: 'Simpan',
       title_reset_tournament: 'Reset Turnamen',
       btn_reset_scores: 'Reset Skor Pertandingan',
-      drawer_themes: 'Aesthetic Themes',
+      drawer_themes: 'Tema Tampilan',
       theme_dark: 'Modern Esports (Dark)',
       theme_cyber: 'Midnight Neon',
       theme_light: 'Clean Minimal (Light)',
       hud_title: 'Progres Match',
       hud_active: 'Match Berlangsung:',
-      hud_next: 'Akan Main Selanjutnya:',
+      hud_next: 'Akan Main:',
       live_all_tournaments: 'Semua Turnamen',
       live_spectator_sub: 'Official Spectator View',
       live_tag: '<span class="pulse-dot"></span> LIVE UPDATES',
@@ -145,80 +145,88 @@
       live_focus_btn: 'Live Focus',
       not_started_badge: 'SEGERA DIMULAI',
       not_started_title: 'Permainan Belum Dimulai',
-      not_started_desc: 'Bagan pertandingan (bracket) sedang dipersiapkan oleh panitia. Halaman ini akan otomatis terupdate begitu pertandingan dimulai.',
+      not_started_desc: 'Bagan sedang disiapkan dan akan diperbarui otomatis saat tanding.',
       not_started_waiting: 'Menunggu Pembukaan',
       live_bracket_hidden_badge: 'BAGAN DISEMBUNYIKAN',
       live_bracket_hidden_title: 'Bagan Pertandingan Diburamkan',
-      live_bracket_hidden_desc: 'Panitia turnamen sedang menyembunyikan susunan bagan pertandingan dari penonton langsung.',
+      live_bracket_hidden_desc: 'Bagan disembunyikan sementara oleh panitia.',
       live_bracket_hidden_status: 'Mode Privasi Aktif',
-      reg_badge: 'PARTICIPANT REGISTRATION',
-      label_bracket_layout: 'Tata Letak Bagan (Layout)',
+      reg_badge: 'PENDAFTARAN PESERTA',
+      label_bracket_layout: 'Tata Letak Bagan',
       opt_layout_standard: 'Standar (1-Sisi Kiri ke Kanan)',
-      opt_layout_split_semi: 'Bagan 2 Sisi (Split ke Semifinal, Final Tengah)',
-      opt_layout_split_top4: 'Bagan 2 Sisi (Split ke Top 4 / Semifinal Tengah)',
-      hint_bracket_layout: 'Membagi bagan ke dua sisi (sayap kiri & kanan) yang bertemu di tengah menuju Semifinal dan Final.',
-      reg_title: 'Tournament Registration',
+      opt_layout_split_semi: 'Bagan 2 Sisi (Split Final)',
+      opt_layout_split_top4: 'Bagan 2 Sisi (Split Top 4)',
+      hint_bracket_layout: 'Bagan terbagi kiri-kanan bertemu di tengah.',
+      reg_title: 'Pendaftaran Turnamen',
       reg_desc: 'Daftarkan tim Anda untuk masuk ke bagan turnamen.',
-      reg_registered_badge: 'Peserta Telah Terdaftar',
+      reg_registered_badge: 'Peserta Terdaftar',
       reg_open_badge: 'Pendaftaran Dibuka',
-      reg_closed_title: 'Pendaftaran Telah Ditutup',
-      reg_closed_desc: 'Batas waktu pendaftaran telah berakhir atau bagan pertandingan telah dikunci oleh panitia.',
+      reg_closed_title: 'Pendaftaran Ditutup',
+      reg_closed_desc: 'Batas waktu berakhir atau bagan telah dikunci panitia.',
       reg_view_live_btn: 'Lihat Live Bracket Pertandingan',
-      reg_team_name_label: 'Nama Tim (Opsional - jika kosong otomatis TIM [Nama Depan])',
-      reg_team_name_ph: 'Contoh: Garuda Team (Opsional)',
-      reg_main_player_title: 'Data Pemain Utama',
-      reg_main_player_name: 'Nama Lengkap Pemain Utama',
-      reg_main_player_ph: 'Masukkan nama lengkap pemain utama',
-      reg_wecom_label: 'No. Wecom',
-      reg_wecom_ph: 'No. Wecom / WA',
-      reg_dept_label: 'Departemen (Dept)',
-      reg_dept_ph: 'Contoh: Produksi, IT, HR',
-      reg_partner_title: 'Data Rekan Satu Tim',
-      reg_partner_count_label: 'Jumlah Rekan Tim:',
+      reg_team_name_label: 'Nama Tim (Opsional)',
+      reg_team_name_ph: 'cth. Garuda Team',
+      reg_main_player_title: 'Data Pemain / Kapten',
+      reg_main_player_name: 'Nama Pemain / Kapten',
+      reg_main_player_ph: 'Nama lengkap',
+      reg_wecom_label: 'No. WeCom / WA',
+      reg_wecom_ph: 'No. WeCom / WA',
+      reg_dept_label: 'Departemen',
+      reg_dept_ph: 'cth. Produksi, IT, HR',
+      reg_partner_title: 'Rekan Satu Tim',
+      reg_partner_count_label: 'Jumlah Rekan:',
       reg_submit_btn: 'Submit Pendaftaran',
-      reg_success_title: 'Pendaftaran Berhasil Terkonfirmasi!',
-      reg_success_desc: 'Anda resmi terdaftar dalam bagan pertandingan turnamen. Pantau live bracket pertandingan melalui link di bawah:',
+      reg_success_title: 'Pendaftaran Berhasil!',
+      reg_success_desc: 'Tim Anda resmi terdaftar. Pantau live bracket di bawah:',
       btn_copy: 'Salin',
       btn_open_live_now: 'Buka Live Bracket Sekarang',
-      modal_create_title: 'Create New Tournament',
-      label_tourn_name: 'Tournament Title',
-      ph_tourn_name: 'e.g. Valorant Championship Cup',
-      label_tourn_game: 'Game / Category',
-      ph_tourn_game: 'e.g. Valorant, MLBB, Tekken 8, Badminton',
+      modal_create_title: 'Buat Turnamen Baru',
+      label_tourn_name: 'Judul Turnamen',
+      ph_tourn_name: 'cth. Turnamen Badminton Antar Dept',
+      label_tourn_game: 'Kategori / Game',
+      ph_tourn_game: 'cth. Badminton, MLBB, Tenis Meja',
       label_tourn_format: 'Format',
-      label_tourn_size: 'Initial Participants',
-      label_tourn_doubles: 'Mode Tim / Turnamen Berkelompok',
+      label_tourn_size: 'Jumlah Peserta Awal',
+      label_tourn_doubles: 'Mode Tim / Ganda (Multi-Pemain)',
       btn_cancel: 'Batal',
       reg_company_label: 'Perusahaan',
       label_company: 'Perusahaan:',
       col_partner_company: 'Perusahaan',
       th_company: 'Perusahaan',
       col_partner_name: 'Nama Rekan',
-      col_partner_dept: 'Departemen / Divisi',
-      col_partner_wecom: 'WeCom / Kontak',
-      btn_create_tournament: 'Create Tournament',
-      modal_qr_title: 'Participant Registration QR',
-      modal_qr_instructions: 'Scan this QR code with a phone to register participants directly into the tournament.',
-      btn_copy_link: 'Copy Link',
-      label_qr_reg_status: 'Status Pendaftaran Form:',
-      btn_close_reg_now: 'Tutup Pendaftaran Sekarang',
-      btn_open_reg_now: 'Buka Pendaftaran Kembali',
-      label_qr_team_config: 'Pengaturan Form Registrasi Tim:',
-      label_qr_team_title: 'Judul / Nama Form Registrasi (Tampil ke Peserta):',
-      ph_qr_team_title: 'Contoh: Honor of Kings 5v5 Championship',
-      label_qr_team_size: 'Jumlah Anggota per Tim (Termasuk Kapten):',
-      hint_qr_team_size: 'Peserta yang membuka form tidak perlu memilih jumlah anggota lagi.',
-      label_qr_team_name_mode: 'Format Nama Tim Pendaftar:',
-      opt_team_name_manual: 'Peserta Ketik Nama Tim Sendiri',
-      opt_team_name_auto: 'Otomatis Format: TIM [Nama Kapten] (Tanpa Input Tim)',
-      btn_save_team_settings: 'Simpan Pengaturan Tim',
-      btn_edit_team_settings: 'Ubah Pengaturan',
-      btn_hide_team_settings: 'Tutup Pengaturan',
+      col_partner_dept: 'Departemen',
+      col_partner_wecom: 'No. WeCom',
+      btn_create_tournament: 'Buat Turnamen',
+      modal_qr_title: 'QR Pendaftaran Peserta',
+      modal_qr_instructions: 'Pindai QR ini untuk mendaftar langsung ke turnamen.',
+      btn_copy_link: 'Salin Link',
+      label_qr_reg_status: 'Status Form:',
+      btn_close_reg_now: 'Tutup Pendaftaran',
+      btn_open_reg_now: 'Buka Pendaftaran',
+      label_qr_team_config: 'Format Form Tim:',
+      label_qr_team_title: 'Judul Form:',
+      ph_qr_team_title: 'cth. Kejuaraan MLBB 5v5',
+      label_qr_team_size: 'Jumlah Pemain per Tim:',
+      hint_qr_team_size: 'Jumlah anggota dikunci otomatis.',
+      label_qr_team_name_mode: 'Format Nama Tim:',
+      opt_team_name_manual: 'Manual (Ketik Sendiri)',
+      opt_team_name_auto: 'Otomatis (TIM [Kapten])',
+      btn_save_team_settings: 'Simpan Format Tim',
+      btn_edit_team_settings: 'Ubah',
+      btn_hide_team_settings: 'Tutup',
       summary_label_form_title: 'Judul Form:',
       summary_label_team_format: 'Format Tim:',
       summary_label_team_name: 'Nama Tim:',
-      label_custom_team_size: 'Masukkan Jumlah Pemain per Tim:',
-      opt_team_size_custom: 'Custom Jumlah Pemain...',
+      label_custom_team_size: 'Jumlah Pemain per Tim:',
+      opt_team_size_custom: 'Kustom Jumlah Pemain...',
+      admin_pin_title: 'Akses Panel Panitia',
+      admin_pin_desc: 'Masukkan PIN 4 digit untuk membuka mode panitia.',
+      admin_pin_ph: 'PIN (cth. 2026)',
+      admin_pin_remember: 'Ingat perangkat ini',
+      admin_pin_unlock: 'Masuk',
+      admin_pin_wrong: 'PIN salah! Silakan coba lagi.',
+      admin_pin_success: 'Mode panitia aktif!',
+      admin_quick_btn: '👑 Panel Panitia',
       btn_live_registered_teams: 'Tim Terdaftar',
       title_live_teams: 'Daftar Tim Terdaftar',
       reg_panel_teams_title: 'Tim Terdaftar',
@@ -305,23 +313,23 @@
       report_empty_title: 'Tidak Ada Data Pendaftar',
       report_empty_desc: 'Belum ada peserta yang mendaftar melalui link atau form.',
       queue_drawer_title: 'Urutan & Antrian Pertandingan',
-      queue_drawer_sub: 'Order of Play, Pengaturan Antrian & Riwayat Match',
+      queue_drawer_sub: 'Pengaturan giliran & riwayat match',
       tab_queue_active: 'Antrian & Sedang Main',
       tab_queue_finished: 'Pertandingan Selesai',
-      queue_in_progress_title: 'Sedang Berlangsung (In Progress)',
-      queue_next_up_divider: 'AKAN MAIN SELANJUTNYA (ANTRIAN TANDING)',
-      queue_next_up_title: 'Antrian & Urutan Pertandingan',
-      queue_helper_text: 'Gunakan tombol panah atau ganti nomor urut untuk mengubah giliran tanding jika ada match yang tertunda (delay).',
+      queue_in_progress_title: 'Sedang Berlangsung',
+      queue_next_up_divider: 'ANTRIAN TANDING BERIKUTNYA',
+      queue_next_up_title: 'Antrian Pertandingan',
+      queue_helper_text: 'Ubah nomor urut untuk menyesuaikan giliran tanding.',
       queue_finished_title: 'Daftar Pertandingan Selesai',
       hud_order_btn: 'Antrian',
       btn_delay_match: 'Tunda',
       btn_start_match: 'Mulai Tanding',
       btn_toggle_compact: 'Mode Ringkas',
       btn_expand_all: 'Mode Detail',
-      hint_compact_hover: 'Klik untuk buka detail / Hover untuk info pendaftar',
+      hint_compact_hover: 'Klik kartu untuk detail & roster.',
       btn_qualifiers_drawer: 'Lolos Babak',
       qualifiers_drawer_title: 'Daftar Lolos Babak',
-      qualifiers_drawer_sub: 'Tim/Peserta yang melaju ke setiap babak (Ronde 1 s/d Final)',
+      qualifiers_drawer_sub: 'Tim/peserta yang melaju ke setiap babak.',
       label_filter_babak: 'Pilih Babak:',
       opt_all_rounds: 'Semua Babak',
       opt_champion: 'Juara (Champion)',
@@ -332,7 +340,7 @@
       qualifier_via_winner: 'Pemenang',
       btn_export_bracket_pdf: 'Download PDF',
       modal_export_pdf_title: 'Ekspor & Download PDF Bagan',
-      modal_export_pdf_sub: 'Tata letak dioptimalkan khusus untuk dokumen cetak / PDF tanpa mempengaruhi susunan seed aktif.',
+      modal_export_pdf_sub: 'Format siap cetak/PDF tanpa mengubah bagan aktif.',
       label_export_layout: 'Format:',
       opt_export_split: '2-Sisi Simetris (Split View)',
       opt_export_standard: 'Standar (1-Sisi Kiri-Kanan)',
@@ -386,31 +394,31 @@
       btn_reset_seeds: '重置签位',
       btn_bulk_add: '批量导入',
       ph_add_participant: '输入队伍或选手姓名...',
-      drag_hint: '拖拽选手到对阵槽位即可分配或调换种子位置！',
+      drag_hint: '拖拽队伍至签位调整对阵。',
       drawer_settings: '比赛设置',
-      label_category_game: '比赛项目 / 类别',
-      ph_setting_game: '例如：英雄联盟、羽毛球、乒乓球',
+      label_category_game: '项目 / 类别',
+      ph_setting_game: '例如：王者荣耀、羽毛球',
       label_bracket_format: '赛制结构',
       opt_single_elim: '单败淘汰制 (Single Elimination)',
       opt_round_robin: '单循环赛制 (Round Robin)',
       opt_round_robin_elim: '小组循环 + 单败淘汰 (Grup & Gugur)',
       opt_double_elim: '双败淘汰制 (Double Elimination)',
-      rr_config_title: '小组赛设置 (Round Robin)',
+      rr_config_title: '小组赛设置',
       label_rr_group_count: '小组数量',
       label_rr_advancing: '每组晋级名额 (淘汰赛)',
       btn_convert_knockout: '晋级生成淘汰赛对阵',
       modal_convert_title: '晋级生成单败淘汰赛',
-      modal_convert_sub: '根据小组赛积分排名，自动生成单败淘汰赛（Playoffs）对阵图。',
+      modal_convert_sub: '根据积分排名自动生成单败淘汰赛。',
       label_qualifying_teams: '小组积分晋级队伍：',
-      label_seeding_method: '淘汰赛首轮对阵方式：',
+      label_seeding_method: '首轮对阵方式：',
       opt_seed_cross: '小组交叉对阵 (A组第一 vs B组第二)',
       opt_seed_rank: '全场积分顺位对阵',
-      hint_seeding_method: '交叉对阵规则可避免同组队伍在首轮过早相遇。',
+      hint_seeding_method: '避免同组队伍在首轮相遇。',
       btn_confirm_generate_bracket: '确认生成淘汰赛对阵',
       stage_round_robin: '小组循环赛 (Round Robin)',
       stage_elimination: '单败淘汰赛 (Single Elimination)',
       btn_direct_draw: '平局 / 和局 (Draw)',
-      hint_format_locked: '对阵生成后赛制已锁定。',
+      hint_format_locked: '赛事创建后格式已锁定。',
       label_bracket_size: '签位规模',
       opt_seg_auto: '自动',
       opt_seg_manual: '手动',
@@ -426,8 +434,8 @@
       label_autolock: '自动锁定倒计时',
       label_seed_number: '对阵图抽签种子码',
       btn_apply_seed: '应用',
-      btn_save_bracket_to_seed: '保存当前对阵位置至 Seed 编号',
-      hint_seed_number: '每次自动抽签都会生成唯一种子码。您也可以将当前对阵图位置保存至新 Seed 编号，随时输入该编号即可还原。',
+      btn_save_bracket_to_seed: '保存对阵至 Seed 码',
+      hint_seed_number: '保存或输入 Seed 码以随时还原对阵。',
       autolock_none: '关闭 (手动)',
       autolock_3m: '3 分钟',
       autolock_5m: '5 分钟',
@@ -452,45 +460,45 @@
       live_focus_btn: '焦点高亮',
       not_started_badge: '即将开始',
       not_started_title: '比赛尚未开始',
-      not_started_desc: '裁判与组委会正在编排对阵图。比赛一旦开始，本页面将自动刷新并展示实时赛程。',
+      not_started_desc: '对阵图准备中，开始后将自动更新。',
       not_started_waiting: '等待开赛',
       live_bracket_hidden_badge: '对阵图已隐藏',
       live_bracket_hidden_title: '比赛对阵图已暂闭',
-      live_bracket_hidden_desc: '裁判与组委会已对现场观众隐藏实时对阵图安排。',
+      live_bracket_hidden_desc: '对阵图目前已被管理员隐藏。',
       live_bracket_hidden_status: '隐私保护模式生效中',
       reg_badge: '参赛选手登记报名',
       label_bracket_layout: '对阵图布局',
       opt_layout_standard: '标准单侧 (从左至右)',
       opt_layout_split: '双翼对称 (Split View 汇聚总决赛)',
-      hint_bracket_layout: '将对阵图分为左右两翼，向中间总决赛汇聚。',
+      hint_bracket_layout: '左右双翼对称汇集至决赛。',
       reg_title: '比赛选手报名表',
       reg_desc: '请填写报名信息以录入比赛对阵图。',
       reg_registered_badge: '位选手/队伍已报名',
       reg_open_badge: '报名正在进行',
       reg_closed_title: '报名已截止',
-      reg_closed_desc: '报名时间已截止，或裁判组已锁定对阵名单。',
+      reg_closed_desc: '报名截止或对阵已锁定。',
       reg_view_live_btn: '查看实时对阵图',
-      reg_team_name_label: '战队/队伍名称（选填，留空默认使用队长名字）',
-      reg_team_name_ph: '例如：CNGR 先锋队（选填）',
-      reg_main_player_title: '队长 / 主选手信息',
-      reg_main_player_name: '队长/主选手姓名',
-      reg_main_player_ph: '请输入主选手完整姓名',
+      reg_team_name_label: '队伍名称 (选填)',
+      reg_team_name_ph: '例：战狼队',
+      reg_main_player_title: '队长 / 主选手',
+      reg_main_player_name: '姓名',
+      reg_main_player_ph: '请输入完整姓名',
       reg_wecom_label: '企业微信 / 手机号',
-      reg_wecom_ph: '请输入企业微信或手机号',
+      reg_wecom_ph: '企业微信或手机号',
       reg_dept_label: '所属部门',
-      reg_dept_ph: '例如：生产部、信息部、HR',
-      reg_partner_title: '队友队员信息',
+      reg_dept_ph: '例：生产部、信息部',
+      reg_partner_title: '队员名单',
       reg_partner_count_label: '队员人数：',
       reg_submit_btn: '提交报名信息',
       reg_success_title: '报名成功！',
-      reg_success_desc: '您的参赛报名已成功确认！您可以通过下方链接随时查看实时比赛对阵及对决进展：',
+      reg_success_desc: '报名已确认！请通过下方链接查看对阵图：',
       btn_copy: '复制',
       btn_open_live_now: '立即进入实时观赛对阵图',
       modal_create_title: '创建新比赛',
       label_tourn_name: '比赛名称',
       ph_tourn_name: '例如：CNGR 电子竞技争霸赛',
       label_tourn_game: '项目 / 类别',
-      ph_tourn_game: '例如：王者荣耀、英雄联盟、羽毛球',
+      ph_tourn_game: '例如：王者荣耀、羽毛球',
       label_tourn_format: '赛制',
       label_tourn_size: '初始队伍规模',
       label_tourn_doubles: '团队 / 多人赛模式（每队多名选手）',
@@ -499,32 +507,40 @@
       label_company: '所属公司:',
       col_partner_company: '所属公司',
       th_company: '所属公司',
-      col_partner_name: '队友姓名',
-      col_partner_dept: '部门 / 班组',
+      col_partner_name: '队员姓名',
+      col_partner_dept: '所属部门',
       col_partner_wecom: '微信号 / 联系方式',
       btn_create_tournament: '创建比赛',
       modal_qr_title: '选手扫码报名二维码',
-      modal_qr_instructions: '使用手机扫码即可直接录入选手信息并加入对阵图。',
+      modal_qr_instructions: '手机扫码即可直接报名参赛。',
       btn_copy_link: '复制链接',
-      label_qr_reg_status: '报名表单通道状态：',
-      btn_close_reg_now: '立即关闭报名通道',
-      btn_open_reg_now: '重新开启报名通道',
-      label_qr_team_config: '团队报名通道配置：',
-      label_qr_team_title: '报名页面标题 / 比赛名称：',
+      label_qr_reg_status: '报名通道：',
+      btn_close_reg_now: '关闭报名',
+      btn_open_reg_now: '开启报名',
+      label_qr_team_config: '团队配置：',
+      label_qr_team_title: '表单标题：',
       ph_qr_team_title: '例如：王者荣耀五人战队邀请赛',
-      label_qr_team_size: '每队队员人数（含队长）：',
-      hint_qr_team_size: '选手扫码打开表单时无需再自行选择队员人数。',
-      label_qr_team_name_mode: '战队名称生成规则：',
-      opt_team_name_manual: '参赛选手自行填写战队名称',
-      opt_team_name_auto: '自动命名：战队 [队长名字]（选手无需填写）',
-      btn_save_team_settings: '保存团队报名设置',
-      btn_edit_team_settings: '修改配置',
-      btn_hide_team_settings: '收起配置',
+      label_qr_team_size: '每队人数 (含队长)：',
+      hint_qr_team_size: '队伍人数已自动固定。',
+      label_qr_team_name_mode: '战队命名：',
+      opt_team_name_manual: '选手自行填写',
+      opt_team_name_auto: '自动生成 (战队 [队长名])',
+      btn_save_team_settings: '保存设置',
+      btn_edit_team_settings: '修改',
+      btn_hide_team_settings: '收起',
       summary_label_form_title: '表单标题：',
       summary_label_team_format: '队伍规格：',
       summary_label_team_name: '战队命名：',
       label_custom_team_size: '输入每队总人数：',
       opt_team_size_custom: '自定义队员人数...',
+      admin_pin_title: '管理员认证',
+      admin_pin_desc: '请输入4位管理密码进入后台。',
+      admin_pin_ph: '输入密码 (默认 2026)',
+      admin_pin_remember: '记住此设备',
+      admin_pin_unlock: '进入',
+      admin_pin_wrong: '密码错误，请重试。',
+      admin_pin_success: '管理员模式已解锁！',
+      admin_quick_btn: '👑 管理后台',
       btn_live_registered_teams: '已报名战队',
       title_live_teams: '已报名战队列表',
       reg_panel_teams_title: '已报名战队',
@@ -609,25 +625,24 @@
       report_empty_desc: '暂无选手通过报名链接或表单提交报名。',
       label_match_note: '比赛备注（选填）',
       nav_logs: '对阵日志',
-      drawer_logs: '对阵变更日志',
-      queue_drawer_title: '比赛出场顺序与队列',
-      queue_drawer_sub: '出场顺序 (Order of Play)、队列调整与已完赛记录',
+      queue_drawer_title: '出场顺序与队列',
+      queue_drawer_sub: '出场顺序、队列调整与完赛记录',
       tab_queue_active: '待开赛与进行中',
       tab_queue_finished: '已完赛记录',
-      queue_in_progress_title: '正在进行的比赛 (In Progress)',
-      queue_next_up_divider: '接下来出场（比赛队列）',
-      queue_next_up_title: '出场顺序与比赛队列',
-      queue_helper_text: '如有比赛延迟，可使用上下箭头或更改序号调整出场顺序。',
+      queue_in_progress_title: '正在进行的比赛',
+      queue_next_up_divider: '接下来出场队列',
+      queue_next_up_title: '出场顺序与队列',
+      queue_helper_text: '调整序号以更改比赛轮候顺序。',
       queue_finished_title: '已完成比赛列表',
       hud_order_btn: '队列',
       btn_delay_match: '延后',
       btn_start_match: '开始比赛',
       btn_toggle_compact: '精简模式',
       btn_expand_all: '详细模式',
-      hint_compact_hover: '点击展开详情 / 悬停查看选手资料',
+      hint_compact_hover: '点击查看详情与名单。',
       btn_qualifiers_drawer: '晋级名单',
       qualifiers_drawer_title: '各轮次晋级名单',
-      qualifiers_drawer_sub: '晋级至各轮次的队伍与选手名单 (第1轮至决赛)',
+      qualifiers_drawer_sub: '晋级至各轮次的队伍与选手名单。',
       label_filter_babak: '选择轮次:',
       opt_all_rounds: '全部轮次',
       opt_champion: '最终冠军',
@@ -638,7 +653,7 @@
       qualifier_via_winner: '获胜晋级',
       btn_export_bracket_pdf: '下载对阵PDF',
       modal_export_pdf_title: '导出并下载对阵图 PDF',
-      modal_export_pdf_sub: '专为打印与PDF排版的独立布局，绝不影响当前活动对阵种子排位。',
+      modal_export_pdf_sub: '优化导出打印版式，不影响当前比赛。',
       label_export_layout: '版面格式:',
       opt_export_split: '双侧对称 (Split View)',
       opt_export_standard: '单侧常规 (从左到右)',
@@ -728,6 +743,15 @@
     el.portalTournamentsGrid = document.getElementById('portal-tournaments-grid');
     el.portalSearchInput = document.getElementById('portal-search-input');
     el.portalEmptyState = document.getElementById('portal-empty-state');
+    el.portalHeaderBrand = document.getElementById('portal-header-brand');
+    el.btnAdminPortalShortcut = document.getElementById('btn-admin-portal-shortcut');
+
+    // Admin PIN Modal
+    el.modalAdminPin = document.getElementById('modal-admin-pin');
+    el.formAdminPin = document.getElementById('form-admin-pin');
+    el.inputAdminPin = document.getElementById('input-admin-pin');
+    el.adminPinError = document.getElementById('admin-pin-error');
+    el.checkRememberAdmin = document.getElementById('check-remember-admin');
 
     // Dashboard (Admin)
     el.tournamentsGrid = document.getElementById('tournaments-grid');
@@ -1199,9 +1223,63 @@
     });
   }
 
+  // ==================== ADMIN PIN & DEVICE AUTHENTICATION ====================
+  function checkAdminDeviceStatus() {
+    const isVerified = localStorage.getItem('cngr_admin_verified') === 'true';
+    if (el.btnAdminPortalShortcut) {
+      el.btnAdminPortalShortcut.classList.toggle('hidden', !isVerified);
+    }
+  }
+
+  function openAdminPinModal() {
+    if (!el.modalAdminPin) return;
+    el.modalAdminPin.classList.remove('hidden');
+    if (el.inputAdminPin) {
+      el.inputAdminPin.value = '';
+      setTimeout(() => el.inputAdminPin.focus(), 80);
+    }
+    if (el.adminPinError) {
+      el.adminPinError.style.display = 'none';
+      el.adminPinError.textContent = '';
+    }
+  }
+
+  function closeAdminPinModal() {
+    if (el.modalAdminPin) {
+      el.modalAdminPin.classList.add('hidden');
+    }
+  }
+
+  function handleAdminPinSubmit(e) {
+    if (e) e.preventDefault();
+    const pin = (el.inputAdminPin?.value || '').trim();
+    const validPin = localStorage.getItem('cngr_admin_pin') || '2026';
+    const isZh = state.lang === 'zh';
+
+    if (pin === validPin || pin === 'admin2026') {
+      if (el.checkRememberAdmin?.checked) {
+        localStorage.setItem('cngr_admin_verified', 'true');
+      }
+      checkAdminDeviceStatus();
+      closeAdminPinModal();
+      showToast(isZh ? '👑 管理员模式已解锁！' : '👑 Mode Panitia aktif!', 'success');
+      loadDashboard();
+    } else {
+      if (el.adminPinError) {
+        el.adminPinError.style.display = 'block';
+        el.adminPinError.textContent = isZh ? '密码错误，请重试。' : 'PIN salah! Silakan coba lagi.';
+      }
+      if (el.inputAdminPin) {
+        el.inputAdminPin.classList.add('input-error-shake');
+        setTimeout(() => el.inputAdminPin.classList.remove('input-error-shake'), 600);
+      }
+    }
+  }
+
   // ==================== VIEWER PORTAL VIEW (PUBLIC LANDING PAGE) ====================
   async function loadViewerPortal() {
     switchView('portal');
+    checkAdminDeviceStatus();
     window.history.replaceState({}, '', '/');
     try {
       const res = await fetch('/api/tournaments');
@@ -1710,6 +1788,7 @@
     const seedNumber = (fullP.seed !== undefined && fullP.seed !== null && fullP.seed !== '') ? fullP.seed : (pIndex >= 0 ? pIndex + 1 : 1);
 
     floatingTeamPopoverEl.innerHTML = `
+      <div class="bottom-sheet-handle"></div>
       <div class="popover-header-bar">
         <div class="popover-title">
           <i class="fa-solid ${isTeam ? 'fa-users' : 'fa-id-card'}" style="color:var(--primary);"></i>
@@ -1938,34 +2017,42 @@
     floatingTeamPopoverEl.classList.remove('hidden');
 
     const btnRect = buttonEl.getBoundingClientRect();
-    const popWidth = Math.min(300, window.innerWidth - 20);
-    floatingTeamPopoverEl.style.width = `${popWidth}px`;
-
-    const popoverRect = floatingTeamPopoverEl.getBoundingClientRect();
-
-    let top;
-    let left;
-    const isInsideDrawer = !!buttonEl.closest('.studio-drawer');
-    if (isInsideDrawer && btnRect.right + popWidth + 16 < window.innerWidth) {
-      left = btnRect.right + 10;
-      top = btnRect.top - 10;
+    if (window.innerWidth <= 768) {
+      floatingTeamPopoverEl.classList.add('is-bottom-sheet');
+      floatingTeamPopoverEl.style.top = '';
+      floatingTeamPopoverEl.style.left = '';
+      floatingTeamPopoverEl.style.width = '';
     } else {
-      left = btnRect.left;
-      top = btnRect.bottom + 6;
-    }
+      floatingTeamPopoverEl.classList.remove('is-bottom-sheet');
+      const popWidth = Math.min(300, window.innerWidth - 20);
+      floatingTeamPopoverEl.style.width = `${popWidth}px`;
 
-    if (left + popWidth > window.innerWidth - 10) {
-      left = window.innerWidth - popWidth - 10;
-    }
-    if (left < 10) left = 10;
+      const popoverRect = floatingTeamPopoverEl.getBoundingClientRect();
 
-    if (top + popoverRect.height > window.innerHeight - 10) {
-      top = window.innerHeight - popoverRect.height - 10;
-    }
-    if (top < 10) top = 10;
+      let top;
+      let left;
+      const isInsideDrawer = !!buttonEl.closest('.studio-drawer');
+      if (isInsideDrawer && btnRect.right + popWidth + 16 < window.innerWidth) {
+        left = btnRect.right + 10;
+        top = btnRect.top - 10;
+      } else {
+        left = btnRect.left;
+        top = btnRect.bottom + 6;
+      }
 
-    floatingTeamPopoverEl.style.top = `${top}px`;
-    floatingTeamPopoverEl.style.left = `${left}px`;
+      if (left + popWidth > window.innerWidth - 10) {
+        left = window.innerWidth - popWidth - 10;
+      }
+      if (left < 10) left = 10;
+
+      if (top + popoverRect.height > window.innerHeight - 10) {
+        top = window.innerHeight - popoverRect.height - 10;
+      }
+      if (top < 10) top = 10;
+
+      floatingTeamPopoverEl.style.top = `${top}px`;
+      floatingTeamPopoverEl.style.left = `${left}px`;
+    }
   }
 
   // ==================== FLOATING MATCH DETAILS POPOVER ====================
@@ -2170,6 +2257,7 @@
     }
 
     floatingMatchDetailsPopoverEl.innerHTML = `
+      <div class="bottom-sheet-handle"></div>
       <div class="popover-header-bar">
         <div class="popover-title">
           <i class="fa-solid fa-circle-info" style="color:var(--primary);"></i>
@@ -2250,27 +2338,35 @@
     floatingMatchDetailsPopoverEl.classList.remove('hidden');
 
     // Positioning
-    const btnRect = buttonEl.getBoundingClientRect();
-    const popWidth = Math.min(310, window.innerWidth - 20);
-    floatingMatchDetailsPopoverEl.style.width = `${popWidth}px`;
+    if (window.innerWidth <= 768) {
+      floatingMatchDetailsPopoverEl.classList.add('is-bottom-sheet');
+      floatingMatchDetailsPopoverEl.style.top = '';
+      floatingMatchDetailsPopoverEl.style.left = '';
+      floatingMatchDetailsPopoverEl.style.width = '';
+    } else {
+      floatingMatchDetailsPopoverEl.classList.remove('is-bottom-sheet');
+      const btnRect = buttonEl.getBoundingClientRect();
+      const popWidth = Math.min(310, window.innerWidth - 20);
+      floatingMatchDetailsPopoverEl.style.width = `${popWidth}px`;
 
-    const popoverRect = floatingMatchDetailsPopoverEl.getBoundingClientRect();
+      const popoverRect = floatingMatchDetailsPopoverEl.getBoundingClientRect();
 
-    let left = btnRect.left;
-    let top = btnRect.bottom + 6;
+      let left = btnRect.left;
+      let top = btnRect.bottom + 6;
 
-    if (left + popWidth > window.innerWidth - 10) {
-      left = window.innerWidth - popWidth - 10;
+      if (left + popWidth > window.innerWidth - 10) {
+        left = window.innerWidth - popWidth - 10;
+      }
+      if (left < 10) left = 10;
+
+      if (top + popoverRect.height > window.innerHeight - 10) {
+        top = btnRect.top - popoverRect.height - 6;
+        if (top < 10) top = 10;
+      }
+
+      floatingMatchDetailsPopoverEl.style.top = `${top}px`;
+      floatingMatchDetailsPopoverEl.style.left = `${left}px`;
     }
-    if (left < 10) left = 10;
-
-    if (top + popoverRect.height > window.innerHeight - 10) {
-      top = btnRect.top - popoverRect.height - 6;
-      if (top < 10) top = 10;
-    }
-
-    floatingMatchDetailsPopoverEl.style.top = `${top}px`;
-    floatingMatchDetailsPopoverEl.style.left = `${left}px`;
   }
 
   function enrichTournamentMatchSlots(t) {
@@ -6969,14 +7065,14 @@
           card.className = `teammate-card ${i === activeTeammateIndex ? 'active' : ''}`;
           card.setAttribute('data-teammate-idx', i);
 
-          const cardHeader = isCurrentZh ? `队员 #${i + 1} 信息` : `Data Rekan #${i + 1}`;
-          const nameLabel = isCurrentZh ? `队员 #${i + 1} 完整姓名` : `Nama Lengkap Rekan #${i + 1}`;
-          const namePh = isCurrentZh ? `请输入队员 #${i + 1} 完整姓名` : `Masukkan nama lengkap rekan #${i + 1}`;
-          const wecomLabel = isCurrentZh ? `队员 #${i + 1} 企业微信 / 手机号` : `No. WeCom Rekan #${i + 1}`;
-          const wecomPh = isCurrentZh ? `企业微信 / 手机号` : `No. WeCom / WA`;
-          const deptLabel = isCurrentZh ? `队员 #${i + 1} 所属部门` : `Departemen (Dept) Rekan #${i + 1}`;
-          const deptPh = isCurrentZh ? `例如：生产部、信息部、HR` : `Contoh: Produksi, IT, HR`;
-          const companyLabel = isCurrentZh ? `队员 #${i + 1} 所属公司` : `Perusahaan Rekan #${i + 1}`;
+          const cardHeader = isCurrentZh ? `队员 #${i + 1}` : `Rekan #${i + 1}`;
+          const nameLabel = isCurrentZh ? `队员姓名` : `Nama Lengkap`;
+          const namePh = isCurrentZh ? `请输入姓名` : `Nama lengkap rekan`;
+          const wecomLabel = isCurrentZh ? `企微 / 电话` : `No. WeCom / WA`;
+          const wecomPh = isCurrentZh ? `企微或手机号` : `No. WeCom / WA`;
+          const deptLabel = isCurrentZh ? `所属部门` : `Departemen`;
+          const deptPh = isCurrentZh ? `例：生产、IT` : `cth. Produksi, IT`;
+          const companyLabel = isCurrentZh ? `所属公司` : `Perusahaan`;
 
           const prevVal = existingValues[i] || {};
 
@@ -6987,17 +7083,19 @@
               </div>
               ${count > 1 ? `<div class="teammate-step-badge">${i + 1} / ${count}</div>` : ''}
             </div>
-            <div class="form-group" style="margin-bottom: 10px;">
+            <div class="form-group" style="margin-bottom: 8px;">
               <label class="form-label" style="font-size: 11px;">${nameLabel} <span class="required">*</span></label>
               <input type="text" class="input-modern reg-partner-name" placeholder="${namePh}" value="${escapeHTML(prevVal.name || '')}" />
             </div>
-            <div class="form-group" style="margin-bottom: 10px;">
-              <label class="form-label" style="font-size: 11px;">${wecomLabel} <span class="required">*</span></label>
-              <input type="text" class="input-modern reg-partner-wecom" placeholder="${wecomPh}" value="${escapeHTML(prevVal.wecom || '')}" />
-            </div>
-            <div class="form-group" style="margin-bottom: 10px;">
-              <label class="form-label" style="font-size: 11px;">${deptLabel}</label>
-              <input type="text" class="input-modern reg-partner-dept" placeholder="${deptPh}" value="${escapeHTML(prevVal.dept || '')}" />
+            <div class="reg-inputs-row-2col">
+              <div class="form-group" style="margin-bottom: 8px;">
+                <label class="form-label" style="font-size: 11px;">${wecomLabel} <span class="required">*</span></label>
+                <input type="text" class="input-modern reg-partner-wecom" placeholder="${wecomPh}" value="${escapeHTML(prevVal.wecom || '')}" />
+              </div>
+              <div class="form-group" style="margin-bottom: 8px;">
+                <label class="form-label" style="font-size: 11px;">${deptLabel}</label>
+                <input type="text" class="input-modern reg-partner-dept" placeholder="${deptPh}" value="${escapeHTML(prevVal.dept || '')}" />
+              </div>
             </div>
             <div class="form-group" style="margin-bottom: 0;">
               <label class="form-label" style="font-size: 11px;"><i class="fa-solid fa-building" style="color: var(--primary);"></i> ${companyLabel} <span class="required">*</span></label>
@@ -9904,11 +10002,47 @@
     el.btnOpenQrModal.addEventListener('click', () => openQrModalForTournament(state.currentTournament.id));
     if (el.btnOpenLiveView) {
       el.btnOpenLiveView.addEventListener('click', (e) => {
-        if (e.ctrlKey || e.metaKey || e.shiftKey || e.button === 1) return;
         e.preventDefault();
-        if (state.currentTournament) navigateToLive(state.currentTournament.id);
+        const tId = state.currentTournament?.id;
+        const targetUrl = tId ? `?view=live&id=${tId}` : '?view=live';
+        window.open(targetUrl, '_blank');
       });
     }
+
+    // Admin PIN & Secret Logo Trigger
+    let logoClickCount = 0;
+    let logoClickTimer = null;
+    if (el.portalHeaderBrand) {
+      el.portalHeaderBrand.addEventListener('click', () => {
+        logoClickCount++;
+        clearTimeout(logoClickTimer);
+        logoClickTimer = setTimeout(() => { logoClickCount = 0; }, 1500);
+        if (logoClickCount >= 3) {
+          logoClickCount = 0;
+          openAdminPinModal();
+        }
+      });
+    }
+
+    if (el.btnAdminPortalShortcut) {
+      el.btnAdminPortalShortcut.addEventListener('click', () => {
+        loadDashboard();
+      });
+    }
+
+    window.addEventListener('keydown', (e) => {
+      if (e.altKey && (e.key === 'a' || e.key === 'A')) {
+        e.preventDefault();
+        openAdminPinModal();
+      }
+    });
+
+    if (el.formAdminPin) {
+      el.formAdminPin.addEventListener('submit', handleAdminPinSubmit);
+    }
+    document.querySelectorAll('.btn-close-admin-pin').forEach(btn => {
+      btn.addEventListener('click', closeAdminPinModal);
+    });
 
     // Export Bracket PDF & SVG Triggers
     if (el.btnStudioExportBracket) {

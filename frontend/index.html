@@ -22,7 +22,7 @@
   <!-- ==================== VIEW 0: PUBLIC VIEWER PORTAL (LANDING PAGE) ==================== -->
   <section id="portal-view" class="app-view">
     <header class="app-header portal-header">
-      <div class="header-brand">
+      <div class="header-brand" id="portal-header-brand" style="cursor: pointer; user-select: none;" title="CNGR Tournament Hub (Klik 3x untuk Akses Panitia)">
         <div class="brand-icon" style="background: linear-gradient(135deg, #00d2ff, #0066ff);">
           <i class="fa-solid fa-trophy"></i>
         </div>
@@ -33,6 +33,10 @@
       </div>
 
       <div class="header-actions">
+        <button type="button" id="btn-admin-portal-shortcut" class="btn btn-outline btn-sm hidden" style="border-color: rgba(251,191,36,0.6); color: #fbbf24; font-weight: 700; gap: 6px; box-shadow: 0 0 10px rgba(251,191,36,0.2);">
+          <i class="fa-solid fa-crown" style="color: #fbbf24;"></i>
+          <span data-i18n="admin_quick_btn">👑 Panel Panitia</span>
+        </button>
         <button type="button" class="btn btn-ghost btn-sm btn-lang-toggle" title="Switch Language / 切换语言">
           <i class="fa-solid fa-globe"></i>
           <span class="lang-toggle-text">🇨🇳 中文</span>
@@ -196,7 +200,7 @@
         </button>
 
         <!-- Public Live View -->
-        <a href="?view=live" id="btn-open-live-view" class="btn btn-outline btn-sm" title="Open public live spectator bracket">
+        <a href="?view=live" id="btn-open-live-view" target="_blank" rel="noopener noreferrer" class="btn btn-outline btn-sm" title="Buka live spectator di tab baru (Open in New Tab)">
           <i class="fa-solid fa-arrow-up-right-from-square"></i>
           <span data-i18n="studio_live_btn">Live Spectator</span>
           <span id="studio-live-hidden-indicator" class="live-hidden-indicator hidden" title="Bagan sedang disembunyikan di Live Spectator"><i class="fa-solid fa-eye-slash"></i> <span data-i18n="badge_hidden">Hidden</span></span>
@@ -941,27 +945,29 @@
 
           <form id="public-register-form" class="register-card-body" novalidate>
             <div class="form-group hidden" id="reg-team-name-group">
-              <label for="reg-team-name" data-i18n="reg_team_name_label">Nama Tim (Opsional - jika kosong otomatis TIM [Nama Depan])</label>
-              <input type="text" id="reg-team-name" data-i18n-ph="reg_team_name_ph" placeholder="Contoh: Garuda Team (Opsional)">
+              <label for="reg-team-name" data-i18n="reg_team_name_label">Nama Tim (Opsional)</label>
+              <input type="text" id="reg-team-name" data-i18n-ph="reg_team_name_ph" placeholder="cth. Garuda Team">
             </div>
 
             <div class="form-section-title" data-i18n="reg_main_player_title">
-              <i class="fa-solid fa-user"></i> Data Pemain Utama
+              <i class="fa-solid fa-user"></i> Data Pemain / Kapten
             </div>
 
             <div class="form-group">
-              <label for="reg-player-name"><span data-i18n="reg_main_player_name">Nama Lengkap Pemain Utama</span> <span class="required">*</span></label>
-              <input type="text" id="reg-player-name" data-i18n-ph="reg_main_player_ph" placeholder="Masukkan nama lengkap pemain utama" required autocomplete="name">
+              <label for="reg-player-name"><span data-i18n="reg_main_player_name">Nama Pemain / Kapten</span> <span class="required">*</span></label>
+              <input type="text" id="reg-player-name" data-i18n-ph="reg_main_player_ph" placeholder="Nama lengkap" required autocomplete="name">
             </div>
 
-            <div class="form-group">
-              <label for="reg-player-wecom"><span data-i18n="reg_wecom_label">No. Wecom</span> <span class="required">*</span></label>
-              <input type="text" id="reg-player-wecom" data-i18n-ph="reg_wecom_ph" placeholder="No. Wecom / WA" required>
-            </div>
+            <div class="reg-inputs-row-2col">
+              <div class="form-group">
+                <label for="reg-player-wecom"><span data-i18n="reg_wecom_label">No. WeCom / WA</span> <span class="required">*</span></label>
+                <input type="text" id="reg-player-wecom" data-i18n-ph="reg_wecom_ph" placeholder="No. WeCom / WA" required>
+              </div>
 
-            <div class="form-group">
-              <label for="reg-player-dept"><span data-i18n="reg_dept_label">Departemen (Dept)</span> <span class="required">*</span></label>
-              <input type="text" id="reg-player-dept" data-i18n-ph="reg_dept_ph" placeholder="Contoh: Produksi, IT, HR" required>
+              <div class="form-group">
+                <label for="reg-player-dept"><span data-i18n="reg_dept_label">Departemen</span> <span class="required">*</span></label>
+                <input type="text" id="reg-player-dept" data-i18n-ph="reg_dept_ph" placeholder="cth. Produksi, IT" required>
+              </div>
             </div>
 
             <div class="form-group">
@@ -1890,10 +1896,38 @@
     </div>
   </div>
 
+  <!-- Modal: Admin PIN Unlock -->
+  <div id="modal-admin-pin" class="modal-overlay hidden" role="dialog" aria-modal="true">
+    <div class="modal-container" style="max-width: 360px; text-align: center; border: 1px solid rgba(0, 210, 255, 0.4); box-shadow: 0 16px 48px rgba(0,0,0,0.8);">
+      <div style="width: 48px; height: 48px; border-radius: 50%; background: rgba(0,210,255,0.12); border: 1px solid rgba(0,210,255,0.3); display: flex; align-items: center; justify-content: center; margin: 10px auto 12px; color: var(--primary); font-size: 20px;">
+        <i class="fa-solid fa-shield-halved"></i>
+      </div>
+      <h3 style="margin: 0 0 6px 0; font-size: 1.15rem; color: var(--text-primary);" data-i18n="admin_pin_title">Akses Panel Panitia</h3>
+      <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0 0 18px 0;" data-i18n="admin_pin_desc">Masukkan PIN 4 digit untuk membuka mode panitia.</p>
+      
+      <form id="form-admin-pin" style="display: flex; flex-direction: column; gap: 14px;" novalidate>
+        <div>
+          <input type="password" id="input-admin-pin" class="input-modern" maxlength="10" placeholder="••••" autocomplete="current-password" style="text-align: center; font-size: 1.6rem; letter-spacing: 8px; font-weight: 700; width: 100%; box-sizing: border-box;">
+          <div id="admin-pin-error" style="color: #ef4444; font-size: 0.8rem; margin-top: 6px; min-height: 16px; display: none;"></div>
+        </div>
+        
+        <label style="display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 0.85rem; color: var(--text-secondary); cursor: pointer; user-select: none;">
+          <input type="checkbox" id="check-remember-admin" checked style="accent-color: var(--primary); width: 15px; height: 15px;">
+          <span data-i18n="admin_pin_remember">Ingat perangkat ini</span>
+        </label>
+        
+        <div style="display: flex; gap: 8px; margin-top: 4px;">
+          <button type="button" class="btn btn-secondary btn-close-admin-pin" style="flex: 1;" data-i18n="btn_cancel">Batal</button>
+          <button type="submit" class="btn btn-primary" style="flex: 1.4; font-weight: 700;" data-i18n="admin_pin_unlock">Masuk</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <!-- Toast Notification Container -->
   <div id="toast-container" class="toast-container"></div>
 
   <!-- Application Logic -->
-  <script src="app.js?v=4.3"></script>
+  <script src="app.js?v=5.0"></script>
 </body>
 </html>

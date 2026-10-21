@@ -8355,6 +8355,160 @@ button.team-partner-tag.team-partner-btn.active {
   }
 }
 
+/* ==================== 1. MATCH CARD DOCKED SIDE-FLANK ICON (DESKTOP) ==================== */
+@media (min-width: 769px) {
+  .match-node {
+    overflow: visible !important;
+  }
+
+  .match-meta-strip .btn-match-card-info {
+    position: absolute;
+    left: -20px;
+    top: 50%;
+    transform: translateY(-50%) translateX(6px);
+    width: 20px;
+    height: 38px;
+    border-radius: 6px 0 0 6px;
+    background: rgba(13, 17, 28, 0.95);
+    border: 1px solid rgba(0, 210, 255, 0.5);
+    border-right: none;
+    color: var(--primary, #00d2ff);
+    box-shadow: -4px 0 12px rgba(0, 0, 0, 0.5), -2px 0 8px rgba(0, 210, 255, 0.25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    z-index: 100;
+  }
+
+  /* When card is hovered or button is active, slide out from the side smoothly */
+  .match-node:hover .btn-match-card-info,
+  .btn-match-card-info.active {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(-50%) translateX(0);
+  }
+
+  .btn-match-card-info:hover {
+    background: rgba(0, 210, 255, 0.25);
+    color: #ffffff;
+    box-shadow: -4px 0 16px rgba(0, 210, 255, 0.6);
+  }
+}
+
+@media (max-width: 768px) {
+  .btn-match-card-info {
+    position: static;
+    opacity: 0.95;
+    pointer-events: auto;
+  }
+}
+
+/* ==================== 2. MOBILE SLIDE-UP BOTTOM SHEET ==================== */
+.bottom-sheet-handle {
+  display: none;
+  width: 38px;
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.25);
+  margin: 0 auto 8px auto;
+  flex-shrink: 0;
+}
+
+@media (max-width: 768px) {
+  .bottom-sheet-handle {
+    display: block;
+  }
+
+  #floating-match-details-popover,
+  #floating-team-popover {
+    position: fixed !important;
+    top: auto !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100vw !important;
+    max-width: 100vw !important;
+    max-height: 68vh !important;
+    border-radius: 20px 20px 0 0 !important;
+    border-bottom: none !important;
+    border-left: none !important;
+    border-right: none !important;
+    border-top: 1px solid rgba(0, 210, 255, 0.5) !important;
+    background: rgba(13, 17, 28, 0.98) !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+    box-shadow: 0 -12px 35px rgba(0, 0, 0, 0.85), 0 -2px 10px rgba(0, 210, 255, 0.2) !important;
+    padding: 10px 14px 18px !important;
+    box-sizing: border-box !important;
+    animation: slideUpBottomSheet 0.28s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    z-index: 100000 !important;
+  }
+
+  .modal-overlay {
+    align-items: flex-end !important;
+    padding: 0 !important;
+  }
+
+  .modal-container {
+    width: 100vw !important;
+    max-width: 100vw !important;
+    max-height: 75vh !important;
+    border-radius: 20px 20px 0 0 !important;
+    margin: 0 !important;
+    border-bottom: none !important;
+    border-left: none !important;
+    border-right: none !important;
+    border-top: 1px solid rgba(0, 210, 255, 0.4) !important;
+    animation: slideUpBottomSheet 0.28s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  }
+}
+
+@keyframes slideUpBottomSheet {
+  from {
+    transform: translateY(100%);
+    opacity: 0.5;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* ==================== 3. 2-COLUMN REGISTRATION INPUTS & SPACING ==================== */
+.reg-inputs-row-2col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  width: 100%;
+}
+
+@media (max-width: 480px) {
+  .register-card-header {
+    padding: 1.25rem 1rem 1rem !important;
+  }
+
+  .register-card-body {
+    padding: 1rem 1rem 1.5rem !important;
+  }
+}
+
+/* ==================== 4. ADMIN PIN ANIMATIONS ==================== */
+@keyframes inputShake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-8px); }
+  40%, 80% { transform: translateX(8px); }
+}
+
+.input-error-shake {
+  animation: inputShake 0.4s ease;
+  border-color: #ef4444 !important;
+  box-shadow: 0 0 10px rgba(239, 68, 68, 0.5) !important;
+}
+
 
 
 
