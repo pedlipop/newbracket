@@ -435,7 +435,8 @@
                 <span data-i18n="label_seed_number">Kode Seed Bagan</span>
               </label>
               <div class="seed-controls-row" style="display: flex; gap: 6px; align-items: center; width: 100%;">
-                <input type="number" id="setting-seed-number" class="input-modern" min="1" max="999999" step="1" placeholder="Belum ada (Auto-Seed dulu)" style="flex: 1 1 0; min-width: 0;">
+                <input type="number" id="setting-seed-number" list="saved-seeds-list" class="input-modern" min="1" max="999999" step="1" placeholder="Belum ada (Auto-Seed dulu)" style="flex: 1 1 0; min-width: 0;">
+                <datalist id="saved-seeds-list"></datalist>
                 <button type="button" id="btn-apply-seed" class="btn btn-primary btn-sm" title="Terapkan kode seed ke bagan" style="flex-shrink: 0; white-space: nowrap; padding: 6px 10px;">
                   <i class="fa-solid fa-check"></i> <span data-i18n="btn_apply_seed">Terapkan</span>
                 </button>
@@ -443,7 +444,13 @@
                   <i class="fa-regular fa-copy"></i>
                 </button>
               </div>
-              <small class="form-hint" data-i18n="hint_seed_number">Setiap Auto-Seed menghasilkan kode unik. Masukkan kode lama lalu klik Terapkan untuk mengembalikan susunan bagan tersebut.</small>
+              <div style="margin-top: 6px;">
+                <button type="button" id="btn-save-bracket-to-seed" class="btn btn-secondary btn-sm" style="width: 100%; justify-content: center; gap: 6px; font-weight: 600;" title="Simpan susunan posisi bagan saat ini ke dalam Kode Seed acak">
+                  <i class="fa-solid fa-bookmark" style="color: var(--primary);"></i>
+                  <span data-i18n="btn_save_bracket_to_seed">Simpan Posisi Bagan ke Kode Seed</span>
+                </button>
+              </div>
+              <small class="form-hint" data-i18n="hint_seed_number">Setiap Auto-Seed menghasilkan kode unik. Anda juga dapat menyimpan posisi bagan saat ini ke kode seed baru, lalu memasukkan kode tersebut kapan saja untuk mengembalikannya.</small>
             </div>
 
             <!-- 7. Danger Zone (Reset) -->
@@ -1887,6 +1894,6 @@
   <div id="toast-container" class="toast-container"></div>
 
   <!-- Application Logic -->
-  <script src="app.js?v=4.2"></script>
+  <script src="app.js?v=4.3"></script>
 </body>
 </html>

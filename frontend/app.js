@@ -119,7 +119,8 @@
       label_autolock: 'Auto-Lock Timer',
       label_seed_number: 'Kode Seed Bagan',
       btn_apply_seed: 'Terapkan',
-      hint_seed_number: 'Setiap Auto-Seed menghasilkan kode unik. Masukkan kode lama lalu klik Terapkan untuk mengembalikan susunan bagan tersebut.',
+      btn_save_bracket_to_seed: 'Simpan Posisi Bagan ke Kode Seed',
+      hint_seed_number: 'Setiap Auto-Seed menghasilkan kode unik. Anda juga dapat menyimpan posisi bagan saat ini ke kode seed baru, lalu memasukkan kode tersebut kapan saja untuk mengembalikannya.',
       autolock_none: 'Mati (Manual)',
       autolock_3m: '3 Menit',
       autolock_5m: '5 Menit',
@@ -425,7 +426,8 @@
       label_autolock: '自动锁定倒计时',
       label_seed_number: '对阵图抽签种子码',
       btn_apply_seed: '应用',
-      hint_seed_number: '每次自动抽签都会生成唯一种子码。输入先前的代码并点击“应用”即可还原对应对阵图。',
+      btn_save_bracket_to_seed: '保存当前对阵位置至 Seed 编号',
+      hint_seed_number: '每次自动抽签都会生成唯一种子码。您也可以将当前对阵图位置保存至新 Seed 编号，随时输入该编号即可还原。',
       autolock_none: '关闭 (手动)',
       autolock_3m: '3 分钟',
       autolock_5m: '5 分钟',
@@ -764,8 +766,10 @@
     el.settingBronzeMatch = document.getElementById('setting-bronze-match');
     el.settingHideLiveBracket = document.getElementById('setting-hide-live-bracket');
     el.settingSeedNumber = document.getElementById('setting-seed-number');
+    el.savedSeedsList = document.getElementById('saved-seeds-list');
     el.btnApplySeed = document.getElementById('btn-apply-seed');
     el.btnCopyCurrentSeed = document.getElementById('btn-copy-current-seed');
+    el.btnSaveBracketToSeed = document.getElementById('btn-save-bracket-to-seed');
     el.settingBracketLayout = document.getElementById('setting-bracket-layout');
     el.settingAutoBracket = document.getElementById('setting-auto-bracket');
     el.btnSegAuto = document.getElementById('btn-seg-auto');
@@ -2491,8 +2495,10 @@
   /**
    * BracketHQ Asymmetric Non-Power-of-2 Generator:
    * Generates play-in matches on the left for unseeded entries,
-   * while top seeds receiving BYEs enter directly in Round 2.
    */
+  // Helper to create empty bracket slot
+  const makeEmpty = (s = null) => ({ name: '', id: null, isPlaceholder: true, isUnseeded: true, seed: s });
+
   function generateBracketTree(participants, currentRounds = null, isAutoSeeding = false, targetCapacity = undefined) {
     const validParticipantIds = new Set((participants || []).filter(p => p && p.id).map(p => p.id));
     const P = (participants || []).length;
@@ -5787,6 +5793,17 @@
     if (el.settingSeedNumber && document.activeElement !== el.settingSeedNumber) {
       el.settingSeedNumber.value = code || '';
     }
+    if (el.savedSeedsList) {
+      el.savedSeedsList.innerHTML = '';
+      const snapshots = t.settings?.seedSnapshots || {};
+      const codes = Object.keys(snapshots).sort((a, b) => Number(b) - Number(a));
+      codes.forEach(c => {
+        const opt = document.createElement('option');
+        opt.value = c;
+        opt.label = `Seed #${c}`;
+        el.savedSeedsList.appendChild(opt);
+      });
+    }
   }
 
   // Validates the bracket can be (re)drawn; returns true if OK
@@ -5910,6 +5927,64 @@
     if (!canRunSeeding(t)) return;
 
     performSeeding(true, code);
+  }
+
+  // Save current bracket layout positions directly into a seed number (random or user-specified)
+  function handleSaveCurrentBracketToSeed() {
+    const t = state.currentTournament;
+    if (!t) return;
+    const isZh = state.lang === 'zh';
+
+    if (!t.rounds || t.rounds.length === 0) {
+      showToast(isZh ? '对阵图尚未生成！' : 'Bagan pertandingan belum dibuat.', 'warning');
+      return;
+    }
+
+    // Count currently placed participants in the bracket
+    let placedCount = 0;
+    (t.rounds || []).forEach(r => {
+      (r.matches || []).forEach(m => {
+        if (m.p1 && !m.p1.isPlaceholder && !m.p1.isUnseeded && m.p1.name) placedCount++;
+        if (m.p2 && !m.p2.isPlaceholder && !m.p2.isUnseeded && m.p2.name) placedCount++;
+      });
+    });
+
+    if (placedCount === 0) {
+      showToast(isZh ? '对阵图目前为空，无法保存位置！' : 'Bagan masih kosong! Tempatkan tim terlebih dahulu sebelum menyimpan ke kode seed.', 'warning');
+      return;
+    }
+
+    // Determine seed code: use custom input if valid, otherwise generate fresh random 6-digit number
+    let code = normalizeSeedNumber(el.settingSeedNumber?.value);
+    if (!code || (t.settings?.lastSeedUsed && code === t.settings.lastSeedUsed)) {
+      code = generateSeedNumber();
+      while (t.settings?.seedSnapshots && t.settings.seedSnapshots[code]) {
+        code = generateSeedNumber();
+      }
+    }
+
+    const snapshot = captureCurrentBracketLeafSnapshot(t);
+    t.settings = t.settings || {};
+    t.settings.seedSnapshots = t.settings.seedSnapshots || {};
+    t.settings.seedSnapshots[code] = snapshot;
+    t.settings.lastSeedUsed = code;
+
+    // Keep at most 60 recent snapshots to avoid memory bloat
+    const snapKeys = Object.keys(t.settings.seedSnapshots);
+    if (snapKeys.length > 60) {
+      delete t.settings.seedSnapshots[snapKeys[0]];
+    }
+
+    addTournamentLog(t, 'slot', `💾 Susunan posisi bagan berhasil disimpan ke Kode Seed #${code} (${placedCount} tim).`);
+    saveTournamentState(true);
+    syncSeedNumberUI(t);
+
+    showToast(
+      isZh
+        ? `💾 当前对阵图位置已成功保存至 Seed 编号 #${code}！`
+        : `💾 Susunan posisi bagan berhasil disimpan ke Kode Seed #${code}!`,
+      'success'
+    );
   }
 
   function handleAutoSeed() {
@@ -10018,6 +10093,9 @@
         navigator.clipboard?.writeText(String(last));
         showToast(`📋 Kode seed #${last} disalin!`, 'success');
       });
+    }
+    if (el.btnSaveBracketToSeed) {
+      el.btnSaveBracketToSeed.addEventListener('click', handleSaveCurrentBracketToSeed);
     }
 
     if (el.settingHideLiveBracket) {
